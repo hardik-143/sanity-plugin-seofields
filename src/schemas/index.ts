@@ -24,7 +24,7 @@ export default defineType({
       readOnly: true,
     }),
     defineField({
-      name: 'metaTitle',
+      name: 'title',
       title: 'Meta Title',
       type: 'string',
       description:
@@ -35,7 +35,7 @@ export default defineType({
       // validation: (Rule) => Rule.max(60).warning('Meta title should be under 60 characters.'),
     }),
     defineField({
-      name: 'metaDescription',
+      name: 'description',
       title: 'Meta Description',
       type: 'text',
       rows: 3,

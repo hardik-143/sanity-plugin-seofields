@@ -24,8 +24,8 @@ export type SeoFields = {
   _type: 'seoFields'
   robots?: Robots
   preview?: string
-  metaTitle?: string
-  metaDescription?: string
+  title?: string
+  description?: string
   metaImage?: SanityImage
   metaAttributes?: Array<MetaAttribute>
   keywords?: Array<string>
@@ -37,19 +37,19 @@ export type SeoFields = {
 
 #### Properties
 
-| Property          | Type                   | Description                           | Required |
-| ----------------- | ---------------------- | ------------------------------------- | -------- |
-| `_type`           | `'seoFields'`          | Sanity document type identifier       | ✅       |
-| `robots`          | `Robots`               | Search engine crawling directives     | ❌       |
-| `preview`         | `string`               | SEO preview (read-only)               | ❌       |
-| `metaTitle`       | `string`               | HTML meta title (max 70 chars)        | ❌       |
-| `metaDescription` | `string`               | HTML meta description (max 160 chars) | ❌       |
-| `metaImage`       | `SanityImage`          | Default social sharing image          | ❌       |
-| `metaAttributes`  | `Array<MetaAttribute>` | Custom meta attributes                | ❌       |
-| `keywords`        | `Array<string>`        | SEO keywords                          | ❌       |
-| `canonicalUrl`    | `string`               | Canonical URL for duplicate content   | ❌       |
-| `openGraph`       | `OpenGraph`            | Open Graph social media settings      | ❌       |
-| `twitter`         | `Twitter`              | Twitter Card settings                 | ❌       |
+| Property         | Type                   | Description                           | Required |
+| ---------------- | ---------------------- | ------------------------------------- | -------- |
+| `_type`          | `'seoFields'`          | Sanity document type identifier       | ✅       |
+| `robots`         | `Robots`               | Search engine crawling directives     | ❌       |
+| `preview`        | `string`               | SEO preview (read-only)               | ❌       |
+| `title`          | `string`               | HTML meta title (max 70 chars)        | ❌       |
+| `description`    | `string`               | HTML meta description (max 160 chars) | ❌       |
+| `metaImage`      | `SanityImage`          | Default social sharing image          | ❌       |
+| `metaAttributes` | `Array<MetaAttribute>` | Custom meta attributes                | ❌       |
+| `keywords`       | `Array<string>`        | SEO keywords                          | ❌       |
+| `canonicalUrl`   | `string`               | Canonical URL for duplicate content   | ❌       |
+| `openGraph`      | `OpenGraph`            | Open Graph social media settings      | ❌       |
+| `twitter`        | `Twitter`              | Twitter Card settings                 | ❌       |
 
 ---
 
@@ -335,9 +335,8 @@ import type {SeoFields} from 'sanity-plugin-seofields'
 
 const pageSeo: SeoFields = {
   _type: 'seoFields',
-  metaTitle: 'My Awesome Page - Company Name',
-  metaDescription:
-    'Discover amazing content on our page with detailed information about our services.',
+  title: 'My Awesome Page - Company Name',
+  description: 'Discover amazing content on our page with detailed information about our services.',
   keywords: ['awesome', 'page', 'services', 'company'],
   canonicalUrl: 'https://example.com/my-page',
   robots: {
@@ -409,8 +408,8 @@ export function PageHead({seo}: PageProps) {
   return (
     <Head>
       {/* Basic Meta Tags */}
-      <title>{seo?.metaTitle || 'Default Title'}</title>
-      <meta name="description" content={seo?.metaDescription || 'Default description'} />
+      <title>{seo?.title || 'Default Title'}</title>
+      <meta name="description" content={seo?.description || 'Default description'} />
 
       {/* Keywords */}
       {seo?.keywords && (
@@ -495,7 +494,7 @@ export function isMetaAttribute(obj: any): obj is MetaAttribute {
 // Usage example
 if (isSeoFields(data)) {
   // TypeScript now knows data is SeoFields
-  console.log(data.metaTitle)
+  console.log(data.title)
 }
 ```
 
@@ -544,7 +543,7 @@ if (isSeoFields(data)) {
 
 ```typescript
 // ✅ Good: Type-safe access
-const title: string = seo?.metaTitle ?? 'Default Title'
+const title: string = seo?.title ?? 'Default Title'
 
 // ✅ Good: Optional chaining with fallbacks
 const ogImage = seo?.openGraph?.image?.asset?.url ?? '/default-og-image.jpg'
@@ -555,7 +554,7 @@ if (isOpenGraph(seo?.openGraph)) {
 }
 
 // ❌ Avoid: Direct access without null checks
-const title = seo.metaTitle // Could throw error
+const title = seo.title // Could throw error
 
 // ❌ Avoid: Type assertions without guards
 const og = seo.openGraph as OpenGraph // Unsafe

@@ -195,8 +195,8 @@ interface PageDocument {
 // Type-safe field access
 const seoData: SeoFields = {
   _type: 'seoFields',
-  metaTitle: 'My Page Title',
-  metaDescription: 'A great page description',
+  title: 'My Page Title',
+  description: 'A great page description',
   openGraph: {
     _type: 'openGraph',
     title: 'Social Media Title',
@@ -274,9 +274,9 @@ export function SEOHead({seo}: SEOProps) {
 
   return (
     <Head>
-      {seo.metaTitle && <title>{seo.metaTitle}</title>}
-      {seo.metaDescription && (
-        <meta name="description" content={seo.metaDescription} />
+      {seo.title && <title>{seo.title}</title>}
+      {seo.description && (
+        <meta name="description" content={seo.description} />
       )}
 
       {/* Open Graph */}
@@ -316,8 +316,8 @@ interface SEOProps {
 export function SEO({seo}: SEOProps) {
   return (
     <Helmet>
-      <title>{seo?.metaTitle}</title>
-      <meta name="description" content={seo?.metaDescription} />
+      <title>{seo?.title}</title>
+      <meta name="description" content={seo?.description} />
 
       {/* Keywords */}
       {seo?.keywords && (

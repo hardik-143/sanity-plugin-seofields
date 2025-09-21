@@ -7,14 +7,14 @@ const MetaDescription = (props: StringInputProps) => {
   const client = useClient({apiVersion: '2024-05-05'})
   const {value, onChange, renderDefault, path} = props
 
-  const parent = useFormValue(['seoFields']) as {keywords?: string[]}
+  const parent = useFormValue([path[0]]) as {keywords?: string[]}
   const keywords = parent?.keywords || []
 
   // Fetch default meta description from home page if empty
   useEffect(() => {
     if (value) return
     const fetchData = async () => {
-      const data = await client.fetch("*[_type=='homePage'][0]{'description':seo.metaDescription}")
+      const data = await client.fetch("*[_type=='homePage'][0]{'description':seo.description}")
       if (data?.description && !value) onChange(set(data.description))
     }
     fetchData()

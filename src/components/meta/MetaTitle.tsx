@@ -7,14 +7,14 @@ const MetaTitle = (props: StringInputProps) => {
   const client = useClient({apiVersion: '2024-05-05'})
   const {value, onChange, renderDefault, path} = props
 
-  const parent = useFormValue(['seoFields']) as {keywords?: string[]}
+  const parent = useFormValue([path[0]]) as {keywords?: string[]}
   const keywords = parent?.keywords || []
 
-  // Fetch home page metaTitle if empty
+  // Fetch home page title if empty
   useEffect(() => {
     if (value) return
     const fetchData = async () => {
-      const data = await client.fetch("*[_type=='homePage'][0]{'title':seo.metaTitle}")
+      const data = await client.fetch("*[_type=='homePage'][0]{'title':seo.title}")
       if (data?.title && !value) onChange(set(data.title))
     }
     fetchData()

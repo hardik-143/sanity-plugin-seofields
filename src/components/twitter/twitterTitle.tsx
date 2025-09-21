@@ -7,7 +7,7 @@ const TwitterTitle = (props: StringInputProps) => {
   const {value, renderDefault, path} = props
 
   // Access parent object to get keywords
-  const parent = useFormValue(['seoFields']) as {keywords?: string[]}
+  const parent = useFormValue([path[0]]) as {keywords?: string[]}
   const keywords = parent?.keywords || []
 
   const feedbackItems = useMemo(

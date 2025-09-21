@@ -181,14 +181,14 @@
           },
           "optional": true
         },
-        "metaTitle": {
+        "title": {
           "type": "objectAttribute",
           "value": {
             "type": "string"
           },
           "optional": true
         },
-        "metaDescription": {
+        "description": {
           "type": "objectAttribute",
           "value": {
             "type": "string"

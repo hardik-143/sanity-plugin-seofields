@@ -11,19 +11,20 @@ interface SeoPreviewProps {
 
 const SeoPreview = (props: StringInputProps) => {
   const {path} = props
-  const parent = useFormValue(['seoFields']) || {
-    metaTitle: '',
-    metaDescription: '',
+  const parent = useFormValue([path[0]]) || {
+    title: '',
+    description: '',
     canonicalUrl: '',
   }
+  console.log('SEO Preview Parent:', parent)
 
   const {
-    metaTitle: title,
-    metaDescription: description,
+    title: title,
+    description: description,
     canonicalUrl: url,
   } = parent as {
-    metaTitle?: string
-    metaDescription?: string
+    title?: string
+    description?: string
     canonicalUrl?: string
   }
 

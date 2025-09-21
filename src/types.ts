@@ -68,8 +68,8 @@ export interface SeoFields {
   _type: 'seoFields'
   robots?: RobotsSettings
   preview?: string
-  metaTitle?: string
-  metaDescription?: string
+  title?: string
+  description?: string
   metaImage?: SanityImage
   keywords?: string[]
   canonicalUrl?: string
@@ -96,11 +96,11 @@ export const isMetaAttribute = (obj: any): obj is MetaAttribute => {
 
 // Utility types for form validation
 export interface SeoValidationRules {
-  metaTitle: {
+  title: {
     maxLength: number
     warningLength: number
   }
-  metaDescription: {
+  description: {
     maxLength: number
     warningLength: number
   }
@@ -119,11 +119,11 @@ export interface SeoValidationRules {
 }
 
 export const defaultSeoValidationRules: SeoValidationRules = {
-  metaTitle: {
+  title: {
     maxLength: 70,
     warningLength: 60,
   },
-  metaDescription: {
+  description: {
     maxLength: 160,
     warningLength: 150,
   },

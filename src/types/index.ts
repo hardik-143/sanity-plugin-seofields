@@ -1,4 +1,3 @@
-
 export type MetaAttribute = {
   _type: 'metaAttribute'
   key?: string
@@ -31,8 +30,8 @@ export type SeoFields = {
   _type: 'seoFields'
   robots?: Robots
   preview?: string
-  metaTitle?: string
-  metaDescription?: string
+  title?: string
+  description?: string
   metaImage?: {
     asset?: {
       _ref: string
