@@ -4,7 +4,14 @@
   "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
   "keywords": [
     "sanity",
-    "sanity-plugin"
+    "sanity-plugin",
+    "seo",
+    "meta",
+    "open graph",
+    "social media",
+    "content management",
+    "structured data",
+    "search engine optimization"
   ],
   "license": "MIT",
   "author": "Desai Hardik <dhardik1430@gmail.com>",
