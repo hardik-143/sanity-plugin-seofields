@@ -1,0 +1,76 @@
+{
+  "name": "sanity-plugin-seofields",
+  "version": "1.0.0",
+  "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
+  "keywords": [
+    "sanity",
+    "sanity-plugin"
+  ],
+  "license": "MIT",
+  "author": "Desai Hardik <dhardik1430@gmail.com>",
+  "sideEffects": false,
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "sanity.json",
+    "src",
+    "v2-incompatible.js"
+  ],
+  "scripts": {
+    "build": "plugin-kit verify-package --silent && pkg-utils build --strict --check --clean",
+    "format": "prettier --write --cache --ignore-unknown .",
+    "link-watch": "plugin-kit link-watch",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run build",
+    "generate-schema": "npx tsx schema-generator.ts",
+    "watch": "pkg-utils watch --strict"
+  },
+  "dependencies": {
+    "@sanity/incompatible-plugin": "^1.0.5",
+    "@sanity/ui": "^3.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hardik-143/sanity-plugin-seofields.git"
+  },
+  "devDependencies": {
+    "@sanity/codegen": "^4.9.0",
+    "@sanity/pkg-utils": "^8.1.13",
+    "@sanity/plugin-kit": "^4.0.19",
+    "@types/react": "^19.1.13",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-config-sanity": "^7.1.4",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-packagejson": "^2.5.19",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "sanity": "^4.9.0",
+    "styled-components": "^6.1.19",
+    "ts-json-schema-generator": "^2.4.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "sanity": "^3 || ^4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
