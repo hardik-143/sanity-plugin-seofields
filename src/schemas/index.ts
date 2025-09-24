@@ -67,11 +67,12 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
       }),
       defineField({
         name: 'metaAttributes',
-        title: 'Additional Meta Attributes',
+        // title: 'Additional Meta Attributes',
+        ...getFieldInfo('metaAttributes', config.fieldOverrides),
         type: 'array',
         of: [{type: 'metaAttribute'}],
-        description:
-          'Add custom meta attributes to the head of the document for additional SEO and social media integration.',
+        // description:
+        //   'Add custom meta attributes to the head of the document for additional SEO and social media integration.',
       }),
       defineField({
         name: 'keywords',

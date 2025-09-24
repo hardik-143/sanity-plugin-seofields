@@ -2,7 +2,7 @@
 // import OgTitle from '../../../components/openGraph/OgTitle'
 // import OgDescription from '../../../components/openGraph/OgDescription'
 
-import {SeoField, SeoFieldsPluginConfig} from '../plugin'
+import {SeoFieldsPluginConfig} from '../plugin'
 
 // export default defineType({
 //   name: 'openGraph',

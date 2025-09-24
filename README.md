@@ -201,7 +201,14 @@ Each field in the `fieldOverrides` object can have:
 - `title` - Custom title for the field
 - `description` - Custom description/help text for the field
 
-Available field keys: `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`
+**Available field keys:**
+
+- `title`
+- `description`
+- `canonicalUrl`
+- `metaImage`
+- `keywords`
+- `metaAttributes`
 
 ### Field Specifications
 
@@ -284,7 +291,7 @@ const seoData: SeoFields = {
 import type {
   SeoFields,
   SeoFieldsPluginConfig,
-  SeoField,
+  SeoFieldConfig,
   SeoFieldKeys,
   OpenGraphSettings,
   TwitterCardSettings,

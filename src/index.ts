@@ -1,9 +1,11 @@
-// plugin entry point
+// Import the plugin
 import seofields from './plugin'
-export * from './plugin'
 
-// Export the plugin (default export or named export)
+// Default export the plugin
 export default seofields
+
+// Re-export everything from plugin.ts
+export * from './plugin'
 
 // Export all TypeScript types
 export * from './types'

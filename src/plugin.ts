@@ -2,17 +2,23 @@
 import {definePlugin} from 'sanity'
 import types from './schemas/types'
 
-export interface SeoField {
+export interface SeoFieldConfig {
   title?: string
   description?: string
 }
 
-export type SeoFieldKeys = 'title' | 'description' | 'canonicalUrl' | 'metaImage' | 'keywords'
+export type SeoFieldKeys =
+  | 'title'
+  | 'description'
+  | 'canonicalUrl'
+  | 'metaImage'
+  | 'keywords'
+  | 'metaAttributes'
 
 export interface SeoFieldsPluginConfig {
   seoPreview?: boolean
   fieldOverrides?: {
-    [key in SeoFieldKeys]?: SeoField
+    [key in SeoFieldKeys]?: SeoFieldConfig
   }
 }
 

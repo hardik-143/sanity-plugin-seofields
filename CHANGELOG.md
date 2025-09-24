@@ -43,3 +43,54 @@ seofields({
   },
 } satisfies SeoFieldsPluginConfig)
 ```
+
+## [1.0.3] - 2025-09-24
+
+### Added
+
+- Added new SEO field type: `metaAttributes` for additional meta tags
+- Extended `SeoFieldKeys` type to include `metaAttributes`
+- Updated `SeoFieldsPluginConfig` to support `metaAttributes` in `fieldOverrides`
+
+### Changed
+
+- Renamed field configuration interface from `SeoField` to `SeoFieldConfig` for clarity
+- Updated field configuration property from `fields` to `fieldOverrides` for better semantic meaning
+
+### Example Usage
+
+```typescript
+seofields({
+  seoPreview: true,
+  fieldOverrides: {
+    title: {
+      title: 'Page Title',
+      description: 'The main title for search engines',
+    },
+    description: {
+      title: 'Meta Description',
+      description: 'Brief description for search results',
+    },
+  },
+} satisfies SeoFieldsPluginConfig)
+```
+
+```typescript
+seofields({
+  seoPreview: true,
+  fieldOverrides: {
+    title: {
+      title: 'Page Title',
+      description: 'The main title for search engines',
+    },
+    description: {
+      title: 'Meta Description',
+      description: 'Brief description for search results',
+    },
+    metaAttributes: {
+      title: 'Custom Meta Tags',
+      description: 'Additional meta attributes for advanced SEO',
+    },
+  },
+} satisfies SeoFieldsPluginConfig)
+```
