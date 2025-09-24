@@ -144,12 +144,64 @@ import {seofields} from 'sanity-plugin-seofields'
 
 export default defineConfig({
   plugins: [
-    seofields({
-      // Plugin options (none required currently)
-    }),
+    seofields(), // Use default configuration
   ],
 })
 ```
+
+### Advanced Configuration
+
+You can customize field titles and descriptions, and control SEO preview functionality:
+
+```typescript
+import {seofields, SeoFieldsPluginConfig} from 'sanity-plugin-seofields'
+
+export default defineConfig({
+  plugins: [
+    seofields({
+      seoPreview: true, // Enable/disable SEO preview (default: true)
+      fieldOverrides: {
+        title: {
+          title: 'Page Title',
+          description: 'The main title that appears in search results',
+        },
+        description: {
+          title: 'Meta Description',
+          description: 'A brief description of the page content for search engines',
+        },
+        canonicalUrl: {
+          title: 'Canonical URL',
+          description: 'The preferred URL for this page to avoid duplicate content issues',
+        },
+        metaImage: {
+          title: 'Social Media Image',
+          description: 'Image used when sharing this page on social media',
+        },
+        keywords: {
+          title: 'SEO Keywords',
+          description: 'Keywords that describe the content of this page',
+        },
+      },
+    } satisfies SeoFieldsPluginConfig),
+  ],
+})
+```
+
+### Configuration Options
+
+| Option           | Type      | Default | Description                                 |
+| ---------------- | --------- | ------- | ------------------------------------------- |
+| `seoPreview`     | `boolean` | `true`  | Enable/disable the live SEO preview feature |
+| `fieldOverrides` | `object`  | `{}`    | Customize field titles and descriptions     |
+
+#### Field Configuration
+
+Each field in the `fieldOverrides` object can have:
+
+- `title` - Custom title for the field
+- `description` - Custom description/help text for the field
+
+Available field keys: `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`
 
 ### Field Specifications
 
@@ -183,7 +235,27 @@ export default defineConfig({
 The plugin includes full TypeScript support:
 
 ```typescript
-import type {SeoFields, OpenGraphSettings, TwitterCardSettings} from 'sanity-plugin-seofields'
+import type {
+  SeoFields,
+  OpenGraphSettings,
+  TwitterCardSettings,
+  SeoFieldsPluginConfig,
+} from 'sanity-plugin-seofields'
+
+// Plugin configuration
+const pluginConfig: SeoFieldsPluginConfig = {
+  seoPreview: true,
+  fields: {
+    title: {
+      title: 'Page Title',
+      description: 'The main title for search engines',
+    },
+    description: {
+      title: 'Meta Description',
+      description: 'Brief description for search results',
+    },
+  },
+}
 
 // Use in your document interfaces
 interface PageDocument {
@@ -211,6 +283,9 @@ const seoData: SeoFields = {
 ```typescript
 import type {
   SeoFields,
+  SeoFieldsPluginConfig,
+  SeoField,
+  SeoFieldKeys,
   OpenGraphSettings,
   TwitterCardSettings,
   MetaAttribute,

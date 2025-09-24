@@ -4,4 +4,15 @@ import openGraph from './openGraph'
 import twitter from './twitter'
 import robots from './robots'
 import metaTag from './metaTag'
-export default [seoFields, openGraph, metaAttribute, twitter, robots, metaTag]
+import {SeoFieldsPluginConfig} from '../../plugin'
+
+export default function types(config: SeoFieldsPluginConfig = {}) {
+  return [
+    seoFields(config), // pass config here
+    openGraph,
+    twitter,
+    metaAttribute,
+    metaTag,
+    robots,
+  ]
+}

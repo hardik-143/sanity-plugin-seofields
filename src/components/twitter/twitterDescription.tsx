@@ -7,11 +7,12 @@ const TwitterDescription = (props: StringInputProps) => {
   const {value, renderDefault, path} = props
 
   // Access parent object to get keywords
-  const parent = useFormValue([path[0]]) as {keywords?: string[]}
+  const parent = useFormValue([path[0]]) as {keywords?: string[]; _type?: string}
+    const isParentseoField = parent && parent?._type === 'seoFields'
   const keywords = parent?.keywords || []
 
   const feedbackItems = useMemo(
-    () => getTwitterDescriptionValidation(value || '', keywords),
+    () => getTwitterDescriptionValidation(value || '', keywords,isParentseoField),
     [value, keywords],
   )
 

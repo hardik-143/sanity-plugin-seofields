@@ -1,4 +1,5 @@
-// utils/seoUtils.ts
+import {PathSegment, useFormValue} from 'sanity'
+
 export const stopWords = ['the', 'a', 'an', 'and', 'or', 'but']
 
 export const hasMatchingKeyword = (title: string, keywordList: string[]): boolean => {
@@ -37,7 +38,11 @@ export const truncate = (text: string, maxLength: number) =>
 
 export const hasExcessivePunctuation = (title: string): boolean => /[!@#$%^&*]{2,}/.test(title)
 
-export const getMetaTitleValidationMessages = (title: string, keywords: string[]) => {
+export const getMetaTitleValidationMessages = (
+  title: string,
+  keywords: string[],
+  isParentseoField: boolean,
+) => {
   const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
 
   const minChar = 50
@@ -64,26 +69,28 @@ export const getMetaTitleValidationMessages = (title: string, keywords: string[]
   else feedback.push({text: `Title length (${charCount}) looks good for SEO.`, color: 'green'})
 
   // Keyword checks
-  if (keywords.length > 0) {
-    const hasKeyword = hasMatchingKeyword(title, keywords)
-    feedback.push({
-      text: hasKeyword
-        ? 'Keyword found in title — good job!'
-        : 'Keywords defined but missing in title.',
-      color: hasKeyword ? 'green' : 'red',
-    })
-
-    if (hasKeywordOveruse(title, keywords)) {
+  if (isParentseoField) {
+    if (keywords.length > 0) {
+      const hasKeyword = hasMatchingKeyword(title, keywords)
       feedback.push({
-        text: 'Keyword appears too many times — avoid keyword stuffing.',
+        text: hasKeyword
+          ? 'Keyword found in title — good job!'
+          : 'Keywords defined but missing in title.',
+        color: hasKeyword ? 'green' : 'red',
+      })
+
+      if (hasKeywordOveruse(title, keywords)) {
+        feedback.push({
+          text: 'Keyword appears too many times — avoid keyword stuffing.',
+          color: 'orange',
+        })
+      }
+    } else {
+      feedback.push({
+        text: 'No keywords defined. Consider adding relevant keywords.',
         color: 'orange',
       })
     }
-  } else {
-    feedback.push({
-      text: 'No keywords defined. Consider adding relevant keywords.',
-      color: 'orange',
-    })
   }
 
   // Stop word check
@@ -97,7 +104,11 @@ export const getMetaTitleValidationMessages = (title: string, keywords: string[]
   return feedback
 }
 
-export const getMetaDescriptionValidationMessages = (description: string, keywords: string[]) => {
+export const getMetaDescriptionValidationMessages = (
+  description: string,
+  keywords: string[],
+  isParentseoField: boolean,
+) => {
   const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
 
   const minChar = 150
@@ -124,26 +135,28 @@ export const getMetaDescriptionValidationMessages = (description: string, keywor
     feedback.push({text: `Description length (${charCount}) looks good for SEO.`, color: 'green'})
 
   // Keyword checks
-  if (keywords.length > 0) {
-    const hasKeyword = hasMatchingKeyword(description, keywords)
-    feedback.push({
-      text: hasKeyword
-        ? 'Keyword found in description — good job!'
-        : 'Keywords defined but missing in description.',
-      color: hasKeyword ? 'green' : 'red',
-    })
-
-    if (hasKeywordOveruse(description, keywords)) {
+  if (isParentseoField) {
+    if (keywords.length > 0) {
+      const hasKeyword = hasMatchingKeyword(description, keywords)
       feedback.push({
-        text: 'Keyword appears too many times — avoid keyword stuffing.',
+        text: hasKeyword
+          ? 'Keyword found in description — good job!'
+          : 'Keywords defined but missing in description.',
+        color: hasKeyword ? 'green' : 'red',
+      })
+
+      if (hasKeywordOveruse(description, keywords)) {
+        feedback.push({
+          text: 'Keyword appears too many times — avoid keyword stuffing.',
+          color: 'orange',
+        })
+      }
+    } else {
+      feedback.push({
+        text: 'No keywords defined. Consider adding relevant keywords.',
         color: 'orange',
       })
     }
-  } else {
-    feedback.push({
-      text: 'No keywords defined. Consider adding relevant keywords.',
-      color: 'orange',
-    })
   }
 
   // Stop word / filler check
@@ -163,7 +176,11 @@ export const getMetaDescriptionValidationMessages = (description: string, keywor
   return feedback
 }
 
-export const getOgTitleValidation = (title: string, keywords: string[] = []) => {
+export const getOgTitleValidation = (
+  title: string,
+  keywords: string[] = [],
+  isParentseoField: boolean,
+) => {
   const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
   const min = 40
   const max = 60
@@ -185,27 +202,29 @@ export const getOgTitleValidation = (title: string, keywords: string[] = []) => 
     feedback.push({text: `OG Title is ${count} chars — exceeds recommended ${max}.`, color: 'red'})
   else feedback.push({text: `OG Title length (${count}) looks good.`, color: 'green'})
 
-  // Keyword checks
-  if (keywords.length > 0) {
-    const hasKeyword = hasMatchingKeyword(title, keywords)
-    feedback.push({
-      text: hasKeyword
-        ? 'Keyword found in OG title — good job!'
-        : 'Keywords defined but missing in OG title.',
-      color: hasKeyword ? 'green' : 'red',
-    })
-
-    if (hasKeywordOveruse(title, keywords)) {
+  if (isParentseoField) {
+    // Keyword checks
+    if (keywords.length > 0) {
+      const hasKeyword = hasMatchingKeyword(title, keywords)
       feedback.push({
-        text: 'Keyword appears too many times in OG title — avoid keyword stuffing.',
+        text: hasKeyword
+          ? 'Keyword found in OG title — good job!'
+          : 'Keywords defined but missing in OG title.',
+        color: hasKeyword ? 'green' : 'red',
+      })
+
+      if (hasKeywordOveruse(title, keywords)) {
+        feedback.push({
+          text: 'Keyword appears too many times in OG title — avoid keyword stuffing.',
+          color: 'orange',
+        })
+      }
+    } else {
+      feedback.push({
+        text: 'No keywords defined. Consider adding relevant keywords.',
         color: 'orange',
       })
     }
-  } else {
-    feedback.push({
-      text: 'No keywords defined. Consider adding relevant keywords.',
-      color: 'orange',
-    })
   }
 
   // Additional OG-specific checks
@@ -221,7 +240,11 @@ export const getOgTitleValidation = (title: string, keywords: string[] = []) => 
   return feedback
 }
 
-export const getOgDescriptionValidation = (desc: string, keywords: string[] = []) => {
+export const getOgDescriptionValidation = (
+  desc: string,
+  keywords: string[] = [],
+  isParentseoField: boolean,
+) => {
   const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
   const min = 90
   const max = 120
@@ -250,26 +273,28 @@ export const getOgDescriptionValidation = (desc: string, keywords: string[] = []
   else feedback.push({text: `OG Description length (${count}) looks good.`, color: 'green'})
 
   // Keyword checks
-  if (keywords.length > 0) {
-    const hasKeyword = hasMatchingKeyword(desc, keywords)
-    feedback.push({
-      text: hasKeyword
-        ? 'Keyword found in OG description — good job!'
-        : 'Keywords defined but missing in OG description.',
-      color: hasKeyword ? 'green' : 'red',
-    })
-
-    if (hasKeywordOveruse(desc, keywords)) {
+  if (isParentseoField) {
+    if (keywords.length > 0) {
+      const hasKeyword = hasMatchingKeyword(desc, keywords)
       feedback.push({
-        text: 'Keyword appears too many times in OG description — avoid keyword stuffing.',
+        text: hasKeyword
+          ? 'Keyword found in OG description — good job!'
+          : 'Keywords defined but missing in OG description.',
+        color: hasKeyword ? 'green' : 'red',
+      })
+
+      if (hasKeywordOveruse(desc, keywords)) {
+        feedback.push({
+          text: 'Keyword appears too many times in OG description — avoid keyword stuffing.',
+          color: 'orange',
+        })
+      }
+    } else {
+      feedback.push({
+        text: 'No keywords defined. Consider adding relevant keywords.',
         color: 'orange',
       })
     }
-  } else {
-    feedback.push({
-      text: 'No keywords defined. Consider adding relevant keywords.',
-      color: 'orange',
-    })
   }
 
   // Additional OG-specific checks
@@ -288,7 +313,11 @@ export const getOgDescriptionValidation = (desc: string, keywords: string[] = []
   return feedback
 }
 
-export const getTwitterTitleValidation = (title: string, keywords: string[] = []) => {
+export const getTwitterTitleValidation = (
+  title: string,
+  keywords: string[] = [],
+  isParentseoField: boolean,
+) => {
   const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
   const min = 30
   const max = 70
@@ -312,20 +341,22 @@ export const getTwitterTitleValidation = (title: string, keywords: string[] = []
     })
   else feedback.push({text: `Twitter Title length (${count}) looks good.`, color: 'green'})
 
-  // Keyword checks
-  if (keywords.length > 0) {
-    const hasKeyword = hasMatchingKeyword(title, keywords)
-    feedback.push({
-      text: hasKeyword
-        ? 'Keyword found in Twitter title — good job!'
-        : 'Keywords defined but missing in Twitter title.',
-      color: hasKeyword ? 'green' : 'red',
-    })
-  } else {
-    feedback.push({
-      text: 'No keywords defined. Consider adding relevant keywords.',
-      color: 'orange',
-    })
+  if (isParentseoField) {
+    // Keyword checks
+    if (keywords.length > 0) {
+      const hasKeyword = hasMatchingKeyword(title, keywords)
+      feedback.push({
+        text: hasKeyword
+          ? 'Keyword found in Twitter title — good job!'
+          : 'Keywords defined but missing in Twitter title.',
+        color: hasKeyword ? 'green' : 'red',
+      })
+    } else {
+      feedback.push({
+        text: 'No keywords defined. Consider adding relevant keywords.',
+        color: 'orange',
+      })
+    }
   }
 
   // Punctuation check
@@ -335,7 +366,11 @@ export const getTwitterTitleValidation = (title: string, keywords: string[] = []
   return feedback
 }
 
-export const getTwitterDescriptionValidation = (desc: string, keywords: string[] = []) => {
+export const getTwitterDescriptionValidation = (
+  desc: string,
+  keywords: string[] = [],
+  isParentseoField: boolean,
+) => {
   const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
   const min = 50
   const max = 200
@@ -359,20 +394,22 @@ export const getTwitterDescriptionValidation = (desc: string, keywords: string[]
     })
   else feedback.push({text: `Twitter Description length (${count}) looks good.`, color: 'green'})
 
-  // Keyword checks
-  if (keywords.length > 0) {
-    const hasKeyword = hasMatchingKeyword(desc, keywords)
-    feedback.push({
-      text: hasKeyword
-        ? 'Keyword found in Twitter description — good job!'
-        : 'Keywords defined but missing in Twitter description.',
-      color: hasKeyword ? 'green' : 'red',
-    })
-  } else {
-    feedback.push({
-      text: 'No keywords defined. Consider adding relevant keywords.',
-      color: 'orange',
-    })
+  if (isParentseoField) {
+    // Keyword checks
+    if (keywords.length > 0) {
+      const hasKeyword = hasMatchingKeyword(desc, keywords)
+      feedback.push({
+        text: hasKeyword
+          ? 'Keyword found in Twitter description — good job!'
+          : 'Keywords defined but missing in Twitter description.',
+        color: hasKeyword ? 'green' : 'red',
+      })
+    } else {
+      feedback.push({
+        text: 'No keywords defined. Consider adding relevant keywords.',
+        color: 'orange',
+      })
+    }
   }
 
   // Punctuation check

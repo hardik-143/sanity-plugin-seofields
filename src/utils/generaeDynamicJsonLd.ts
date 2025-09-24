@@ -258,7 +258,7 @@ function generateSchemaJson(): JsonSchema {
   }
 
   // Convert each schema
-  schemas.forEach((schema) => {
+  schemas().forEach((schema) => {
     if (schema.name) {
       const jsonSchemaDefinition = convertSanitySchemaToJsonSchema(schema)
       jsonSchema.definitions[schema.name] = jsonSchemaDefinition
