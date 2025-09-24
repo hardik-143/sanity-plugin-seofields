@@ -37,7 +37,7 @@ Add the plugin to your `sanity.config.ts` (or `.js`) file:
 
 ```typescript
 import {defineConfig} from 'sanity'
-import {seofields} from 'sanity-plugin-seofields'
+import seofields from 'sanity-plugin-seofields'
 
 export default defineConfig({
   name: 'your-project',
@@ -140,7 +140,7 @@ export default defineType({
 ### Basic Configuration
 
 ```typescript
-import {seofields} from 'sanity-plugin-seofields'
+import seofields from 'sanity-plugin-seofields'
 
 export default defineConfig({
   plugins: [
@@ -154,7 +154,7 @@ export default defineConfig({
 You can customize field titles and descriptions, and control SEO preview functionality:
 
 ```typescript
-import {seofields, SeoFieldsPluginConfig} from 'sanity-plugin-seofields'
+import seofields, {SeoFieldsPluginConfig} from 'sanity-plugin-seofields'
 
 export default defineConfig({
   plugins: [
@@ -413,7 +413,7 @@ export function SEO({seo}: SEOProps) {
 ### Main Export
 
 ```typescript
-import {seofields} from 'sanity-plugin-seofields'
+import seofields from 'sanity-plugin-seofields'
 ```
 
 ### Schema Types
