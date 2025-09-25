@@ -53,7 +53,7 @@ export interface OpenGraphSettings {
   imageUrl?: string
 }
 
-// Twitter Card settings
+// X (Formerly Twitter) Card settings
 export interface TwitterCardSettings {
   _type: 'twitter'
   card?: 'summary' | 'summary_large_image' | 'app' | 'player'

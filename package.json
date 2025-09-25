@@ -67,7 +67,7 @@
     "prettier-plugin-packagejson": "^2.5.19",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "sanity": "^4.9.0",
+    "sanity": "^4.10.0",
     "styled-components": "^6.1.19",
     "ts-json-schema-generator": "^2.4.0",
     "tsx": "^4.20.5",

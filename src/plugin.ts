@@ -14,12 +14,26 @@ export type SeoFieldKeys =
   | 'metaImage'
   | 'keywords'
   | 'metaAttributes'
+  | 'robots'
+
+export type SitewideFieldKeys = 'openGraphSiteName' | 'twitterSite'
+
+export type AllFieldKeys = SeoFieldKeys | SitewideFieldKeys
+
+export interface FieldVisibilityConfig {
+  hiddenFields?: AllFieldKeys[]
+  postType?: string
+}
 
 export interface SeoFieldsPluginConfig {
   seoPreview?: boolean
   fieldOverrides?: {
     [key in SeoFieldKeys]?: SeoFieldConfig
   }
+  fieldVisibility?: {
+    [postType: string]: FieldVisibilityConfig
+  }
+  defaultHiddenFields?: AllFieldKeys[]
 }
 
 const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
