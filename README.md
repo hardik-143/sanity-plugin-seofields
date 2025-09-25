@@ -354,7 +354,7 @@ import type {
   SitewideFieldKeys,
   FieldVisibilityConfig,
   OpenGraphSettings,
-  XCardSettings,
+  TwitterCardSettings,
   MetaAttribute,
   MetaTag,
   RobotsSettings,
