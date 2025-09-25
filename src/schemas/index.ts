@@ -3,7 +3,7 @@ import MetaTitle from '../components/meta/MetaTitle'
 import MetaDescription from '../components/meta/MetaDescription'
 import SeoPreview from '../components/SeoPreview'
 import {SeoFieldsPluginConfig} from '../plugin'
-import {getFieldInfo} from '../utils/fieldsUtils'
+import {getFieldInfo, getFieldHiddenFunction} from '../utils/fieldsUtils'
 
 export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
   return defineType({
@@ -15,6 +15,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
         name: 'robots',
         title: 'Robots Settings',
         type: 'robots', // Use the separate robots type here
+        hidden: getFieldHiddenFunction('robots', config),
       }),
       // 👇 conditionally spread preview field
       ...(config.seoPreview
@@ -40,6 +41,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
           input: MetaTitle,
         },
         // validation: (Rule) => Rule.max(60).warning('Meta title should be under 60 characters.'),
+        hidden: getFieldHiddenFunction('title', config),
       }),
       defineField({
         name: 'description',
@@ -53,6 +55,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
           input: MetaDescription,
         },
         // validation: (Rule) => Rule.max(160).warning('Meta description should be under 160 characters.'),
+        hidden: getFieldHiddenFunction('description', config),
       }),
       defineField({
         name: 'metaImage',
@@ -64,6 +67,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
         options: {
           hotspot: true,
         },
+        hidden: getFieldHiddenFunction('metaImage', config),
       }),
       defineField({
         name: 'metaAttributes',
@@ -73,6 +77,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
         of: [{type: 'metaAttribute'}],
         // description:
         //   'Add custom meta attributes to the head of the document for additional SEO and social media integration.',
+        hidden: getFieldHiddenFunction('metaAttributes', config),
       }),
       defineField({
         name: 'keywords',
@@ -82,6 +87,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
         of: [{type: 'string'}],
         description:
           'Add relevant keywords for this page. These keywords will be used for SEO purposes.',
+        hidden: getFieldHiddenFunction('keywords', config),
       }),
       defineField({
         name: 'canonicalUrl',
@@ -90,6 +96,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
         type: 'url',
         description:
           'Specify the canonical URL for this page. This helps prevent duplicate content issues by indicating the preferred version of a page.',
+        hidden: getFieldHiddenFunction('canonicalUrl', config),
       }),
       defineField({
         name: 'openGraph',
@@ -98,7 +105,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
       }),
       defineField({
         name: 'twitter',
-        title: 'Twitter Card Settings',
+        title: 'X (Formerly Twitter) Card Settings',
         type: 'twitter',
       }),
     ],

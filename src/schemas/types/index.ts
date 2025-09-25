@@ -9,8 +9,8 @@ import {SeoFieldsPluginConfig} from '../../plugin'
 export default function types(config: SeoFieldsPluginConfig = {}) {
   return [
     seoFields(config), // pass config here
-    openGraph,
-    twitter,
+    openGraph(config), // pass config here
+    twitter(config), // pass config here
     metaAttribute,
     metaTag,
     robots,

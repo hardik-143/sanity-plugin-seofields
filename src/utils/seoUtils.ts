@@ -324,22 +324,22 @@ export const getTwitterTitleValidation = (
   const count = title?.length || 0
 
   if (!title?.trim()) {
-    feedback.push({text: 'Twitter Title is empty. Add content for better SEO.', color: 'red'})
+    feedback.push({text: 'X Title is empty. Add content for better SEO.', color: 'red'})
     return feedback
   }
 
   // Length check
   if (count < min)
     feedback.push({
-      text: `Twitter Title is ${count} chars — shorter than recommended ${min}.`,
+      text: `X Title is ${count} chars — shorter than recommended ${min}.`,
       color: 'orange',
     })
   else if (count > max)
     feedback.push({
-      text: `Twitter Title is ${count} chars — exceeds recommended ${max}.`,
+      text: `X Title is ${count} chars — exceeds recommended ${max}.`,
       color: 'red',
     })
-  else feedback.push({text: `Twitter Title length (${count}) looks good.`, color: 'green'})
+  else feedback.push({text: `X Title length (${count}) looks good.`, color: 'green'})
 
   if (isParentseoField) {
     // Keyword checks
@@ -347,8 +347,8 @@ export const getTwitterTitleValidation = (
       const hasKeyword = hasMatchingKeyword(title, keywords)
       feedback.push({
         text: hasKeyword
-          ? 'Keyword found in Twitter title — good job!'
-          : 'Keywords defined but missing in Twitter title.',
+          ? 'Keyword found in X title — good job!'
+          : 'Keywords defined but missing in X title.',
         color: hasKeyword ? 'green' : 'red',
       })
     } else {
@@ -361,7 +361,7 @@ export const getTwitterTitleValidation = (
 
   // Punctuation check
   if (/[!@#$%^&*]{2,}/.test(title))
-    feedback.push({text: 'Twitter Title has excessive punctuation — simplify it.', color: 'orange'})
+    feedback.push({text: 'X Title has excessive punctuation — simplify it.', color: 'orange'})
 
   return feedback
 }
@@ -377,22 +377,22 @@ export const getTwitterDescriptionValidation = (
   const count = desc?.length || 0
 
   if (!desc?.trim()) {
-    feedback.push({text: 'Twitter Description is empty. Add content for better SEO.', color: 'red'})
+    feedback.push({text: 'X Description is empty. Add content for better SEO.', color: 'red'})
     return feedback
   }
 
   // Length check
   if (count < min)
     feedback.push({
-      text: `Twitter Description is ${count} chars — shorter than recommended ${min}.`,
+      text: `X Description is ${count} chars — shorter than recommended ${min}.`,
       color: 'orange',
     })
   else if (count > max)
     feedback.push({
-      text: `Twitter Description is ${count} chars — exceeds recommended ${max}.`,
+      text: `X Description is ${count} chars — exceeds recommended ${max}.`,
       color: 'red',
     })
-  else feedback.push({text: `Twitter Description length (${count}) looks good.`, color: 'green'})
+  else feedback.push({text: `X Description length (${count}) looks good.`, color: 'green'})
 
   if (isParentseoField) {
     // Keyword checks
@@ -400,8 +400,8 @@ export const getTwitterDescriptionValidation = (
       const hasKeyword = hasMatchingKeyword(desc, keywords)
       feedback.push({
         text: hasKeyword
-          ? 'Keyword found in Twitter description — good job!'
-          : 'Keywords defined but missing in Twitter description.',
+          ? 'Keyword found in X description — good job!'
+          : 'Keywords defined but missing in X description.',
         color: hasKeyword ? 'green' : 'red',
       })
     } else {
@@ -415,7 +415,7 @@ export const getTwitterDescriptionValidation = (
   // Punctuation check
   if (/[!@#$%^&*]{2,}/.test(desc))
     feedback.push({
-      text: 'Twitter Description has excessive punctuation — simplify it.',
+      text: 'X Description has excessive punctuation — simplify it.',
       color: 'orange',
     })
 

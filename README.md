@@ -9,13 +9,14 @@ A comprehensive Sanity Studio v3 plugin to manage SEO fields like meta titles, d
 
 - 🎯 **Meta Tags**: Title, description, keywords, and canonical URLs
 - 📱 **Open Graph**: Complete social media sharing optimization
-- 🐦 **Twitter Cards**: Twitter-specific meta tags with image support
+- 🐦 **X (Formerly Twitter) Cards**: X-specific meta tags with image support
 - 🤖 **Robots Control**: Index/follow settings for search engines
 - 🖼️ **Image Management**: Optimized image handling for social sharing
 - 📋 **Live Preview**: Real-time SEO preview as you edit
 - 🔧 **TypeScript Support**: Full type definitions included
 - 📊 **Custom Attributes**: Flexible meta attribute system
 - ✅ **Validation**: Built-in character limits and best practices
+- 🎛️ **Field Visibility**: Hide sitewide fields on specific content types
 
 ## 📦 Installation
 
@@ -112,7 +113,7 @@ export default defineType({
     }),
     defineField({
       name: 'twitterCard',
-      title: 'Twitter Card',
+      title: 'X (Formerly Twitter) Card',
       type: 'twitter',
     }),
     defineField({
@@ -130,7 +131,7 @@ export default defineType({
 | --------------- | ------------------------- | -------------------------------- |
 | `seoFields`     | Complete SEO package      | Main SEO fields for any document |
 | `openGraph`     | Open Graph meta tags      | Social media sharing             |
-| `twitter`       | Twitter Card settings     | Twitter-specific optimization    |
+| `twitter`       | X (Formerly Twitter) Card settings | X-specific optimization    |
 | `metaTag`       | Custom meta attributes    | Advanced meta tag management     |
 | `metaAttribute` | Individual meta attribute | Building custom meta tags        |
 | `robots`        | Search engine directives  | Control indexing and crawling    |
@@ -151,7 +152,7 @@ export default defineConfig({
 
 ### Advanced Configuration
 
-You can customize field titles and descriptions, and control SEO preview functionality:
+You can customize field titles and descriptions, control SEO preview functionality, and manage field visibility:
 
 ```typescript
 import seofields, {SeoFieldsPluginConfig} from 'sanity-plugin-seofields'
@@ -182,6 +183,17 @@ export default defineConfig({
           description: 'Keywords that describe the content of this page',
         },
       },
+      // Hide sitewide fields on specific content types
+      fieldVisibility: {
+        page: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite']
+        },
+        post: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite']
+        }
+      },
+      // Or hide fields globally
+      defaultHiddenFields: ['openGraphSiteName', 'twitterSite']
     } satisfies SeoFieldsPluginConfig),
   ],
 })
@@ -189,10 +201,12 @@ export default defineConfig({
 
 ### Configuration Options
 
-| Option           | Type      | Default | Description                                 |
-| ---------------- | --------- | ------- | ------------------------------------------- |
-| `seoPreview`     | `boolean` | `true`  | Enable/disable the live SEO preview feature |
-| `fieldOverrides` | `object`  | `{}`    | Customize field titles and descriptions     |
+| Option                | Type      | Default | Description                                 |
+| --------------------- | --------- | ------- | ------------------------------------------- |
+| `seoPreview`          | `boolean` | `true`  | Enable/disable the live SEO preview feature |
+| `fieldOverrides`      | `object`  | `{}`    | Customize field titles and descriptions     |
+| `fieldVisibility`     | `object`  | `{}`    | Hide sitewide fields on specific post types |
+| `defaultHiddenFields` | `array`   | `[]`    | Hide sitewide fields globally               |
 
 #### Field Configuration
 
@@ -209,6 +223,50 @@ Each field in the `fieldOverrides` object can have:
 - `metaImage`
 - `keywords`
 - `metaAttributes`
+
+#### Field Visibility Configuration
+
+Control which fields are visible on different content types. You can hide any SEO field on any post type:
+
+**Available field keys:**
+- `title` - Meta Title field
+- `description` - Meta Description field
+- `canonicalUrl` - Canonical URL field
+- `metaImage` - Meta Image field
+- `keywords` - Keywords field
+- `metaAttributes` - Custom Meta Attributes field
+- `robots` - Robots Settings field
+- `openGraphSiteName` - Open Graph Site Name field (sitewide)
+- `twitterSite` - X (Formerly Twitter) Site Handle field (sitewide)
+
+**Example configurations:**
+
+```typescript
+// Hide fields globally
+seofields({
+  defaultHiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords']
+})
+
+// Hide fields on specific content types
+seofields({
+  fieldVisibility: {
+    page: {
+      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords']
+    },
+    post: {
+      hiddenFields: ['openGraphSiteName', 'metaAttributes']
+    },
+    product: {
+      hiddenFields: ['canonicalUrl', 'robots']
+    }
+  }
+})
+```
+
+This is particularly useful when you want to:
+- Manage sitewide settings (like site name and Twitter handle) in a dedicated Site Settings document
+- Simplify the editing experience by hiding fields that aren't relevant for certain content types
+- Create different SEO workflows for different content types
 
 ### Field Specifications
 
@@ -231,7 +289,7 @@ Each field in the `fieldOverrides` object can have:
 - **Aspect Ratio**: 1.91:1
 - **Formats**: JPG, PNG, WebP
 
-#### Twitter Card Image
+#### X (Formerly Twitter) Card Image
 
 - **Summary Card**: Minimum 120x120px
 - **Large Image**: Minimum 280x150px
@@ -293,8 +351,10 @@ import type {
   SeoFieldsPluginConfig,
   SeoFieldConfig,
   SeoFieldKeys,
+  SitewideFieldKeys,
+  FieldVisibilityConfig,
   OpenGraphSettings,
-  TwitterCardSettings,
+  XCardSettings,
   MetaAttribute,
   MetaTag,
   RobotsSettings,
@@ -302,7 +362,53 @@ import type {
 } from 'sanity-plugin-seofields'
 ```
 
-## 🎯 Examples
+## 🎛️ Field Visibility Feature
+
+The field visibility feature allows you to hide any SEO field on specific content types. This is perfect for managing sitewide settings in a dedicated Site Settings document or creating customized editing experiences for different content types.
+
+### Quick Example
+
+```typescript
+// Hide specific fields on different content types
+seofields({
+  fieldVisibility: {
+    page: {
+      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords']
+    },
+    post: {
+      hiddenFields: ['openGraphSiteName', 'metaAttributes']
+    },
+    product: {
+      hiddenFields: ['canonicalUrl', 'robots']
+    }
+  }
+})
+```
+
+### Site Settings Integration
+
+Create a Site Settings document to manage sitewide fields:
+
+```typescript
+// schemas/siteSettings.ts
+export default defineType({
+  name: 'siteSettings',
+  title: 'Site Settings',
+  type: 'document',
+  fields: [
+    defineField({
+      name: 'openGraphSiteName',
+      title: 'Open Graph Site Name',
+      type: 'string',
+    }),
+    defineField({
+      name: 'twitterSite',
+      title: 'X (Formerly Twitter) Site Handle',
+      type: 'string',
+    }),
+  ],
+})
+```
 
 ### Complete SEO Setup
 
