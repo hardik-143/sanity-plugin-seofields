@@ -8,6 +8,13 @@ export default defineType({
   type: 'object',
   fields: [
     defineField({
+      name: 'url',
+      title: 'Open Graph URL',
+      type: 'url',
+      description:
+        'The canonical URL of the page. This should be the full URL including protocol (https://).',
+    }),
+    defineField({
       name: 'title',
       title: 'Open Graph Title',
       type: 'string',

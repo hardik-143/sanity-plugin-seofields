@@ -94,3 +94,11 @@ seofields({
   },
 } satisfies SeoFieldsPluginConfig)
 ```
+
+## [1.0.4] - 2025-10-04
+
+### Added
+
+- Added `url` field to Open Graph schema for canonical URL specification
+- Updated `OpenGraph` TypeScript type to include `url` field
+- Enhanced Open Graph settings with proper URL handling for social media sharing

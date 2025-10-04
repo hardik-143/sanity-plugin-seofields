@@ -231,6 +231,13 @@ Each field in the `fieldOverrides` object can have:
 - **Aspect Ratio**: 1.91:1
 - **Formats**: JPG, PNG, WebP
 
+#### Open Graph URL
+
+- **Purpose**: Canonical URL for social media sharing
+- **Format**: Full URL with protocol (https://)
+- **Best Practice**: Use the preferred URL for the page to avoid duplicate content issues
+- **Required**: Should match the actual page URL for consistency
+
 #### Twitter Card Image
 
 - **Summary Card**: Minimum 120x120px
@@ -280,6 +287,7 @@ const seoData: SeoFields = {
     _type: 'openGraph',
     title: 'Social Media Title',
     description: 'Social media description',
+    url: 'https://example.com/page',
     type: 'website',
   },
 }
@@ -368,6 +376,9 @@ export function SEOHead({seo}: SEOProps) {
       {seo.openGraph?.description && (
         <meta property="og:description" content={seo.openGraph.description} />
       )}
+      {seo.openGraph?.url && (
+        <meta property="og:url" content={seo.openGraph.url} />
+      )}
 
       {/* Twitter */}
       {seo.twitter?.card && (
@@ -409,6 +420,7 @@ export function SEO({seo}: SEOProps) {
       {/* Open Graph */}
       <meta property="og:title" content={seo?.openGraph?.title} />
       <meta property="og:description" content={seo?.openGraph?.description} />
+      <meta property="og:url" content={seo?.openGraph?.url} />
       <meta property="og:type" content={seo?.openGraph?.type || 'website'} />
     </Helmet>
   )

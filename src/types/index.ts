@@ -75,6 +75,7 @@ export type Twitter = {
 export type OpenGraph = {
   _type: 'openGraph'
   title?: string
+  url?: string
   description?: string
   siteName?: string
   type?: 'website' | 'article' | 'profile' | 'book' | 'music' | 'video' | 'product'
