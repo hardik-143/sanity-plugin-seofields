@@ -28,6 +28,12 @@ export default defineType({
       description: 'The Twitter handle of the website (e.g., @example)',
     }),
     defineField({
+      name: 'creator',
+      title: 'Twitter Creator Handle',
+      type: 'string',
+      description: 'The Twitter handle of the content creator (e.g., @creator)',
+    }),
+    defineField({
       name: 'title',
       title: 'Twitter Title',
       type: 'string',

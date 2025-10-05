@@ -55,6 +55,7 @@ export type Twitter = {
   _type: 'twitter'
   card?: 'summary' | 'summary_large_image' | 'app' | 'player'
   site?: string
+  creator?: string
   title?: string
   description?: string
   image?: {
