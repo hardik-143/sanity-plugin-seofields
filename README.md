@@ -289,11 +289,25 @@ This is particularly useful when you want to:
 - **Aspect Ratio**: 1.91:1
 - **Formats**: JPG, PNG, WebP
 
+#### Open Graph URL
+
+- **Purpose**: Canonical URL for social media sharing
+- **Format**: Full URL with protocol (https://)
+- **Best Practice**: Use the preferred URL for the page to avoid duplicate content issues
+- **Required**: Should match the actual page URL for consistency
+
 #### X (Formerly Twitter) Card Image
 
 - **Summary Card**: Minimum 120x120px
 - **Large Image**: Minimum 280x150px
 - **Required**: Alt text for accessibility
+
+#### Twitter Card Creator
+
+- **Purpose**: Attribution to content creator on Twitter
+- **Format**: Twitter handle with @ symbol (e.g., @creator)
+- **Usage**: Identifies the individual author of the content
+- **Best Practice**: Use actual Twitter handles for proper attribution
 
 ## 💻 TypeScript Usage
 
@@ -338,7 +352,16 @@ const seoData: SeoFields = {
     _type: 'openGraph',
     title: 'Social Media Title',
     description: 'Social media description',
+    url: 'https://example.com/page',
     type: 'website',
+  },
+  twitter: {
+    _type: 'twitter',
+    card: 'summary_large_image',
+    site: '@example',
+    creator: '@creator',
+    title: 'Twitter Title',
+    description: 'Twitter description',
   },
 }
 ```
@@ -474,10 +497,19 @@ export function SEOHead({seo}: SEOProps) {
       {seo.openGraph?.description && (
         <meta property="og:description" content={seo.openGraph.description} />
       )}
+      {seo.openGraph?.url && (
+        <meta property="og:url" content={seo.openGraph.url} />
+      )}
 
       {/* Twitter */}
       {seo.twitter?.card && (
         <meta name="twitter:card" content={seo.twitter.card} />
+      )}
+      {seo.twitter?.site && (
+        <meta name="twitter:site" content={seo.twitter.site} />
+      )}
+      {seo.twitter?.creator && (
+        <meta name="twitter:creator" content={seo.twitter.creator} />
       )}
 
       {/* Robots */}
@@ -515,7 +547,19 @@ export function SEO({seo}: SEOProps) {
       {/* Open Graph */}
       <meta property="og:title" content={seo?.openGraph?.title} />
       <meta property="og:description" content={seo?.openGraph?.description} />
+      <meta property="og:url" content={seo?.openGraph?.url} />
       <meta property="og:type" content={seo?.openGraph?.type || 'website'} />
+
+      {/* Twitter */}
+      {seo?.twitter?.card && (
+        <meta name="twitter:card" content={seo.twitter.card} />
+      )}
+      {seo?.twitter?.site && (
+        <meta name="twitter:site" content={seo.twitter.site} />
+      )}
+      {seo?.twitter?.creator && (
+        <meta name="twitter:creator" content={seo.twitter.creator} />
+      )}
     </Helmet>
   )
 }

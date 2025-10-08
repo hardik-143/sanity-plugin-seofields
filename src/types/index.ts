@@ -55,6 +55,7 @@ export type Twitter = {
   _type: 'twitter'
   card?: 'summary' | 'summary_large_image' | 'app' | 'player'
   site?: string
+  creator?: string
   title?: string
   description?: string
   image?: {
@@ -75,6 +76,7 @@ export type Twitter = {
 export type OpenGraph = {
   _type: 'openGraph'
   title?: string
+  url?: string
   description?: string
   siteName?: string
   type?: 'website' | 'article' | 'profile' | 'book' | 'music' | 'video' | 'product'

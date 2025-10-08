@@ -94,3 +94,22 @@ seofields({
   },
 } satisfies SeoFieldsPluginConfig)
 ```
+
+## [1.0.4] - 2025-10-04
+
+### Added
+
+- Added `url` field to Open Graph schema for canonical URL specification
+- Updated `OpenGraph` TypeScript type to include `url` field
+- Enhanced Open Graph settings with proper URL handling for social media sharing
+
+## [1.0.5] - 2025-10-05
+
+### Added
+
+- Added `creator` field to Twitter TypeScript type for content creator attribution
+- Updated `Twitter` type to include creator handle field for better Twitter Card support
+
+### Fixed
+
+- Fixed missing `creator` field in Twitter TypeScript type definition
