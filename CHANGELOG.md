@@ -113,3 +113,38 @@ seofields({
 ### Fixed
 
 - Fixed missing `creator` field in Twitter TypeScript type definition
+
+## [1.0.6] - 2025-10-08
+
+### Added
+
+- Added `fieldVisibility` configuration option for controlling field visibility per document type
+- New `FieldVisibilityConfig` interface for type-safe field visibility control
+- `defaultHiddenFields` configuration option to globally hide specific fields
+- New field keys: `SitewideFieldKeys` including `openGraphSiteName` and `twitterSite`
+- Updated `AllFieldKeys` type to include both SEO and sitewide field keys
+- Enhanced field utility functions: `isFieldHidden` and `getFieldHiddenFunction`
+- Dynamic field visibility based on document type through `fieldVisibility` configuration
+
+### Changed
+
+- Updated Twitter schema title from "Twitter" to "X (Formerly Twitter)"
+- Updated Twitter field titles to reference "X" instead of "Twitter":
+  - "Site Twitter Handle" → "Site X Handle"
+  - "Twitter Title" → "X Title"
+  - "Twitter Creator Handle" → "X Creator Handle"
+  - "Twitter Description" → "X Description"
+  - "Twitter Image" → "X Image"
+- Updated field descriptions to reference "X (formerly Twitter)"
+- Enhanced Twitter and OpenGraph schemas to accept configuration parameters
+- Added field visibility controls to `siteName` and `site` fields using `getFieldHiddenFunction`
+
+### Technical Improvements
+
+- Refactored schema types to accept and utilize plugin configuration
+- Enhanced field utilities with better type safety and configuration support
+- Improved plugin architecture with granular field control capabilities
+
+### Pull Request Links
+
+- 🌐 Add field visibility feature and update Twitter branding to X [#1](https://github.com/hardik-143/sanity-plugin-seofields/pull/1) [@crimsonwebteam](https://github.com/crimsonwebteam)

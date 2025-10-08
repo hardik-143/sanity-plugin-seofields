@@ -33,9 +33,9 @@ export default function twitter(config: SeoFieldsPluginConfig = {}) {
     }),
     defineField({
       name: 'creator',
-      title: 'Twitter Creator Handle',
+      title: 'X Creator Handle',
       type: 'string',
-      description: 'The Twitter handle of the content creator (e.g., @creator)',
+      description: 'The X (formerly Twitter) handle of the content creator (e.g., @creator)',
     }),
     defineField({
       name: 'title',
