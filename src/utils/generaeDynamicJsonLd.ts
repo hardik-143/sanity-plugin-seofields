@@ -214,7 +214,7 @@ function generateSchemaJson(): JsonSchema {
     $schema: 'http://json-schema.org/draft-07/schema#',
     title: 'Sanity SEO Fields Plugin Schema',
     description:
-      'Schema definitions for SEO fields including meta tags, Open Graph, and Twitter Card settings',
+      'Schema definitions for SEO fields including meta tags, Open Graph, and X (Formerly Twitter) Card settings',
     type: 'object',
     definitions: {},
     properties: {},

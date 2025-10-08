@@ -2,7 +2,7 @@
 // import OgTitle from '../../../components/openGraph/OgTitle'
 // import OgDescription from '../../../components/openGraph/OgDescription'
 
-import {SeoFieldsPluginConfig} from '../plugin'
+import {SeoFieldsPluginConfig, AllFieldKeys} from '../plugin'
 
 // export default defineType({
 //   name: 'openGraph',
@@ -134,4 +134,38 @@ export const getFieldInfo = (
   return fieldInfo
     ? {title: fieldInfo.title, description: fieldInfo.description}
     : {title: '', description: ''}
+}
+
+/**
+ * Check if a field should be hidden based on the current document type
+ */
+export const isFieldHidden = (
+  fieldName: AllFieldKeys,
+  config: SeoFieldsPluginConfig,
+  documentType?: string,
+): boolean => {
+  // Check if field is in default hidden fields
+  if (config.defaultHiddenFields?.includes(fieldName)) {
+    return true
+  }
+
+  // Check if field is hidden for specific post type
+  if (documentType && config.fieldVisibility?.[documentType]?.hiddenFields?.includes(fieldName)) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Get the hidden function for any field
+ */
+export const getFieldHiddenFunction = (
+  fieldName: AllFieldKeys,
+  config: SeoFieldsPluginConfig,
+) => {
+  return ({document}: {document?: any}) => {
+    const documentType = document?._type
+    return isFieldHidden(fieldName, config, documentType)
+  }
 }

@@ -1,12 +1,15 @@
 import {defineField, defineType} from 'sanity'
 import TwitterTitle from '../../../components/twitter/twitterTitle'
 import TwitterDescription from '../../../components/twitter/twitterDescription'
+import {SeoFieldsPluginConfig} from '../../../plugin'
+import {getFieldHiddenFunction} from '../../../utils/fieldsUtils'
 
-export default defineType({
-  name: 'twitter',
-  title: 'Twitter',
-  type: 'object',
-  fields: [
+export default function twitter(config: SeoFieldsPluginConfig = {}) {
+  return defineType({
+    name: 'twitter',
+    title: 'X (Formerly Twitter)',
+    type: 'object',
+    fields: [
     defineField({
       name: 'card',
       title: 'Card Type',
@@ -23,9 +26,10 @@ export default defineType({
     }),
     defineField({
       name: 'site',
-      title: 'Site Twitter Handle',
+      title: 'Site X Handle',
       type: 'string',
-      description: 'The Twitter handle of the website (e.g., @example)',
+      description: 'The X (formerly Twitter) handle of the website (e.g., @example)',
+      hidden: getFieldHiddenFunction('twitterSite', config),
     }),
     defineField({
       name: 'creator',
@@ -35,26 +39,26 @@ export default defineType({
     }),
     defineField({
       name: 'title',
-      title: 'Twitter Title',
+      title: 'X Title',
       type: 'string',
-      description: 'The title of the content as it should appear on Twitter.',
+      description: 'The title of the content as it should appear on X (formerly Twitter).',
       components: {
         input: TwitterTitle,
       },
     }),
     defineField({
       name: 'description',
-      title: 'Twitter Description',
+      title: 'X Description',
       type: 'text',
       rows: 3,
-      description: 'A brief description of the content for Twitter.',
+      description: 'A brief description of the content for X (formerly Twitter).',
       components: {
         input: TwitterDescription,
       },
     }),
     defineField({
       name: 'image',
-      title: 'Twitter Image',
+      title: 'X Image',
       type: 'image',
       description:
         'An image URL which should be at least 120x120px for "summary" card and 280x150px for "summary_large_image" card.',
@@ -71,4 +75,5 @@ export default defineType({
       ],
     }),
   ],
-})
+  })
+}

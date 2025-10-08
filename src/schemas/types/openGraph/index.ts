@@ -1,12 +1,15 @@
 import {defineField, defineType} from 'sanity'
 import OgTitle from '../../../components/openGraph/OgTitle'
 import OgDescription from '../../../components/openGraph/OgDescription'
+import {SeoFieldsPluginConfig} from '../../../plugin'
+import {getFieldHiddenFunction} from '../../../utils/fieldsUtils'
 
-export default defineType({
-  name: 'openGraph',
-  title: 'Open Graph Settings',
-  type: 'object',
-  fields: [
+export default function openGraph(config: SeoFieldsPluginConfig = {}) {
+  return defineType({
+    name: 'openGraph',
+    title: 'Open Graph Settings',
+    type: 'object',
+    fields: [
     defineField({
       name: 'url',
       title: 'Open Graph URL',
@@ -36,6 +39,7 @@ export default defineType({
       title: 'Open Graph Site Name',
       type: 'string',
       description: 'The name of your website. This is often the site title.',
+      hidden: getFieldHiddenFunction('openGraphSiteName', config),
     }),
     defineField({
       name: 'type',
@@ -90,4 +94,5 @@ export default defineType({
         'Enter the full URL of the image. Ensure the image is accessible and meets the recommended size of 1200x630px (minimum 600x315px).',
     }),
   ],
-})
+  })
+}
