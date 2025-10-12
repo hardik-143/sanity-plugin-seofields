@@ -4,6 +4,7 @@ import MetaDescription from '../components/meta/MetaDescription'
 import SeoPreview from '../components/SeoPreview'
 import {SeoFieldsPluginConfig} from '../plugin'
 import {getFieldInfo, getFieldHiddenFunction} from '../utils/fieldsUtils'
+import {isEmpty} from '../utils/utils'
 
 export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
   return defineType({
@@ -18,17 +19,29 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
         hidden: getFieldHiddenFunction('robots', config),
       }),
       // 👇 conditionally spread preview field
-      ...(config.seoPreview
-        ? []
-        : [
+      ...((typeof config.seoPreview === 'boolean' && config.seoPreview) ||
+      (typeof config.seoPreview === 'object' && !isEmpty(config.seoPreview))
+        ? [
             defineField({
               name: 'preview',
               title: 'SEO Preview',
               type: 'string',
               components: {input: SeoPreview},
+              options: {
+                baseUrl: config.baseUrl || 'https://www.example.com',
+                ...(typeof config.seoPreview === 'object' &&
+                config.seoPreview &&
+                config.seoPreview.prefix
+                  ? {prefix: config.seoPreview.prefix}
+                  : {}),
+              } as any,
+              // Use a readOnly field to prevent editing
+              // This field is just for preview purposes
+              initialValue: {} as any, // TypeScript workaround
               readOnly: true,
             }),
-          ]),
+          ]
+        : []),
 
       defineField({
         name: 'title',

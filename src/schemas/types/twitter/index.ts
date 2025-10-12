@@ -2,7 +2,7 @@ import {defineField, defineType} from 'sanity'
 import TwitterTitle from '../../../components/twitter/twitterTitle'
 import TwitterDescription from '../../../components/twitter/twitterDescription'
 import {SeoFieldsPluginConfig} from '../../../plugin'
-import {getFieldHiddenFunction} from '../../../utils/fieldsUtils'
+import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
 
 export default function twitter(config: SeoFieldsPluginConfig = {}) {
   return defineType({
@@ -10,70 +10,87 @@ export default function twitter(config: SeoFieldsPluginConfig = {}) {
     title: 'X (Formerly Twitter)',
     type: 'object',
     fields: [
-    defineField({
-      name: 'card',
-      title: 'Card Type',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Summary', value: 'summary'},
-          {title: 'Summary with Large Image', value: 'summary_large_image'},
-          {title: 'App', value: 'app'},
-          {title: 'Player', value: 'player'},
+      defineField({
+        name: 'card',
+        ...getFieldInfo('twitterCard', config.fieldOverrides),
+        type: 'string',
+        options: {
+          list: [
+            {title: 'Summary', value: 'summary'},
+            {title: 'Summary with Large Image', value: 'summary_large_image'},
+            {title: 'App', value: 'app'},
+            {title: 'Player', value: 'player'},
+          ],
+        },
+        hidden: getFieldHiddenFunction('twitterCard', config),
+        initialValue: 'summary_large_image', // good default
+      }),
+      defineField({
+        name: 'site',
+        ...getFieldInfo('twitterSite', config.fieldOverrides),
+        type: 'string',
+        hidden: getFieldHiddenFunction('twitterSite', config),
+      }),
+      defineField({
+        name: 'creator',
+        type: 'string',
+        ...getFieldInfo('twitterCreator', config.fieldOverrides),
+        hidden: getFieldHiddenFunction('twitterCreator', config),
+      }),
+      defineField({
+        name: 'title',
+        type: 'string',
+        ...getFieldInfo('twitterTitle', config.fieldOverrides),
+        hidden: getFieldHiddenFunction('twitterTitle', config),
+        components: {
+          input: TwitterTitle,
+        },
+      }),
+      defineField({
+        name: 'description',
+        type: 'text',
+        rows: 3,
+        ...getFieldInfo('twitterDescription', config.fieldOverrides),
+        hidden: getFieldHiddenFunction('twitterDescription', config),
+        components: {
+          input: TwitterDescription,
+        },
+      }),
+      defineField({
+        name: 'imageType',
+        ...getFieldInfo('twitterImageType', config.fieldOverrides),
+        type: 'string',
+        options: {
+          list: [
+            {title: 'Upload Image', value: 'upload'},
+            {title: 'Image URL', value: 'url'},
+          ],
+        },
+        hidden: getFieldHiddenFunction('twitterImage', config),
+        initialValue: 'upload',
+      }),
+      defineField({
+        name: 'image',
+        ...getFieldInfo('twitterImage', config.fieldOverrides),
+        type: 'image',
+        options: {
+          hotspot: true,
+        },
+        fields: [
+          defineField({
+            name: 'alt',
+            title: 'Image Alt Text',
+            type: 'string',
+            description: 'A description of the image for accessibility purposes.',
+          }),
         ],
-      },
-      initialValue: 'summary_large_image', // good default
-    }),
-    defineField({
-      name: 'site',
-      title: 'Site X Handle',
-      type: 'string',
-      description: 'The X (formerly Twitter) handle of the website (e.g., @example)',
-      hidden: getFieldHiddenFunction('twitterSite', config),
-    }),
-    defineField({
-      name: 'creator',
-      title: 'X Creator Handle',
-      type: 'string',
-      description: 'The X (formerly Twitter) handle of the content creator (e.g., @creator)',
-    }),
-    defineField({
-      name: 'title',
-      title: 'X Title',
-      type: 'string',
-      description: 'The title of the content as it should appear on X (formerly Twitter).',
-      components: {
-        input: TwitterTitle,
-      },
-    }),
-    defineField({
-      name: 'description',
-      title: 'X Description',
-      type: 'text',
-      rows: 3,
-      description: 'A brief description of the content for X (formerly Twitter).',
-      components: {
-        input: TwitterDescription,
-      },
-    }),
-    defineField({
-      name: 'image',
-      title: 'X Image',
-      type: 'image',
-      description:
-        'An image URL which should be at least 120x120px for "summary" card and 280x150px for "summary_large_image" card.',
-      options: {
-        hotspot: true,
-      },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Image Alt Text',
-          type: 'string',
-          description: 'Short alt text describing the image',
-        }),
-      ],
-    }),
-  ],
+      }),
+      defineField({
+        name: 'imageUrl',
+        ...getFieldInfo('twitterImageUrl', config.fieldOverrides),
+        type: 'url',
+        hidden: ({parent}) => parent?.imageType !== 'url',
+      }),
+    ],
   })
 }

@@ -10,13 +10,21 @@ interface SeoPreviewProps {
 }
 
 const SeoPreview = (props: StringInputProps) => {
-  const {path} = props
+  const {path, schemaType} = props
+  const {options} = schemaType as any // TypeScript workaround
+  const baseUrl = options?.baseUrl || 'https://www.example.com'
+  const prefixFunction = options?.prefix as
+    | ((doc: {_type?: string} & Record<string, unknown>) => string)
+    | undefined
   const parent = useFormValue([path[0]]) || {
     title: '',
     description: '',
     canonicalUrl: '',
   }
-  console.log('SEO Preview Parent:', parent)
+  const rootDoc: any = useFormValue([]) || {
+    slug: {current: ''},
+  }
+  const slug: any = rootDoc?.slug?.current || ''
 
   const {
     title: title,
@@ -39,7 +47,27 @@ const SeoPreview = (props: StringInputProps) => {
       <Stack space={3}>
         {/* URL */}
         <Text size={1} style={{color: '#006621', fontSize: 12, lineHeight: 1.3, marginBottom: 3}}>
-          {url || 'https://www.example.com/page-url'}
+          {(() => {
+            const base = (url || baseUrl)?.replace(/\/+$/, '')
+            const slugStr = String(slug || '').replace(/^\/+/, '')
+            const pref = String(prefixFunction ? prefixFunction(rootDoc as any) : '').replace(
+              /^\/+|\/+$/g,
+              '',
+            )
+            const path = [pref, slugStr].filter(Boolean).join('/')
+            const finalUrl = path ? `${base}/${path}` : base
+
+            return (
+              <a
+                href={finalUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{color: 'inherit', textDecoration: 'none'}}
+              >
+                {finalUrl || 'https://www.example.com/page-url'}
+              </a>
+            )
+          })()}
         </Text>
 
         {/* Title */}

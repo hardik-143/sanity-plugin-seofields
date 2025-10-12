@@ -3,6 +3,7 @@
 // import OgDescription from '../../../components/openGraph/OgDescription'
 
 import {SeoFieldsPluginConfig, AllFieldKeys} from '../plugin'
+import twitter from '../schemas/types/twitter'
 
 // export default defineType({
 //   name: 'openGraph',
@@ -122,6 +123,76 @@ const DEFAULT_FIELD_INFO = {
     description:
       'Add custom meta attributes to the head of the document for additional SEO and social media integration.',
   },
+  openGraphTitle: {
+    title: 'Open Graph Title',
+    description: '',
+  },
+  openGraphUrl: {
+    title: 'Open Graph URL',
+    description:
+      'The canonical URL of the page. This should be the full URL including protocol (https://).',
+  },
+  openGraphDescription: {
+    title: 'Open Graph Description',
+    description: '',
+  },
+  openGraphSiteName: {
+    title: 'Open Graph Site Name',
+    description: 'The name of your website. This is often the site title.',
+  },
+  openGraphType: {
+    title: 'Open Graph Type',
+    description: 'Select the type of content for Open Graph.',
+  },
+  openGraphImageType: {
+    title: 'Image Type',
+    description: 'Choose whether to upload an image or provide an image URL for Open Graph.',
+  },
+  openGraphImage: {
+    title: 'Open Graph Image',
+    description:
+      'Recommended size: 1200x630px (minimum 600x315px). Max file size: 5MB. Aspect ratio 1.91:1.',
+  },
+  openGraphImageUrl: {
+    title: 'Open Graph Image URL',
+    description:
+      'Enter the full URL of the image. Ensure the image is accessible and meets the recommended size of 1200x630px (minimum 600x315px).',
+  },
+  twitterCard: {
+    title: 'Card Type',
+    description: '',
+  },
+  twitterSite: {
+    title: 'Site X Handle',
+    description: 'The X (formerly Twitter) handle of the website (e.g., @example)',
+  },
+  twitterCreator: {
+    title: 'X Creator Handle',
+    description: 'The X (formerly Twitter) handle of the content creator (e.g., @creator)',
+  },
+  twitterTitle: {
+    title: 'X Title',
+    description: 'The title of the content as it should appear on X (formerly Twitter).',
+  },
+  twitterDescription: {
+    title: 'X Description',
+    description: 'A brief description of the content for X (formerly Twitter).',
+  },
+  twitterImageType: {
+    title: 'X Image Type',
+    description:
+      'Choose whether to upload an image or provide an image URL for X (formerly Twitter).',
+  },
+  twitterImage: {
+    title: 'X Image',
+    description:
+      'An image URL which should be at least 120x120px for "summary" card and 280x150px for "summary_large_image" card.',
+  },
+  twitterImageUrl: {
+    title: 'X Image URL',
+    description:
+      'Enter the full URL of the image for X (formerly Twitter). Ensure the image is accessible and meets the recommended size.',
+  },
 }
 
 export const getFieldInfo = (
@@ -160,10 +231,7 @@ export const isFieldHidden = (
 /**
  * Get the hidden function for any field
  */
-export const getFieldHiddenFunction = (
-  fieldName: AllFieldKeys,
-  config: SeoFieldsPluginConfig,
-) => {
+export const getFieldHiddenFunction = (fieldName: AllFieldKeys, config: SeoFieldsPluginConfig) => {
   return ({document}: {document?: any}) => {
     const documentType = document?._type
     return isFieldHidden(fieldName, config, documentType)

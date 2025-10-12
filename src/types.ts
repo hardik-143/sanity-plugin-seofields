@@ -49,7 +49,7 @@ export interface OpenGraphSettings {
   siteName?: string
   type?: 'website' | 'article' | 'profile' | 'book' | 'music' | 'video' | 'product'
   imageType?: 'upload' | 'url'
-  image?: SanityImage
+  image?: SanityImageWithAlt
   imageUrl?: string
 }
 
@@ -60,7 +60,9 @@ export interface TwitterCardSettings {
   site?: string
   title?: string
   description?: string
+  imageType?: 'upload' | 'url'
   image?: SanityImageWithAlt
+  imageUrl?: string
 }
 
 // Main SEO Fields interface

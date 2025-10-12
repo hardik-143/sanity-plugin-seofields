@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/sanity-plugin-seofields.svg)](https://badge.fury.io/js/sanity-plugin-seofields)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive Sanity Studio v3 plugin to manage SEO fields like meta titles, descriptions, Open Graph tags, and Twitter Cards for structured, search-optimized content.
+A comprehensive Sanity Studio v3 plugin to manage SEO fields like meta titles, descriptions, Open Graph tags, and X (Formerly Twitter) Cards for structured, search-optimized content.
 
 ## ✨ Features
 
@@ -264,7 +264,7 @@ seofields({
 ```
 
 This is particularly useful when you want to:
-- Manage sitewide settings (like site name and Twitter handle) in a dedicated Site Settings document
+- Manage sitewide settings (like site name and X handle) in a dedicated Site Settings document
 - Simplify the editing experience by hiding fields that aren't relevant for certain content types
 - Create different SEO workflows for different content types
 
@@ -302,12 +302,12 @@ This is particularly useful when you want to:
 - **Large Image**: Minimum 280x150px
 - **Required**: Alt text for accessibility
 
-#### Twitter Card Creator
+#### X (Formerly Twitter) Card Creator
 
-- **Purpose**: Attribution to content creator on Twitter
-- **Format**: Twitter handle with @ symbol (e.g., @creator)
+- **Purpose**: Attribution to content creator on X (formerly Twitter)
+- **Format**: X handle with @ symbol (e.g., @creator)
 - **Usage**: Identifies the individual author of the content
-- **Best Practice**: Use actual Twitter handles for proper attribution
+- **Best Practice**: Use actual X handles for proper attribution
 
 ## 💻 TypeScript Usage
 

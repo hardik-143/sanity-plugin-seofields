@@ -137,7 +137,7 @@ seofields({
   - "Twitter Image" → "X Image"
 - Updated field descriptions to reference "X (formerly Twitter)"
 - Enhanced Twitter and OpenGraph schemas to accept configuration parameters
-- Added field visibility controls to `siteName` and `site` fields using `getFieldHiddenFunction`
+- Added field visibility controls to `openGraphSiteName` and `twitterSite` fields using `getFieldHiddenFunction`
 
 ### Technical Improvements
 
@@ -148,3 +148,89 @@ seofields({
 ### Pull Request Links
 
 - 🌐 Add field visibility feature and update Twitter branding to X [#1](https://github.com/hardik-143/sanity-plugin-seofields/pull/1) [@crimsonwebteam](https://github.com/crimsonwebteam)
+
+## [1.0.7] - 2025-10-12
+
+**SEO Preview System:**
+
+- `seoPreview` - boolean to enable/disable SEO preview feature (default: true)
+- `seoPreview.prefix` - Custom prefix function for dynamic preview generation based on document data
+- `baseUrl` - Configure preview base URL for SEO preview functionality
+
+### Plugin Configuration Interface Updates
+
+**New Field Keys Added:**
+
+- `twitterImageType` - Missing field key for X image type selection
+- `twitterImageUrl` - Missing field key for X external image URL
+
+**Enhanced Configuration Options:**
+
+- `SeoFieldsPluginConfig.seoPreview` - Now supports both boolean and object with prefix function
+- `SeoFieldsPluginConfig.baseUrl` - New string option for setting preview base URL
+- `SeoFieldsPluginConfig.fieldVisibility` - Per-document-type field visibility control
+- `SeoFieldsPluginConfig.defaultHiddenFields` - Global field hiding capability
+
+**Type System Improvements:**
+
+- `AllFieldKeys` - Union type covering all 27+ field keys across SEO, Open Graph, and Twitter
+- `FieldVisibilityConfig` - Interface for field visibility configuration per document type
+- `SeoFieldConfig` - Interface for customizing field titles and descriptions
+
+### Configuration Usage Examples
+
+**Advanced SEO Preview Configuration:**
+
+```typescript
+// Advanced SEO Preview Configuration with prefix shown in the preview URL
+seofields({
+  seoPreview: {
+    prefix: (doc) => `${doc._type === 'page' ? 'Page' : 'Article'}: `,
+  },
+  baseUrl: 'https://your-domain.com',
+})
+```
+
+Preview URL pattern:
+
+- https://your-domain.com/{slugified-prefix}/{document_slug}
+
+Examples:
+
+- For doc: { \_type: 'page', slug: { current: 'about-us' } }
+  - https://your-domain.com/page/about-us
+- For doc: { \_type: 'post', slug: { current: 'hello-world' } }
+  - https://your-domain.com/article/hello-world
+
+**Field Visibility Configuration:**
+
+```typescript
+seofields({
+  fieldVisibility: {
+    page: {
+      hiddenFields: ['openGraphSiteName', 'twitterSite', 'twitterImageType', 'twitterImageUrl'],
+    },
+    post: {
+      hiddenFields: ['canonicalUrl', 'openGraphType'],
+    },
+  },
+  defaultHiddenFields: ['openGraphSiteName', 'twitterSite'],
+})
+```
+
+**Complete Field Override Configuration:**
+
+```typescript
+seofields({
+  fieldOverrides: {
+    twitterImageType: {
+      title: 'X Image Upload Method',
+      description: 'Choose how to add an image for X (formerly Twitter) cards',
+    },
+    twitterImageUrl: {
+      title: 'X External Image URL',
+      description: 'Enter the full URL of an external image for X cards',
+    },
+  },
+})
+```
