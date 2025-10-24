@@ -234,3 +234,10 @@ seofields({
   },
 })
 ```
+
+
+## [1.0.8] - 2025-10-15
+### Fixed
+- Fixed issue with initial value assignment in SEO preview field schema
+In `src/schemas/index.ts`, updated the `initialValue` assignment for the SEO preview field schema to ensure it is correctly set as an empty string.
+

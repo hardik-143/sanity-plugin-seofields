@@ -1,7 +1,10 @@
 # 🔍 Sanity SEO Fields Plugin
 
-[![npm version](https://badge.fury.io/js/sanity-plugin-seofields.svg)](https://badge.fury.io/js/sanity-plugin-seofields)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/npm/v/sanity-plugin-seofields.svg?color=brightgreen&label=npm)](https://www.npmjs.com/package/sanity-plugin-seofields)
+[![npm downloads](https://img.shields.io/npm/dm/sanity-plugin-seofields.svg?color=blue)](https://www.npmjs.com/package/sanity-plugin-seofields)
+[![license](https://img.shields.io/npm/l/sanity-plugin-seofields.svg?color=yellow)](./LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/hardik-143/sanity-plugin-seofields?color=orange)](https://github.com/hardik-143/sanity-plugin-seofields/issues)
+[![GitHub stars](https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social)](https://github.com/hardik-143/sanity-plugin-seofields)
 
 A comprehensive Sanity Studio v3 plugin to manage SEO fields like meta titles, descriptions, Open Graph tags, and X (Formerly Twitter) Cards for structured, search-optimized content.
 

@@ -37,7 +37,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
               } as any,
               // Use a readOnly field to prevent editing
               // This field is just for preview purposes
-              initialValue: {} as any, // TypeScript workaround
+              initialValue: '' as string, // Set an initial value
               readOnly: true,
             }),
           ]
