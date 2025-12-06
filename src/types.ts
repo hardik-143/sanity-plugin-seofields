@@ -80,19 +80,19 @@ export interface SeoFields {
 }
 
 // Type guards
-export const isSeoFields = (obj: any): obj is SeoFields => {
+export const isSeoFields = (obj: {_type: string}): obj is SeoFields => {
   return obj && obj._type === 'seoFields'
 }
 
-export const isOpenGraphSettings = (obj: any): obj is OpenGraphSettings => {
+export const isOpenGraphSettings = (obj: {_type: string}): obj is OpenGraphSettings => {
   return obj && obj._type === 'openGraph'
 }
 
-export const isTwitterCardSettings = (obj: any): obj is TwitterCardSettings => {
+export const isTwitterCardSettings = (obj: {_type: string}): obj is TwitterCardSettings => {
   return obj && obj._type === 'twitter'
 }
 
-export const isMetaAttribute = (obj: any): obj is MetaAttribute => {
+export const isMetaAttribute = (obj: {_type: string}): obj is MetaAttribute => {
   return obj && obj._type === 'metaAttribute'
 }
 
@@ -143,4 +143,9 @@ export const defaultSeoValidationRules: SeoValidationRules = {
   },
 }
 
-// All types are already exported above with individual export statements
+// text: string; color: 'green' | 'orange' | 'red'}[]
+export type FeedbackTypeColors = 'green' | 'orange' | 'red'
+export type FeedbackType = {
+  text: string
+  color: FeedbackTypeColors
+}

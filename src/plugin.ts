@@ -1,5 +1,6 @@
 // plugin.ts
 import {definePlugin} from 'sanity'
+
 import types from './schemas/types'
 
 export interface SeoFieldConfig {
@@ -38,9 +39,13 @@ export type twitterFieldKeys =
 
 export type AllFieldKeys = SeoFieldKeys | openGraphFieldKeys | twitterFieldKeys
 
+export type ValidHiddenFieldKeys = Exclude<
+  AllFieldKeys,
+  'openGraphImageUrl' | 'twitterImageUrl' | 'openGraphImageType' | 'twitterImageType'
+>
+
 export interface FieldVisibilityConfig {
-  hiddenFields?: AllFieldKeys[]
-  postType?: string
+  hiddenFields?: ValidHiddenFieldKeys[]
 }
 
 export interface SeoFieldsPluginConfig {
@@ -67,22 +72,18 @@ export interface SeoFieldsPluginConfig {
    * This allows customization of field titles and descriptions.
    * For example, to change the title of the 'title' field:
    */
-  fieldOverrides?: {
-    [key in AllFieldKeys]?: SeoFieldConfig
-  }
+  fieldOverrides?: Partial<Record<AllFieldKeys, SeoFieldConfig>>
   /**
    * A mapping of document types to field visibility configurations.
    * This allows you to specify which fields should be hidden for specific document types.
    */
-  fieldVisibility?: {
-    [postType: string]: FieldVisibilityConfig
-  }
+  fieldVisibility?: Record<string, FieldVisibilityConfig>
 
   /**
    * A list of fields that should be hidden by default in all document types.
    * This can be overridden by specific document type settings in `fieldVisibility`.
    */
-  defaultHiddenFields?: AllFieldKeys[]
+  defaultHiddenFields?: ValidHiddenFieldKeys[]
   /**
    * The base URL of your website, used for generating full URLs in the SEO preview.
    * Defaults to 'https://www.example.com' if not provided.

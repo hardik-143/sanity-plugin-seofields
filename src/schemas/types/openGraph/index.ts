@@ -1,10 +1,11 @@
-import {defineField, defineType} from 'sanity'
-import OgTitle from '../../../components/openGraph/OgTitle'
+import {defineField, defineType, SchemaTypeDefinition} from 'sanity'
+
 import OgDescription from '../../../components/openGraph/OgDescription'
+import OgTitle from '../../../components/openGraph/OgTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
 import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
 
-export default function openGraph(config: SeoFieldsPluginConfig = {}) {
+export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
     name: 'openGraph',
     title: 'Open Graph Settings',
@@ -90,13 +91,23 @@ export default function openGraph(config: SeoFieldsPluginConfig = {}) {
             description: 'A description of the image for accessibility purposes.',
           }),
         ],
-        hidden: ({parent}) => parent?.imageType !== 'upload',
+        hidden: (context) => {
+          const {parent} = context
+          if (parent?.imageType !== 'upload') return true
+          const hiddenFn = getFieldHiddenFunction('openGraphImage', config)
+          return typeof hiddenFn === 'function' ? hiddenFn(context) : hiddenFn
+        },
       }),
       defineField({
         name: 'imageUrl',
         ...getFieldInfo('openGraphImageUrl', config.fieldOverrides),
         type: 'url',
-        hidden: ({parent}) => parent?.imageType !== 'url',
+        hidden: (context) => {
+          const {parent} = context
+          if (parent?.imageType !== 'url') return true
+          const hiddenFn = getFieldHiddenFunction('openGraphImage', config)
+          return typeof hiddenFn === 'function' ? hiddenFn(context) : hiddenFn
+        },
       }),
     ],
   })

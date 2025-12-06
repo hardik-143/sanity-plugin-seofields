@@ -1,12 +1,15 @@
-import {defineField, defineType} from 'sanity'
-import MetaTitle from '../components/meta/MetaTitle'
+import {defineField, defineType, SchemaTypeDefinition} from 'sanity'
+
 import MetaDescription from '../components/meta/MetaDescription'
+import MetaTitle from '../components/meta/MetaTitle'
 import SeoPreview from '../components/SeoPreview'
 import {SeoFieldsPluginConfig} from '../plugin'
-import {getFieldInfo, getFieldHiddenFunction} from '../utils/fieldsUtils'
+import {getFieldHiddenFunction, getFieldInfo} from '../utils/fieldsUtils'
 import {isEmpty} from '../utils/utils'
+import openGraph from './types/openGraph'
+import twitter from './types/twitter'
 
-export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
+export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
     name: 'seoFields',
     title: 'SEO Fields',
@@ -34,7 +37,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
                 config.seoPreview.prefix
                   ? {prefix: config.seoPreview.prefix}
                   : {}),
-              } as any,
+              } as Record<string, unknown>,
               // Use a readOnly field to prevent editing
               // This field is just for preview purposes
               initialValue: '' as string, // Set an initial value
@@ -111,16 +114,8 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}) {
           'Specify the canonical URL for this page. This helps prevent duplicate content issues by indicating the preferred version of a page.',
         hidden: getFieldHiddenFunction('canonicalUrl', config),
       }),
-      defineField({
-        name: 'openGraph',
-        title: 'Open Graph Settings',
-        type: 'openGraph',
-      }),
-      defineField({
-        name: 'twitter',
-        title: 'X (Formerly Twitter) Card Settings',
-        type: 'twitter',
-      }),
+      openGraph(config) as any,
+      twitter(config) as any,
     ],
   })
 }

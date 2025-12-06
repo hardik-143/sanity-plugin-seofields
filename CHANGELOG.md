@@ -235,9 +235,31 @@ seofields({
 })
 ```
 
-
 ## [1.0.8] - 2025-10-15
-### Fixed
-- Fixed issue with initial value assignment in SEO preview field schema
-In `src/schemas/index.ts`, updated the `initialValue` assignment for the SEO preview field schema to ensure it is correctly set as an empty string.
 
+### Fixed
+
+- Fixed issue with initial value assignment in SEO preview field schema
+  In `src/schemas/index.ts`, updated the `initialValue` assignment for the SEO preview field schema to ensure it is correctly set as an empty string.
+
+## [1.0.9] - 2025-12-06
+
+### Added
+
+- Exported the `FeedbackType` helpers from `src/types.ts` for use across validation-driven UI components.
+
+### Changed
+
+- Hardened plugin configuration typings in `src/plugin.ts` and `src/utils/fieldsUtils.ts`, including the new `ValidHiddenFieldKeys` guard and stricter `fieldOverrides` typing.
+- Returned explicit `SchemaTypeDefinition` instances from the schema factories in `src/schemas/index.ts` and `src/schemas/types/*`, ensuring config is forwarded while keeping Sanity typings intact.
+- Refreshed the SEO form inputs in `src/components/**/*.tsx` to rely on the shared feedback types, memoised keyword lookups, and clearer schema option typing.
+- Reordered public exports in `src/index.ts` so schema factories are grouped consistently with the plugin entry point.
+
+### Fixed
+
+- Ensured config-driven hidden logic reaches nested Open Graph and X image selectors by delegating to the factory helpers in `src/schemas/types/openGraph/index.ts` and `src/schemas/types/twitter/index.ts`. [#2](https://github.com/hardik-143/sanity-plugin-seofields/issues/2)
+- Passed `SeoFieldsPluginConfig` through the root schema in `src/schemas/index.ts`, so nested fields respect visibility rules and overrides.
+
+### Removed
+
+- Deleted the unused schema generator at `src/utils/generaeDynamicJsonLd.ts` and the redundant barrel file `src/types/index.ts`.

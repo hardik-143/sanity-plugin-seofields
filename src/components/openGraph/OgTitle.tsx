@@ -1,26 +1,28 @@
+import {Stack, Text} from '@sanity/ui'
 import React, {useMemo} from 'react'
 import {StringInputProps, useFormValue} from 'sanity'
-import {Stack, Text, Box} from '@sanity/ui'
-import { getOgTitleValidation } from '../../utils/seoUtils'
+
+import {FeedbackType} from '../../types'
+import {getOgTitleValidation} from '../../utils/seoUtils'
 
 const OgTitle: React.FC<StringInputProps> = (props) => {
   const {value, renderDefault, path} = props
 
   // Access parent object to get keywords
   const parent = useFormValue([path[0]]) as {keywords?: string[]; _type?: string}
-    const isParentseoField = parent && parent?._type === 'seoFields'
-  const keywords = parent?.keywords || []
+  const isParentseoField = parent && parent?._type === 'seoFields'
+  const keywords = useMemo(() => parent?.keywords || [], [parent?.keywords])
 
   const feedbackItems = useMemo(
     () => getOgTitleValidation(value || '', keywords, isParentseoField),
-    [value, keywords],
+    [value, keywords, isParentseoField],
   )
 
   return (
     <Stack space={3}>
       {renderDefault(props)}
       <Stack space={2}>
-        {feedbackItems.map((item: any) => (
+        {feedbackItems.map((item: FeedbackType) => (
           <div key={item.text} style={{display: 'flex', alignItems: 'center', gap: 7}}>
             <div
               style={{

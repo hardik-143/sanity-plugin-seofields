@@ -20,36 +20,36 @@ Complete TypeScript type definitions and schema documentation for the Sanity SEO
 The main SEO fields object containing all SEO-related data.
 
 ```typescript
-export type SeoFields = {
+export interface SeoFields {
   _type: 'seoFields'
-  robots?: Robots
+  robots?: RobotsSettings
   preview?: string
   title?: string
   description?: string
   metaImage?: SanityImage
-  metaAttributes?: Array<MetaAttribute>
-  keywords?: Array<string>
+  metaAttributes?: MetaAttribute[]
+  keywords?: string[]
   canonicalUrl?: string
-  openGraph?: OpenGraph
-  twitter?: Twitter
+  openGraph?: OpenGraphSettings
+  twitter?: TwitterCardSettings
 }
 ```
 
 #### Properties
 
-| Property         | Type                   | Description                           | Required |
-| ---------------- | ---------------------- | ------------------------------------- | -------- |
-| `_type`          | `'seoFields'`          | Sanity document type identifier       | ✅       |
-| `robots`         | `Robots`               | Search engine crawling directives     | ❌       |
-| `preview`        | `string`               | SEO preview (read-only)               | ❌       |
-| `title`          | `string`               | HTML meta title (max 70 chars)        | ❌       |
-| `description`    | `string`               | HTML meta description (max 160 chars) | ❌       |
-| `metaImage`      | `SanityImage`          | Default social sharing image          | ❌       |
-| `metaAttributes` | `Array<MetaAttribute>` | Custom meta attributes                | ❌       |
-| `keywords`       | `Array<string>`        | SEO keywords                          | ❌       |
-| `canonicalUrl`   | `string`               | Canonical URL for duplicate content   | ❌       |
-| `openGraph`      | `OpenGraph`            | Open Graph social media settings      | ❌       |
-| `twitter`        | `Twitter`              | Twitter Card settings                 | ❌       |
+| Property         | Type                  | Description                           | Required |
+| ---------------- | --------------------- | ------------------------------------- | -------- |
+| `_type`          | `'seoFields'`         | Sanity document type identifier       | ✅       |
+| `robots`         | `RobotsSettings`      | Search engine crawling directives     | ❌       |
+| `preview`        | `string`              | SEO preview (read-only)               | ❌       |
+| `title`          | `string`              | HTML meta title (max 70 chars)        | ❌       |
+| `description`    | `string`              | HTML meta description (max 160 chars) | ❌       |
+| `metaImage`      | `SanityImage`         | Default social sharing image          | ❌       |
+| `metaAttributes` | `MetaAttribute[]`     | Custom meta attributes                | ❌       |
+| `keywords`       | `Array<string>`       | SEO keywords                          | ❌       |
+| `canonicalUrl`   | `string`              | Canonical URL for duplicate content   | ❌       |
+| `openGraph`      | `OpenGraphSettings`   | Open Graph social media settings      | ❌       |
+| `twitter`        | `TwitterCardSettings` | X (formerly Twitter) settings         | ❌       |
 
 ---
 
@@ -58,30 +58,32 @@ export type SeoFields = {
 Open Graph meta tags for social media sharing optimization.
 
 ```typescript
-export type OpenGraph = {
+export interface OpenGraphSettings {
   _type: 'openGraph'
+  url?: string
   title?: string
   description?: string
   siteName?: string
   type?: 'website' | 'article' | 'profile' | 'book' | 'music' | 'video' | 'product'
   imageType?: 'upload' | 'url'
-  image?: SanityImage
+  image?: SanityImageWithAlt
   imageUrl?: string
 }
 ```
 
 #### Properties
 
-| Property      | Type                | Description                              | Recommended Size     |
-| ------------- | ------------------- | ---------------------------------------- | -------------------- |
-| `_type`       | `'openGraph'`       | Type identifier                          | -                    |
-| `title`       | `string`            | Social media title (max 95 chars)        | -                    |
-| `description` | `string`            | Social media description (max 200 chars) | -                    |
-| `siteName`    | `string`            | Website name                             | -                    |
-| `type`        | `OpenGraphType`     | Content type for Open Graph              | Default: `'website'` |
-| `imageType`   | `'upload' \| 'url'` | Image source type                        | Default: `'upload'`  |
-| `image`       | `SanityImage`       | Uploaded image for sharing               | 1200x630px           |
-| `imageUrl`    | `string`            | External image URL                       | 1200x630px           |
+| Property      | Type                 | Description                              | Recommended Size     |
+| ------------- | -------------------- | ---------------------------------------- | -------------------- |
+| `_type`       | `'openGraph'`        | Type identifier                          | -                    |
+| `url`         | `string`             | Canonical URL for the shared content     | Absolute URL         |
+| `title`       | `string`             | Social media title (max 95 chars)        | -                    |
+| `description` | `string`             | Social media description (max 200 chars) | -                    |
+| `siteName`    | `string`             | Website name                             | -                    |
+| `type`        | `OpenGraphType`      | Content type for Open Graph              | Default: `'website'` |
+| `imageType`   | `'upload' \| 'url'`  | Image source type                        | Default: `'upload'`  |
+| `image`       | `SanityImageWithAlt` | Uploaded image for sharing with alt text | 1200x630px           |
+| `imageUrl`    | `string`             | External image URL                       | 1200x630px           |
 
 #### Open Graph Types
 
@@ -95,33 +97,37 @@ export type OpenGraph = {
 
 ---
 
-### `Twitter`
+### `TwitterCardSettings`
 
-Twitter Card specific meta tags and settings.
+X (formerly Twitter) Card specific meta tags and settings.
 
 ```typescript
-export type Twitter = {
+export interface TwitterCardSettings {
   _type: 'twitter'
   card?: 'summary' | 'summary_large_image' | 'app' | 'player'
   site?: string
   title?: string
   description?: string
+  imageType?: 'upload' | 'url'
   image?: SanityImageWithAlt
+  imageUrl?: string
 }
 ```
 
 #### Properties
 
-| Property      | Type                 | Description                         | Requirements                     |
-| ------------- | -------------------- | ----------------------------------- | -------------------------------- |
-| `_type`       | `'twitter'`          | Type identifier                     | -                                |
-| `card`        | `TwitterCardType`    | Twitter Card type                   | Default: `'summary_large_image'` |
-| `site`        | `string`             | Twitter handle (@username)          | Must start with @                |
-| `title`       | `string`             | Twitter title (max 70 chars)        | -                                |
-| `description` | `string`             | Twitter description (max 200 chars) | -                                |
-| `image`       | `SanityImageWithAlt` | Image with required alt text        | See sizes below                  |
+| Property      | Type                 | Description                   | Requirements                     |
+| ------------- | -------------------- | ----------------------------- | -------------------------------- |
+| `_type`       | `'twitter'`          | Type identifier               | -                                |
+| `card`        | `TwitterCardType`    | X Card type                   | Default: `'summary_large_image'` |
+| `site`        | `string`             | X handle (@username)          | Must start with @                |
+| `title`       | `string`             | X title (max 70 chars)        | -                                |
+| `description` | `string`             | X description (max 200 chars) | -                                |
+| `imageType`   | `'upload' \| 'url'`  | X image source selection      | Default: `'upload'`              |
+| `image`       | `SanityImageWithAlt` | Image with required alt text  | See sizes below                  |
+| `imageUrl`    | `string`             | External image URL            | Matches selected card type       |
 
-#### Twitter Card Types & Image Requirements
+#### X Card Types & Image Requirements
 
 | Card Type             | Image Size        | Use Case                  |
 | --------------------- | ----------------- | ------------------------- |
@@ -132,13 +138,12 @@ export type Twitter = {
 
 ---
 
-### `Robots`
+### `RobotsSettings`
 
 Search engine crawler directives.
 
 ```typescript
-export type Robots = {
-  _type: 'robots'
+export interface RobotsSettings {
   noIndex?: boolean
   noFollow?: boolean
 }
@@ -146,11 +151,10 @@ export type Robots = {
 
 #### Properties
 
-| Property   | Type       | Description                     | Default |
-| ---------- | ---------- | ------------------------------- | ------- |
-| `_type`    | `'robots'` | Type identifier                 | -       |
-| `noIndex`  | `boolean`  | Prevent search engine indexing  | `false` |
-| `noFollow` | `boolean`  | Prevent following links on page | `false` |
+| Property   | Type      | Description                     | Default |
+| ---------- | --------- | ------------------------------- | ------- |
+| `noIndex`  | `boolean` | Prevent search engine indexing  | `false` |
+| `noFollow` | `boolean` | Prevent following links on page | `false` |
 
 #### Common Combinations
 
@@ -168,10 +172,10 @@ export type Robots = {
 Individual meta attribute for custom HTML meta tags.
 
 ```typescript
-export type MetaAttribute = {
+export interface MetaAttribute {
   _type: 'metaAttribute'
-  key?: string
-  type?: 'string' | 'image'
+  key: string
+  type: 'string' | 'image'
   value?: string
   image?: SanityImage
 }
@@ -221,6 +225,8 @@ export type MetaAttribute = {
 
 Collection of meta attributes.
 
+> ℹ️ The plugin currently exposes the `metaTag` schema without a dedicated exported TypeScript interface. You can model the shape with the helper below when needed.
+
 ```typescript
 export type MetaTag = {
   _type: 'metaTag'
@@ -238,6 +244,21 @@ export type MetaTag = {
 | ---------------- | ---------------------- | ----------------------------------------- |
 | `_type`          | `'metaTag'`            | Type identifier                           |
 | `metaAttributes` | `Array<MetaAttribute>` | Array of meta attributes with Sanity keys |
+
+### `FeedbackType`
+
+Helper types for UI feedback indicators returned by the validation utilities.
+
+```typescript
+export type FeedbackTypeColors = 'green' | 'orange' | 'red'
+
+export type FeedbackType = {
+  text: string
+  color: FeedbackTypeColors
+}
+```
+
+These types are consumed by components such as `MetaTitle`, `MetaDescription`, and the Open Graph/X inputs to render character count messaging and keyword guidance consistently.
 
 ---
 
@@ -441,7 +462,7 @@ export function PageHead({seo}: PageProps) {
         </>
       )}
 
-      {/* Twitter */}
+      {/* X (Twitter) */}
       {seo?.twitter && (
         <>
           <meta name="twitter:card" content={seo.twitter.card || 'summary'} />
@@ -475,21 +496,16 @@ export function PageHead({seo}: PageProps) {
 Use these utility functions to safely check types:
 
 ```typescript
-export function isSeoFields(obj: any): obj is SeoFields {
-  return obj && obj._type === 'seoFields'
-}
+export const isSeoFields = (obj: {_type?: string}): obj is SeoFields => obj?._type === 'seoFields'
 
-export function isOpenGraph(obj: any): obj is OpenGraph {
-  return obj && obj._type === 'openGraph'
-}
+export const isOpenGraphSettings = (obj: {_type?: string}): obj is OpenGraphSettings =>
+  obj?._type === 'openGraph'
 
-export function isTwitter(obj: any): obj is Twitter {
-  return obj && obj._type === 'twitter'
-}
+export const isTwitterCardSettings = (obj: {_type?: string}): obj is TwitterCardSettings =>
+  obj?._type === 'twitter'
 
-export function isMetaAttribute(obj: any): obj is MetaAttribute {
-  return obj && obj._type === 'metaAttribute'
-}
+export const isMetaAttribute = (obj: {_type?: string}): obj is MetaAttribute =>
+  obj?._type === 'metaAttribute'
 
 // Usage example
 if (isSeoFields(data)) {
@@ -504,14 +520,14 @@ if (isSeoFields(data)) {
 
 ### Character Limits
 
-| Field               | Recommended   | Maximum   | Warning Point |
-| ------------------- | ------------- | --------- | ------------- |
-| Meta Title          | 50-60 chars   | 70 chars  | 60 chars      |
-| Meta Description    | 140-150 chars | 160 chars | 150 chars     |
-| OG Title            | 85-95 chars   | 95 chars  | 90 chars      |
-| OG Description      | 180-200 chars | 200 chars | 190 chars     |
-| Twitter Title       | 60-70 chars   | 70 chars  | 65 chars      |
-| Twitter Description | 180-200 chars | 200 chars | 190 chars     |
+| Field            | Recommended   | Maximum   | Warning Point |
+| ---------------- | ------------- | --------- | ------------- |
+| Meta Title       | 50-60 chars   | 70 chars  | 60 chars      |
+| Meta Description | 140-150 chars | 160 chars | 150 chars     |
+| OG Title         | 85-95 chars   | 95 chars  | 90 chars      |
+| OG Description   | 180-200 chars | 200 chars | 190 chars     |
+| X Title          | 60-70 chars   | 70 chars  | 65 chars      |
+| X Description    | 180-200 chars | 200 chars | 190 chars     |
 
 ### Image Specifications
 
@@ -522,7 +538,7 @@ if (isSeoFields(data)) {
 - **Maximum**: 5MB
 - **Formats**: JPG, PNG, WebP
 
-#### Twitter Images
+#### X (Formerly Twitter) Images
 
 - **Summary Card**: 120x120px minimum (1:1 ratio)
 - **Large Image**: 280x150px minimum (1.87:1 ratio)
@@ -537,7 +553,7 @@ if (isSeoFields(data)) {
 4. **Canonical URL**: Always use absolute URLs
 5. **Images**: Optimize for web, include alt text
 6. **Open Graph**: Use high-quality images, engaging titles
-7. **Twitter**: Optimize for mobile viewing
+7. **X (Formerly Twitter)**: Optimize for mobile viewing
 
 ### TypeScript Usage
 
@@ -549,7 +565,7 @@ const title: string = seo?.title ?? 'Default Title'
 const ogImage = seo?.openGraph?.image?.asset?.url ?? '/default-og-image.jpg'
 
 // ✅ Good: Type guards for safety
-if (isOpenGraph(seo?.openGraph)) {
+if (isOpenGraphSettings(seo?.openGraph)) {
   console.log(seo.openGraph.title)
 }
 
@@ -557,7 +573,7 @@ if (isOpenGraph(seo?.openGraph)) {
 const title = seo.title // Could throw error
 
 // ❌ Avoid: Type assertions without guards
-const og = seo.openGraph as OpenGraph // Unsafe
+const og = seo.openGraph as OpenGraphSettings // Unsafe
 ```
 
 ---

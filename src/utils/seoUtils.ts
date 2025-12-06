@@ -1,4 +1,4 @@
-import {PathSegment, useFormValue} from 'sanity'
+import {FeedbackType} from '../types'
 
 export const stopWords = ['the', 'a', 'an', 'and', 'or', 'but']
 
@@ -33,8 +33,8 @@ export const primaryKeywordAtStart = (title: string, keywords: string[]): boolea
   return title.toLowerCase().startsWith(keywords[0].toLowerCase())
 }
 
-export const truncate = (text: string, maxLength: number) =>
-  text.length > maxLength ? text.slice(0, maxLength) + '…' : text
+export const truncate = (text: string, maxLength: number): string =>
+  text.length > maxLength ? `${text.slice(0, maxLength)}…` : text
 
 export const hasExcessivePunctuation = (title: string): boolean => /[!@#$%^&*]{2,}/.test(title)
 
@@ -42,8 +42,8 @@ export const getMetaTitleValidationMessages = (
   title: string,
   keywords: string[],
   isParentseoField: boolean,
-) => {
-  const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
 
   const minChar = 50
   const maxChar = 60
@@ -108,8 +108,8 @@ export const getMetaDescriptionValidationMessages = (
   description: string,
   keywords: string[],
   isParentseoField: boolean,
-) => {
-  const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
 
   const minChar = 150
   const maxChar = 160
@@ -180,8 +180,8 @@ export const getOgTitleValidation = (
   title: string,
   keywords: string[] = [],
   isParentseoField: boolean,
-) => {
-  const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
   const min = 40
   const max = 60
   const count = title?.length || 0
@@ -244,8 +244,8 @@ export const getOgDescriptionValidation = (
   desc: string,
   keywords: string[] = [],
   isParentseoField: boolean,
-) => {
-  const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
   const min = 90
   const max = 120
   const count = desc?.length || 0
@@ -317,8 +317,8 @@ export const getTwitterTitleValidation = (
   title: string,
   keywords: string[] = [],
   isParentseoField: boolean,
-) => {
-  const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
   const min = 30
   const max = 70
   const count = title?.length || 0
@@ -370,8 +370,8 @@ export const getTwitterDescriptionValidation = (
   desc: string,
   keywords: string[] = [],
   isParentseoField: boolean,
-) => {
-  const feedback: {text: string; color: 'green' | 'orange' | 'red'}[] = []
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
   const min = 50
   const max = 200
   const count = desc?.length || 0

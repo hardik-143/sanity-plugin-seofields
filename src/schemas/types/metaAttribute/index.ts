@@ -41,22 +41,18 @@ export default defineType({
       attributeValueString: 'value',
       attributeValueImage: 'image',
     },
-    prepare({
-      attributeName,
-      attributeValueString,
-      attributeValueImage,
-    }: {
-      attributeName: string
-      attributeValueString: string
-      attributeValueImage: any
-    }) {
+    prepare({attributeName, attributeValueString, attributeValueImage}) {
+      let subtitle = ''
+      if (attributeValueString) {
+        subtitle = `Value: ${attributeValueString}`
+      } else if (attributeValueImage) {
+        subtitle = 'Value: [Image]'
+      } else {
+        subtitle = 'No Attribute Value'
+      }
       return {
         title: attributeName || 'No Attribute Name',
-        subtitle: attributeValueString
-          ? `Value: ${attributeValueString}`
-          : attributeValueImage
-            ? 'Value: [Image]'
-            : 'No Attribute Value',
+        subtitle: subtitle,
         media: attributeValueImage,
       }
     },

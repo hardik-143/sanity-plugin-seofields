@@ -1,10 +1,11 @@
-import {defineField, defineType} from 'sanity'
-import TwitterTitle from '../../../components/twitter/twitterTitle'
+import {defineField, defineType, SchemaTypeDefinition} from 'sanity'
+
 import TwitterDescription from '../../../components/twitter/twitterDescription'
+import TwitterTitle from '../../../components/twitter/twitterTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
 import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
 
-export default function twitter(config: SeoFieldsPluginConfig = {}) {
+export default function twitter(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
     name: 'twitter',
     title: 'X (Formerly Twitter)',
@@ -84,12 +85,23 @@ export default function twitter(config: SeoFieldsPluginConfig = {}) {
             description: 'A description of the image for accessibility purposes.',
           }),
         ],
+        hidden: (context) => {
+          const {parent} = context
+          if (parent?.imageType !== 'upload') return true
+          const hiddenFn = getFieldHiddenFunction('twitterImage', config)
+          return typeof hiddenFn === 'function' ? hiddenFn(context) : hiddenFn
+        },
       }),
       defineField({
         name: 'imageUrl',
         ...getFieldInfo('twitterImageUrl', config.fieldOverrides),
         type: 'url',
-        hidden: ({parent}) => parent?.imageType !== 'url',
+        hidden: (context) => {
+          const {parent} = context
+          if (parent?.imageType !== 'url') return true
+          const hiddenFn = getFieldHiddenFunction('twitterImage', config)
+          return typeof hiddenFn === 'function' ? hiddenFn(context) : hiddenFn
+        },
       }),
     ],
   })
