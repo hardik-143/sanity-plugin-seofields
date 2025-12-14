@@ -48,14 +48,7 @@ seofields({
 
 ### Added
 
-- Added new SEO field type: `metaAttributes` for additional meta tags
-- Extended `SeoFieldKeys` type to include `metaAttributes`
-- Updated `SeoFieldsPluginConfig` to support `metaAttributes` in `fieldOverrides`
-
 ### Changed
-
-- Renamed field configuration interface from `SeoField` to `SeoFieldConfig` for clarity
-- Updated field configuration property from `fields` to `fieldOverrides` for better semantic meaning
 
 ### Example Usage
 
@@ -258,8 +251,15 @@ seofields({
 ### Fixed
 
 - Ensured config-driven hidden logic reaches nested Open Graph and X image selectors by delegating to the factory helpers in `src/schemas/types/openGraph/index.ts` and `src/schemas/types/twitter/index.ts`. [#2](https://github.com/hardik-143/sanity-plugin-seofields/issues/2)
-- Passed `SeoFieldsPluginConfig` through the root schema in `src/schemas/index.ts`, so nested fields respect visibility rules and overrides.
+
+## [1.0.10] - 2025-12-14
+
+### Added
+
+- Documented the full set of `fieldOverrides` and `fieldVisibility` keys in README field configuration guidance, aligning with the enumerations exported from `src/plugin.ts`.
+- Expanded Field Specifications in README to cover canonical URLs, meta attributes, default share images, keywords, Open Graph metadata, Twitter branding updates, and robots toggles now available in Studio.
+- Rebuilt TYPES_SCHEMA_DOCS.md as a schema-focused reference listing the available schema factories and their usage examples.
 
 ### Removed
 
-- Deleted the unused schema generator at `src/utils/generaeDynamicJsonLd.ts` and the redundant barrel file `src/types/index.ts`.
+- Stripped README and TYPES_SCHEMA_DOCS.md of references to the `dist/types` entry point and legacy TypeScript import snippets, clarifying that only the plugin bundle is exported.

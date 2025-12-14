@@ -130,14 +130,14 @@ export default defineType({
 
 ## 🎨 Available Schema Types
 
-| Type            | Description               | Use Case                         |
-| --------------- | ------------------------- | -------------------------------- |
-| `seoFields`     | Complete SEO package      | Main SEO fields for any document |
-| `openGraph`     | Open Graph meta tags      | Social media sharing             |
-| `twitter`       | X (Formerly Twitter) Card settings | X-specific optimization    |
-| `metaTag`       | Custom meta attributes    | Advanced meta tag management     |
-| `metaAttribute` | Individual meta attribute | Building custom meta tags        |
-| `robots`        | Search engine directives  | Control indexing and crawling    |
+| Type            | Description                        | Use Case                         |
+| --------------- | ---------------------------------- | -------------------------------- |
+| `seoFields`     | Complete SEO package               | Main SEO fields for any document |
+| `openGraph`     | Open Graph meta tags               | Social media sharing             |
+| `twitter`       | X (Formerly Twitter) Card settings | X-specific optimization          |
+| `metaTag`       | Custom meta attributes             | Advanced meta tag management     |
+| `metaAttribute` | Individual meta attribute          | Building custom meta tags        |
+| `robots`        | Search engine directives           | Control indexing and crawling    |
 
 ## 🔧 Configuration Options
 
@@ -189,14 +189,14 @@ export default defineConfig({
       // Hide sitewide fields on specific content types
       fieldVisibility: {
         page: {
-          hiddenFields: ['openGraphSiteName', 'twitterSite']
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
         },
         post: {
-          hiddenFields: ['openGraphSiteName', 'twitterSite']
-        }
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
       },
       // Or hide fields globally
-      defaultHiddenFields: ['openGraphSiteName', 'twitterSite']
+      defaultHiddenFields: ['openGraphSiteName', 'twitterSite'],
     } satisfies SeoFieldsPluginConfig),
   ],
 })
@@ -220,53 +220,48 @@ Each field in the `fieldOverrides` object can have:
 
 **Available field keys:**
 
-- `title`
-- `description`
-- `canonicalUrl`
-- `metaImage`
-- `keywords`
-- `metaAttributes`
+- `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`, `metaAttributes`, `robots`
+- `openGraphUrl`, `openGraphTitle`, `openGraphDescription`, `openGraphSiteName`, `openGraphType`, `openGraphImage`
+- `twitterCard`, `twitterSite`, `twitterCreator`, `twitterTitle`, `twitterDescription`, `twitterImage`
 
 #### Field Visibility Configuration
 
 Control which fields are visible on different content types. You can hide any SEO field on any post type:
 
 **Available field keys:**
-- `title` - Meta Title field
-- `description` - Meta Description field
-- `canonicalUrl` - Canonical URL field
-- `metaImage` - Meta Image field
-- `keywords` - Keywords field
-- `metaAttributes` - Custom Meta Attributes field
-- `robots` - Robots Settings field
-- `openGraphSiteName` - Open Graph Site Name field (sitewide)
-- `twitterSite` - X (Formerly Twitter) Site Handle field (sitewide)
+
+- `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`, `metaAttributes`, `robots`
+- `openGraphUrl`, `openGraphTitle`, `openGraphDescription`, `openGraphSiteName`, `openGraphType`, `openGraphImage`
+- `twitterCard`, `twitterSite`, `twitterCreator`, `twitterTitle`, `twitterDescription`, `twitterImage`
+
+> ℹ️ Hiding `openGraphImage` or `twitterImage` also hides their URL and type variants to keep the editor experience consistent.
 
 **Example configurations:**
 
 ```typescript
 // Hide fields globally
 seofields({
-  defaultHiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords']
+  defaultHiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords'],
 })
 
 // Hide fields on specific content types
 seofields({
   fieldVisibility: {
     page: {
-      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords']
+      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords'],
     },
     post: {
-      hiddenFields: ['openGraphSiteName', 'metaAttributes']
+      hiddenFields: ['openGraphSiteName', 'metaAttributes'],
     },
     product: {
-      hiddenFields: ['canonicalUrl', 'robots']
-    }
-  }
+      hiddenFields: ['canonicalUrl', 'robots'],
+    },
+  },
 })
 ```
 
 This is particularly useful when you want to:
+
 - Manage sitewide settings (like site name and X handle) in a dedicated Site Settings document
 - Simplify the editing experience by hiding fields that aren't relevant for certain content types
 - Create different SEO workflows for different content types
@@ -285,6 +280,30 @@ This is particularly useful when you want to:
 - **Purpose**: Search result descriptions
 - **Best Practice**: Compelling summary with keywords
 
+#### Canonical URL
+
+- **Format**: Must include protocol (https://)
+- **Purpose**: Signals the preferred URL when duplicate or paginated content exists
+- **Best Practice**: Mirror the resolved frontend route exactly to avoid mismatched indexing
+
+#### Meta Image
+
+- **Recommended Size**: 1200x630px minimum 600x315px
+- **Purpose**: Default share image when Open Graph/Twitter images are absent
+- **Best Practice**: Provide descriptive alt text and keep file size under 5MB
+
+#### Meta Attributes
+
+- **Structure**: Key/value pairs or key/image pairs
+- **Purpose**: Add bespoke `<meta>` tags (for example `theme-color`, `author`, verification tokens)
+- **Best Practice**: Avoid duplicating tags already generated elsewhere to limit head bloat
+
+#### Keywords
+
+- **Type**: Array of short strings
+- **Purpose**: Editorial helper; not surfaced automatically to search engines
+- **Best Practice**: Keep entries concise (1-3 words) and limit to high-intent topics
+
 #### Open Graph Image
 
 - **Recommended Size**: 1200x630px
@@ -299,6 +318,16 @@ This is particularly useful when you want to:
 - **Best Practice**: Use the preferred URL for the page to avoid duplicate content issues
 - **Required**: Should match the actual page URL for consistency
 
+#### Open Graph Site Name
+
+- **Purpose**: Displays publisher name on share previews
+- **Best Practice**: Keep consistent with brand name used across marketing channels
+
+#### Open Graph Type
+
+- **Options**: `website`, `article`, `profile`, `book`, `music`, `video`, `product`
+- **Best Practice**: Pick the narrowest type applicable to unlock platform-specific rendering
+
 #### X (Formerly Twitter) Card Image
 
 - **Summary Card**: Minimum 120x120px
@@ -312,81 +341,22 @@ This is particularly useful when you want to:
 - **Usage**: Identifies the individual author of the content
 - **Best Practice**: Use actual X handles for proper attribution
 
-## 💻 TypeScript Usage
+#### X (Formerly Twitter) Card Type
 
-The plugin includes full TypeScript support:
+- **Options**: `summary`, `summary_large_image`, `app`, `player`
+- **Best Practice**: Use `summary_large_image` for rich media, fall back to `summary` when imagery is square or minimal
 
-```typescript
-import type {
-  SeoFields,
-  OpenGraphSettings,
-  TwitterCardSettings,
-  SeoFieldsPluginConfig,
-} from 'sanity-plugin-seofields'
+#### X (Formerly Twitter) Site Handle
 
-// Plugin configuration
-const pluginConfig: SeoFieldsPluginConfig = {
-  seoPreview: true,
-  fields: {
-    title: {
-      title: 'Page Title',
-      description: 'The main title for search engines',
-    },
-    description: {
-      title: 'Meta Description',
-      description: 'Brief description for search results',
-    },
-  },
-}
+- **Purpose**: Publisher attribution when multiple authors contribute
+- **Format**: X handle with @ symbol (e.g., @brand)
+- **Best Practice**: Configure once in site settings and hide on document types that inherit it
 
-// Use in your document interfaces
-interface PageDocument {
-  _type: 'page'
-  title: string
-  seo?: SeoFields
-}
+#### Robots Settings
 
-// Type-safe field access
-const seoData: SeoFields = {
-  _type: 'seoFields',
-  title: 'My Page Title',
-  description: 'A great page description',
-  openGraph: {
-    _type: 'openGraph',
-    title: 'Social Media Title',
-    description: 'Social media description',
-    url: 'https://example.com/page',
-    type: 'website',
-  },
-  twitter: {
-    _type: 'twitter',
-    card: 'summary_large_image',
-    site: '@example',
-    creator: '@creator',
-    title: 'Twitter Title',
-    description: 'Twitter description',
-  },
-}
-```
-
-### Available Types
-
-```typescript
-import type {
-  SeoFields,
-  SeoFieldsPluginConfig,
-  SeoFieldConfig,
-  SeoFieldKeys,
-  SitewideFieldKeys,
-  FieldVisibilityConfig,
-  OpenGraphSettings,
-  TwitterCardSettings,
-  MetaAttribute,
-  MetaTag,
-  RobotsSettings,
-  SanityImage,
-} from 'sanity-plugin-seofields'
-```
+- **Options**: `noIndex`, `noFollow`
+- **Purpose**: Control whether pages are indexed or links followed by crawlers
+- **Best Practice**: Only enable when intentionally blocking content (for example gated pages or previews)
 
 ## 🎛️ Field Visibility Feature
 
@@ -399,15 +369,15 @@ The field visibility feature allows you to hide any SEO field on specific conten
 seofields({
   fieldVisibility: {
     page: {
-      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords']
+      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords'],
     },
     post: {
-      hiddenFields: ['openGraphSiteName', 'metaAttributes']
+      hiddenFields: ['openGraphSiteName', 'metaAttributes'],
     },
     product: {
-      hiddenFields: ['canonicalUrl', 'robots']
-    }
-  }
+      hiddenFields: ['canonicalUrl', 'robots'],
+    },
+  },
 })
 ```
 
@@ -475,45 +445,28 @@ defineField({
 
 ### Next.js Example
 
-```typescript
-import {SeoFields} from 'sanity-plugin-seofields'
+```tsx
 import Head from 'next/head'
 
-interface SEOProps {
-  seo?: SeoFields
-}
-
-export function SEOHead({seo}: SEOProps) {
+export function SEOHead({seo}) {
   if (!seo) return null
 
   return (
     <Head>
       {seo.title && <title>{seo.title}</title>}
-      {seo.description && (
-        <meta name="description" content={seo.description} />
-      )}
+      {seo.description && <meta name="description" content={seo.description} />}
 
       {/* Open Graph */}
-      {seo.openGraph?.title && (
-        <meta property="og:title" content={seo.openGraph.title} />
-      )}
+      {seo.openGraph?.title && <meta property="og:title" content={seo.openGraph.title} />}
       {seo.openGraph?.description && (
         <meta property="og:description" content={seo.openGraph.description} />
       )}
-      {seo.openGraph?.url && (
-        <meta property="og:url" content={seo.openGraph.url} />
-      )}
+      {seo.openGraph?.url && <meta property="og:url" content={seo.openGraph.url} />}
 
       {/* Twitter */}
-      {seo.twitter?.card && (
-        <meta name="twitter:card" content={seo.twitter.card} />
-      )}
-      {seo.twitter?.site && (
-        <meta name="twitter:site" content={seo.twitter.site} />
-      )}
-      {seo.twitter?.creator && (
-        <meta name="twitter:creator" content={seo.twitter.creator} />
-      )}
+      {seo.twitter?.card && <meta name="twitter:card" content={seo.twitter.card} />}
+      {seo.twitter?.site && <meta name="twitter:site" content={seo.twitter.site} />}
+      {seo.twitter?.creator && <meta name="twitter:creator" content={seo.twitter.creator} />}
 
       {/* Robots */}
       {seo.robots?.noIndex && <meta name="robots" content="noindex" />}
@@ -528,24 +481,17 @@ export function SEOHead({seo}: SEOProps) {
 
 ### React/Gatsby Example
 
-```typescript
+```tsx
 import {Helmet} from 'react-helmet'
-import {SeoFields} from 'sanity-plugin-seofields'
 
-interface SEOProps {
-  seo?: SeoFields
-}
-
-export function SEO({seo}: SEOProps) {
+export function SEO({seo}) {
   return (
     <Helmet>
       <title>{seo?.title}</title>
       <meta name="description" content={seo?.description} />
 
       {/* Keywords */}
-      {seo?.keywords && (
-        <meta name="keywords" content={seo.keywords.join(', ')} />
-      )}
+      {seo?.keywords && <meta name="keywords" content={seo.keywords.join(', ')} />}
 
       {/* Open Graph */}
       <meta property="og:title" content={seo?.openGraph?.title} />
@@ -554,15 +500,9 @@ export function SEO({seo}: SEOProps) {
       <meta property="og:type" content={seo?.openGraph?.type || 'website'} />
 
       {/* Twitter */}
-      {seo?.twitter?.card && (
-        <meta name="twitter:card" content={seo.twitter.card} />
-      )}
-      {seo?.twitter?.site && (
-        <meta name="twitter:site" content={seo.twitter.site} />
-      )}
-      {seo?.twitter?.creator && (
-        <meta name="twitter:creator" content={seo.twitter.creator} />
-      )}
+      {seo?.twitter?.card && <meta name="twitter:card" content={seo.twitter.card} />}
+      {seo?.twitter?.site && <meta name="twitter:site" content={seo.twitter.site} />}
+      {seo?.twitter?.creator && <meta name="twitter:creator" content={seo.twitter.creator} />}
     </Helmet>
   )
 }
@@ -584,10 +524,6 @@ import seofields from 'sanity-plugin-seofields'
 - `metaTag` - Custom meta tag collection
 - `metaAttribute` - Individual meta attribute
 - `robots` - Search engine robots settings
-
-### TypeScript Types
-
-All types are exported from the main module for use in your project.
 
 ## 🤝 Contributing
 
