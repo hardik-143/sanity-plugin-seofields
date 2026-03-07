@@ -19,11 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Clickable document titles that open the document directly in the Sanity desk in a new tab.
   - Live search, status filter (All / Excellent / Good / Fair / Poor / Missing), and sort controls (by score or title).
 
-### 🔄 Changed
-
-- Replaced all `@sanity/ui` primitives (`Box`, `Card`, `Flex`, `Grid`, `Heading`, `Select`, `Spinner`, `Stack`, `Text`, `TextInput`, `Badge`) in `SeoHealthDashboard.tsx` with fully custom `styled-components` elements for consistent spacing, typography, and layout independent of Sanity UI theme quirks.
-- Replaced the `@sanity/icons` `SearchIcon` import with an inline SVG to remove the icon dependency from the dashboard.
-
 ---
 
 ## [1.0.10] — 2025-12-14
