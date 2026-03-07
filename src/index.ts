@@ -15,3 +15,10 @@ export {default as metaTagSchema} from './schemas/types/metaTag'
 export {default as openGraphSchema} from './schemas/types/openGraph'
 export {default as robotsSchema} from './schemas/types/robots'
 export {default as twitterSchema} from './schemas/types/twitter'
+
+// Export dashboard components and types
+export {default as SeoHealthDashboard} from './components/SeoHealthDashboard'
+export {default as SeoHealthTool} from './components/SeoHealthTool'
+
+// Export types
+export type {DocumentWithSeoHealth, SeoHealthMetrics, SeoHealthStatus} from './types'

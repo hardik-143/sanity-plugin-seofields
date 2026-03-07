@@ -83,3 +83,22 @@ export type FeedbackType = {
   text: string
   color: FeedbackTypeColors
 }
+
+// SEO Health Dashboard Types
+export type SeoHealthStatus = 'excellent' | 'good' | 'fair' | 'poor' | 'missing'
+
+export interface SeoHealthMetrics {
+  score: number
+  status: SeoHealthStatus
+  issues: string[]
+}
+
+export interface DocumentWithSeoHealth {
+  _id: string
+  _type: string
+  title?: string
+  slug?: {current: string}
+  seo?: SeoFields
+  _updatedAt?: string
+  health: SeoHealthMetrics
+}

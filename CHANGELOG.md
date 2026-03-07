@@ -1,148 +1,74 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to **sanity-plugin-seofields** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+---
 
-Initial setup and configuration of the changelog.md file.
+## [1.1.0] — 2026-03-07
 
-## [1.0.2] - 2024-09-23
+### ✨ Added
 
-### Added
+- **SEO Health Dashboard** — a new built-in Studio tool (`📊 SEO Health Dashboard`) that gives a bird's-eye view of SEO completeness across all documents that have an `seo` field.
+  - Summary stat cards showing total documents, average score, and counts per health tier (Excellent / Good / Fair / Poor / Missing).
+  - Per-document score (0–95) calculated from meta title, meta description, OG title, OG description, Twitter title, Twitter description, and robots settings.
+  - Color-coded score badges: green ≥ 80, amber ≥ 60, orange ≥ 40, red < 40.
+  - Inline issue list — up to 2 top issues surfaced per row with overflow count.
+  - Clickable document titles that open the document directly in the Sanity desk in a new tab.
+  - Live search, status filter (All / Excellent / Good / Fair / Poor / Missing), and sort controls (by score or title).
 
-- Enhanced plugin configuration with customizable field titles and descriptions
-- New `SeoFieldsPluginConfig` interface for type-safe configuration
-- `fieldOverrides` configuration option to customize individual field properties
-- Support for customizing all SEO field types: `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`
-- Full TypeScript support for configuration options
-- New `SeoField`, `SeoFieldKeys` types exported for advanced usage
-- Introduced `seoPreview` configuration options if wanted to enable/disable the SEO preview feature | default is `true`.
+### 🔄 Changed
 
-### Changed
+- Replaced all `@sanity/ui` primitives (`Box`, `Card`, `Flex`, `Grid`, `Heading`, `Select`, `Spinner`, `Stack`, `Text`, `TextInput`, `Badge`) in `SeoHealthDashboard.tsx` with fully custom `styled-components` elements for consistent spacing, typography, and layout independent of Sanity UI theme quirks.
+- Replaced the `@sanity/icons` `SearchIcon` import with an inline SVG to remove the icon dependency from the dashboard.
 
-- Plugin now accepts detailed configuration object with field customization
-- Enhanced TypeScript type definitions for better developer experience
+---
 
-### Example Usage
+## [1.0.10] — 2025-12-14
 
-```typescript
-seofields({
-  seoPreview: true,
-  fields: {
-    title: {
-      title: 'Page Title',
-      description: 'The main title for search engines',
-    },
-    description: {
-      title: 'Meta Description',
-      description: 'Brief description for search results',
-    },
-  },
-} satisfies SeoFieldsPluginConfig)
-```
+### ✨ Added
 
-## [1.0.3] - 2025-09-24
+- Documented the full set of `fieldOverrides` and `fieldVisibility` keys in README field configuration guidance, aligning with the enumerations exported from `src/plugin.ts`.
+- Expanded Field Specifications in README to cover canonical URLs, meta attributes, default share images, keywords, Open Graph metadata, Twitter branding updates, and robots toggles now available in Studio.
+- Rebuilt TYPES_SCHEMA_DOCS.md as a schema-focused reference listing the available schema factories and their usage examples.
 
-### Added
+### ❌ Removed
 
-### Changed
+- Stripped README and TYPES_SCHEMA_DOCS.md of references to the `dist/types` entry point and legacy TypeScript import snippets, clarifying that only the plugin bundle is exported.
 
-### Example Usage
+---
 
-```typescript
-seofields({
-  seoPreview: true,
-  fieldOverrides: {
-    title: {
-      title: 'Page Title',
-      description: 'The main title for search engines',
-    },
-    description: {
-      title: 'Meta Description',
-      description: 'Brief description for search results',
-    },
-  },
-} satisfies SeoFieldsPluginConfig)
-```
+## [1.0.9] — 2025-12-06
 
-```typescript
-seofields({
-  seoPreview: true,
-  fieldOverrides: {
-    title: {
-      title: 'Page Title',
-      description: 'The main title for search engines',
-    },
-    description: {
-      title: 'Meta Description',
-      description: 'Brief description for search results',
-    },
-    metaAttributes: {
-      title: 'Custom Meta Tags',
-      description: 'Additional meta attributes for advanced SEO',
-    },
-  },
-} satisfies SeoFieldsPluginConfig)
-```
+### ✨ Added
 
-## [1.0.4] - 2025-10-04
+- Exported the `FeedbackType` helpers from `src/types.ts` for use across validation-driven UI components.
 
-### Added
+### 🔄 Changed
 
-- Added `url` field to Open Graph schema for canonical URL specification
-- Updated `OpenGraph` TypeScript type to include `url` field
-- Enhanced Open Graph settings with proper URL handling for social media sharing
+- Hardened plugin configuration typings in `src/plugin.ts` and `src/utils/fieldsUtils.ts`, including the new `ValidHiddenFieldKeys` guard and stricter `fieldOverrides` typing.
+- Returned explicit `SchemaTypeDefinition` instances from the schema factories in `src/schemas/index.ts` and `src/schemas/types/*`, ensuring config is forwarded while keeping Sanity typings intact.
+- Refreshed the SEO form inputs in `src/components/**/*.tsx` to rely on the shared feedback types, memoised keyword lookups, and clearer schema option typing.
+- Reordered public exports in `src/index.ts` so schema factories are grouped consistently with the plugin entry point.
 
-## [1.0.5] - 2025-10-05
+### 🐛 Fixed
 
-### Added
+- Ensured config-driven hidden logic reaches nested Open Graph and X image selectors by delegating to the factory helpers in `src/schemas/types/openGraph/index.ts` and `src/schemas/types/twitter/index.ts`. [#2](https://github.com/hardik-143/sanity-plugin-seofields/issues/2)
 
-- Added `creator` field to Twitter TypeScript type for content creator attribution
-- Updated `Twitter` type to include creator handle field for better Twitter Card support
+---
 
-### Fixed
+## [1.0.8] — 2025-10-15
 
-- Fixed missing `creator` field in Twitter TypeScript type definition
+### 🐛 Fixed
 
-## [1.0.6] - 2025-10-08
+- Fixed issue with initial value assignment in SEO preview field schema
+  In `src/schemas/index.ts`, updated the `initialValue` assignment for the SEO preview field schema to ensure it is correctly set as an empty string.
 
-### Added
+---
 
-- Added `fieldVisibility` configuration option for controlling field visibility per document type
-- New `FieldVisibilityConfig` interface for type-safe field visibility control
-- `defaultHiddenFields` configuration option to globally hide specific fields
-- New field keys: `SitewideFieldKeys` including `openGraphSiteName` and `twitterSite`
-- Updated `AllFieldKeys` type to include both SEO and sitewide field keys
-- Enhanced field utility functions: `isFieldHidden` and `getFieldHiddenFunction`
-- Dynamic field visibility based on document type through `fieldVisibility` configuration
-
-### Changed
-
-- Updated Twitter schema title from "Twitter" to "X (Formerly Twitter)"
-- Updated Twitter field titles to reference "X" instead of "Twitter":
-  - "Site Twitter Handle" → "Site X Handle"
-  - "Twitter Title" → "X Title"
-  - "Twitter Creator Handle" → "X Creator Handle"
-  - "Twitter Description" → "X Description"
-  - "Twitter Image" → "X Image"
-- Updated field descriptions to reference "X (formerly Twitter)"
-- Enhanced Twitter and OpenGraph schemas to accept configuration parameters
-- Added field visibility controls to `openGraphSiteName` and `twitterSite` fields using `getFieldHiddenFunction`
-
-### Technical Improvements
-
-- Refactored schema types to accept and utilize plugin configuration
-- Enhanced field utilities with better type safety and configuration support
-- Improved plugin architecture with granular field control capabilities
-
-### Pull Request Links
-
-- 🌐 Add field visibility feature and update Twitter branding to X [#1](https://github.com/hardik-143/sanity-plugin-seofields/pull/1) [@crimsonwebteam](https://github.com/crimsonwebteam)
-
-## [1.0.7] - 2025-10-12
+## [1.0.7] — 2025-10-12
 
 **SEO Preview System:**
 
@@ -228,38 +154,116 @@ seofields({
 })
 ```
 
-## [1.0.8] - 2025-10-15
+---
 
-### Fixed
+## [1.0.6] — 2025-10-08
 
-- Fixed issue with initial value assignment in SEO preview field schema
-  In `src/schemas/index.ts`, updated the `initialValue` assignment for the SEO preview field schema to ensure it is correctly set as an empty string.
+### ✨ Added
 
-## [1.0.9] - 2025-12-06
+- Added `fieldVisibility` configuration option for controlling field visibility per document type
+- New `FieldVisibilityConfig` interface for type-safe field visibility control
+- `defaultHiddenFields` configuration option to globally hide specific fields
+- New field keys: `SitewideFieldKeys` including `openGraphSiteName` and `twitterSite`
+- Updated `AllFieldKeys` type to include both SEO and sitewide field keys
+- Enhanced field utility functions: `isFieldHidden` and `getFieldHiddenFunction`
+- Dynamic field visibility based on document type through `fieldVisibility` configuration
 
-### Added
+### 🔄 Changed
 
-- Exported the `FeedbackType` helpers from `src/types.ts` for use across validation-driven UI components.
+- Updated Twitter schema title from "Twitter" to "X (Formerly Twitter)"
+- Updated Twitter field titles to reference "X" instead of "Twitter":
+  - "Site Twitter Handle" → "Site X Handle"
+  - "Twitter Title" → "X Title"
+  - "Twitter Creator Handle" → "X Creator Handle"
+  - "Twitter Description" → "X Description"
+  - "Twitter Image" → "X Image"
+- Updated field descriptions to reference "X (formerly Twitter)"
+- Enhanced Twitter and OpenGraph schemas to accept configuration parameters
+- Added field visibility controls to `openGraphSiteName` and `twitterSite` fields using `getFieldHiddenFunction`
 
-### Changed
+### Technical Improvements
 
-- Hardened plugin configuration typings in `src/plugin.ts` and `src/utils/fieldsUtils.ts`, including the new `ValidHiddenFieldKeys` guard and stricter `fieldOverrides` typing.
-- Returned explicit `SchemaTypeDefinition` instances from the schema factories in `src/schemas/index.ts` and `src/schemas/types/*`, ensuring config is forwarded while keeping Sanity typings intact.
-- Refreshed the SEO form inputs in `src/components/**/*.tsx` to rely on the shared feedback types, memoised keyword lookups, and clearer schema option typing.
-- Reordered public exports in `src/index.ts` so schema factories are grouped consistently with the plugin entry point.
+- Refactored schema types to accept and utilize plugin configuration
+- Enhanced field utilities with better type safety and configuration support
+- Improved plugin architecture with granular field control capabilities
 
-### Fixed
+### 🔗 References
 
-- Ensured config-driven hidden logic reaches nested Open Graph and X image selectors by delegating to the factory helpers in `src/schemas/types/openGraph/index.ts` and `src/schemas/types/twitter/index.ts`. [#2](https://github.com/hardik-143/sanity-plugin-seofields/issues/2)
+- Add field visibility feature and update Twitter branding to X [#1](https://github.com/hardik-143/sanity-plugin-seofields/pull/1) by [@crimsonwebteam](https://github.com/crimsonwebteam)
 
-## [1.0.10] - 2025-12-14
+---
 
-### Added
+## [1.0.5] — 2025-10-05
 
-- Documented the full set of `fieldOverrides` and `fieldVisibility` keys in README field configuration guidance, aligning with the enumerations exported from `src/plugin.ts`.
-- Expanded Field Specifications in README to cover canonical URLs, meta attributes, default share images, keywords, Open Graph metadata, Twitter branding updates, and robots toggles now available in Studio.
-- Rebuilt TYPES_SCHEMA_DOCS.md as a schema-focused reference listing the available schema factories and their usage examples.
+### ✨ Added
 
-### Removed
+- Added `creator` field to Twitter TypeScript type for content creator attribution
+- Updated `Twitter` type to include creator handle field for better Twitter Card support
 
-- Stripped README and TYPES_SCHEMA_DOCS.md of references to the `dist/types` entry point and legacy TypeScript import snippets, clarifying that only the plugin bundle is exported.
+### 🐛 Fixed
+
+- Fixed missing `creator` field in Twitter TypeScript type definition
+
+---
+
+## [1.0.4] — 2025-10-04
+
+### ✨ Added
+
+- Added `url` field to Open Graph schema for canonical URL specification
+- Updated `OpenGraph` TypeScript type to include `url` field
+- Enhanced Open Graph settings with proper URL handling for social media sharing
+
+---
+
+## [1.0.3] — 2025-09-24
+
+### ✨ Added
+
+- Enhanced field override examples and documentation
+- Support for multiple field override patterns with `fieldOverrides` configuration
+- Improved plugin configuration documentation with real-world usage examples
+- Basic configuration example: customize individual field titles and descriptions
+- Advanced configuration example: custom meta attributes with field overrides
+
+### 🔄 Changed
+
+- Refined configuration examples to demonstrate both basic and advanced usage patterns
+- Clarified field override behavior for custom meta attributes
+
+---
+
+## [1.0.2] — 2024-09-23
+
+### ✨ Added
+
+- Enhanced plugin configuration with customizable field titles and descriptions
+- New `SeoFieldsPluginConfig` interface for type-safe configuration
+- `fieldOverrides` configuration option to customize individual field properties
+- Support for customizing all SEO field types: `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`
+- Full TypeScript support for configuration options
+- New `SeoField`, `SeoFieldKeys` types exported for advanced usage
+- Introduced `seoPreview` configuration options if wanted to enable/disable the SEO preview feature | default is `true`.
+
+### 🔄 Changed
+
+- Plugin now accepts detailed configuration object with field customization
+- Enhanced TypeScript type definitions for better developer experience
+
+### 📄 Example Usage
+
+```typescript
+seofields({
+  seoPreview: true,
+  fields: {
+    title: {
+      title: 'Page Title',
+      description: 'The main title for search engines',
+    },
+    description: {
+      title: 'Meta Description',
+      description: 'Brief description for search results',
+    },
+  },
+} satisfies SeoFieldsPluginConfig)
+```

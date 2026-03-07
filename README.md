@@ -20,6 +20,7 @@ A comprehensive Sanity Studio v3 plugin to manage SEO fields like meta titles, d
 - 📊 **Custom Attributes**: Flexible meta attribute system
 - ✅ **Validation**: Built-in character limits and best practices
 - 🎛️ **Field Visibility**: Hide sitewide fields on specific content types
+- 📊 **SEO Health Dashboard**: Studio-wide overview of SEO completeness with scores, issue highlights, and direct document links
 
 ## 📦 Installation
 
@@ -440,6 +441,95 @@ defineField({
   type: 'openGraph',
 })
 ```
+
+## 📊 SEO Health Dashboard
+
+The plugin includes a built-in **SEO Health Dashboard** tool accessible directly from Sanity Studio. It scans all documents that contain an `seo` field and gives you an at-a-glance picture of your site's SEO completeness.
+
+### 🔑 License Key Required
+
+The SEO Health Dashboard requires a valid license key to use. **Good news**: it's completely free during the current period (2–3 months). When we transition to a paid model, your existing key will remain valid for a one-time $10 fee.
+
+[Get your free license key →](https://sanity-plugin-seofields.thehardik.in/get-license)
+
+### Configuration
+
+```typescript
+// Minimal — just add your license key
+seofields({
+  healthDashboard: {
+    licenseKey: 'YOUR_LICENSE_KEY',
+  },
+})
+
+// Full options — all nested under healthDashboard
+seofields({
+  healthDashboard: {
+    // Required
+    licenseKey: 'YOUR_LICENSE_KEY',
+
+    // Studio nav tab
+    tool: {
+      title: 'SEO Audit', // tab label in Studio sidebar (default: 'SEO Health')
+      name: 'seo-health-dashboard', // internal tool slug
+    },
+
+    // Dashboard page content
+    content: {
+      icon: '🔍', // emoji before the page heading
+      title: 'SEO Audit', // page heading (default: tool.title)
+      description: 'Track SEO quality across all published content.',
+    },
+
+    // Table columns
+    display: {
+      typeColumn: true, // show document type column (default: true)
+      documentId: false, // show document _id (default: true)
+    },
+
+    // Document query
+    query: {
+      types: ['post', 'page'], // limit to specific document types
+      requireSeo: true, // only include docs with seo != null (default: true)
+      // groq: '*[seo != null] { _id, _type, title, seo, _updatedAt }',
+      // ^ custom GROQ takes precedence over types + requireSeo
+    },
+
+    apiVersion: '2023-01-01', // Sanity API version (default: '2023-01-01')
+  },
+})
+
+// Or disable the dashboard entirely
+seofields({
+  healthDashboard: false,
+})
+```
+
+### What it shows
+
+| Feature                  | Details                                                                          |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| **Summary stats**        | Total documents, average score, and count per health tier                        |
+| **Per-document score**   | 0–95 score based on which SEO fields are filled in                               |
+| **Color-coded badges**   | 🟢 Excellent (≥ 80) · 🟡 Good (≥ 60) · 🟠 Fair (≥ 40) · 🔴 Poor / Missing (< 40) |
+| **Inline issues**        | Top 2 issues per document shown inline; overflow count displayed                 |
+| **Direct document link** | Click the document title to open it in the desk (new tab)                        |
+| **Search & filter**      | Filter by health status, sort by score or title, and full-text search            |
+
+### Scoring breakdown
+
+| Field               | Max Points |
+| ------------------- | ---------- |
+| Meta Title          | 25         |
+| Meta Description    | 20         |
+| OG Title            | 15         |
+| OG Description      | 10         |
+| Twitter Title       | 10         |
+| Twitter Description | 10         |
+| Robots / No-Index   | 5          |
+| **Total**           | **95**     |
+
+> **Scoring logic:** each field earns its full points when a non-empty value is present, zero when missing. `query.groq` lets you control exactly which documents are included in the audit.
 
 ## 🌐 Frontend Integration
 
