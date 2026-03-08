@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] — 2026-03-08
+
+### 🔄 Changed
+
+- **License validation — differentiated invalid-key UI**: Users who supply a `licenseKey` that fails validation now see a distinct "Invalid License Key" screen (❌) with a message explaining the key is invalid or revoked, rather than the generic upgrade prompt shown when no key is provided at all.
+- **License validation — no-key prompt improved**: When `licenseKey` is omitted entirely, the lock screen now shows a full `sanity.config.ts` code snippet demonstrating exactly where to add the key, making first-time setup clearer.
+- **License validation — manual cache bypass**: Added a "Click here" button on the invalid-key screen that clears the `sessionStorage` cache entry for the current project and immediately re-runs the validation request against the server. This avoids the 1-hour cache window when a user has just updated their key without needing a full page reload.
+
+---
+
 ## [1.1.0] — 2026-03-07
 
 ### ✨ Added

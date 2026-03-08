@@ -403,6 +403,29 @@ const UpgradeButton = styled.a`
   }
 `
 
+const ReloadButton = styled.button`
+  display: inline-block;
+  background: transparent;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  margin-top: 10px;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+
+  &:hover {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #9ca3af;
+  }
+`
+
 // Sub-component so useIntentLink can be called at the top level of a component (not inside .map)
 const DocTitleAnchor: React.FC<{id: string; type: string; children: React.ReactNode}> = ({
   id,
@@ -649,8 +672,8 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   const VALIDATION_ENDPOINT = 'https://sanity-plugin-seofields.thehardik.in/api/validate-license'
   const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
 
-  useEffect(() => {
-    const validateLicense = async () => {
+  const validateLicense = useCallback(
+    async (forceRefresh = false) => {
       // No key provided
       if (!licenseKey) {
         setLicenseStatus('invalid')
@@ -660,19 +683,31 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
       const projectId = client.config().projectId ?? ''
       const cacheKey = `seofields_license_${projectId}`
 
-      // Check sessionStorage cache
-      try {
-        const cached = sessionStorage.getItem(cacheKey)
-        if (cached) {
-          const {valid, ts} = JSON.parse(cached) as {valid: boolean; ts: number}
-          if (Date.now() - ts < CACHE_TTL_MS) {
-            setLicenseStatus(valid ? 'valid' : 'invalid')
-            return
-          }
+      if (forceRefresh) {
+        try {
+          sessionStorage.removeItem(cacheKey)
+        } catch {
+          // ignore storage errors
         }
-      } catch {
-        // ignore storage errors
       }
+
+      // Check sessionStorage cache
+      if (!forceRefresh) {
+        try {
+          const cached = sessionStorage.getItem(cacheKey)
+          if (cached) {
+            const {valid, ts} = JSON.parse(cached) as {valid: boolean; ts: number}
+            if (Date.now() - ts < CACHE_TTL_MS) {
+              setLicenseStatus(valid ? 'valid' : 'invalid')
+              return
+            }
+          }
+        } catch {
+          // ignore storage errors
+        }
+      }
+
+      setLicenseStatus('loading')
 
       try {
         const res = await fetch(VALIDATION_ENDPOINT, {
@@ -691,7 +726,12 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
         // Network error — fail open to avoid blocking legitimate users
         setLicenseStatus('valid')
       }
-    }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [licenseKey],
+  )
+
+  useEffect(() => {
     validateLicense()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [licenseKey])
@@ -829,24 +869,61 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
       {licenseStatus === 'invalid' && (
         <UpgradeContainer>
           <UpgradeBox>
-            <UpgradeLock>🔒</UpgradeLock>
-            <UpgradeTitle>SEO Health Dashboard</UpgradeTitle>
-            <UpgradeText>
-              This feature requires a valid license key. Add your key to the plugin config to unlock
-              the full dashboard.
-            </UpgradeText>
-            <UpgradeCode>{`seofields({
+            {licenseKey ? (
+              <>
+                <UpgradeLock>❌</UpgradeLock>
+                <UpgradeTitle>Invalid License Key</UpgradeTitle>
+                <UpgradeText>
+                  The license key you provided is invalid or has been revoked. Please check your key
+                  and update it in the plugin config.
+                </UpgradeText>
+                <UpgradeCode>{`seofields({
   healthDashboard: {
-    licenseKey: 'YOUR_LICENSE_KEY',
+    licenseKey: 'YOUR_LICENSE_KEY', // ← replace with a valid key
   },
 })`}</UpgradeCode>
-            <UpgradeButton
-              href="https://sanity-plugin-seofields.thehardik.in"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Get a License Key →
-            </UpgradeButton>
+                <UpgradeButton
+                  href="https://sanity-plugin-seofields.thehardik.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Get a New License Key →
+                </UpgradeButton>
+                <br />
+                {/* eslint-disable-next-line react/jsx-no-bind */}
+                <ReloadButton onClick={() => validateLicense(true)}>
+                  Click here If You Just Updated Your Key
+                </ReloadButton>
+              </>
+            ) : (
+              <>
+                <UpgradeLock>🔒</UpgradeLock>
+                <UpgradeTitle>SEO Health Dashboard</UpgradeTitle>
+                <UpgradeText>
+                  This feature requires a license key. Add your key to the plugin config to unlock
+                  the full dashboard.
+                </UpgradeText>
+                <UpgradeCode>{`// sanity.config.ts
+import { seofields } from 'sanity-plugin-seofields'
+
+export default defineConfig({
+  plugins: [
+    seofields({
+      healthDashboard: {
+        licenseKey: 'SEOF-XXXX-XXXX-XXXX',
+      },
+    }),
+  ],
+})`}</UpgradeCode>
+                <UpgradeButton
+                  href="https://sanity-plugin-seofields.thehardik.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Get a License Key →
+                </UpgradeButton>
+              </>
+            )}
           </UpgradeBox>
         </UpgradeContainer>
       )}
