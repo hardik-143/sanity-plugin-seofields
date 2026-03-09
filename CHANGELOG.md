@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] — 2026-03-09
+
+### ✨ Added
+
+- **`typeLabels`** — Map raw `_type` values to human-readable display labels. Applied in both the Type column and the Type filter dropdown; any unmapped type falls back to the raw `_type` string.
+
+  ```ts
+  typeLabels: { productDrug: 'Products', singleCondition: 'Condition' }
+  ```
+
+- **`typeColumnMode`** — Control how the Type column is rendered.
+  - `'badge'` (default) — coloured pill badge, consistent with score badges.
+  - `'text'` — plain inline text, useful for dense layouts.
+
+- **`titleField`** — Specify which document field to use as the display title in the dashboard. Supports a single field name for all types, or a per-type map. Unmapped types always fall back to `title`.
+
+  ```ts
+  titleField: 'name'
+  // — or per-type —
+  titleField: { post: 'title', product: 'name', category: 'label' }
+  ```
+
+- **`docBadge`** — Callback that renders a custom badge inline with the document title. Receives the full document and returns `{ label, bgColor?, textColor?, fontSize? }` or `undefined` to render nothing.
+
+  ```ts
+  docBadge: (doc) => {
+    if (doc.services === 'NHS') return {label: 'NHS', bgColor: '#e0f2fe', textColor: '#0369a1'}
+    if (doc.services === 'Private')
+      return {label: 'Private', bgColor: '#fef3c7', textColor: '#92400e'}
+  }
+  ```
+
+- **`content.loadingLicense`**, **`content.loadingDocuments`**, **`content.noDocuments`** — Custom text for the three loading/empty states of the dashboard. Grouped under the existing `content` block so all text-content customisation is in one place.
+  ```ts
+  content: {
+    loadingLicense: 'Checking your plan…',
+    loadingDocuments: 'Fetching content, hang tight…',
+    noDocuments: 'No pages with SEO fields yet.',
+  }
+  ```
+
+### 🔄 Changed
+
+- **`emptyState` removed** — The `emptyState` config block has been removed. Its three keys (`loadingLicense`, `loadingDocuments`, `noDocuments`) are now part of the `content` block (see above). Migrate by moving the keys under `content`.
+- **Meta description threshold unified** — The valid meta description length range is now consistently **120–160 characters** across both the inline field feedback and the Health Dashboard score. Previously the two checks used different lower bounds.
+
+---
+
 ## [1.1.1] — 2026-03-08
 
 ### 🔄 Changed
@@ -35,13 +83,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
-- Documented the full set of `fieldOverrides` and `fieldVisibility` keys in README field configuration guidance, aligning with the enumerations exported from `src/plugin.ts`.
+- Documented the full set of `fieldOverrides` and `fieldVisibility` keys in README field configuration guidance.
 - Expanded Field Specifications in README to cover canonical URLs, meta attributes, default share images, keywords, Open Graph metadata, Twitter branding updates, and robots toggles now available in Studio.
-- Rebuilt TYPES_SCHEMA_DOCS.md as a schema-focused reference listing the available schema factories and their usage examples.
+- Rebuilt schema reference docs listing the available schema factories and their usage examples.
 
 ### ❌ Removed
 
-- Stripped README and TYPES_SCHEMA_DOCS.md of references to the `dist/types` entry point and legacy TypeScript import snippets, clarifying that only the plugin bundle is exported.
+- Removed references to the `dist/types` entry point and legacy TypeScript import snippets from documentation, clarifying that only the plugin bundle is exported.
 
 ---
 
@@ -49,18 +97,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
-- Exported the `FeedbackType` helpers from `src/types.ts` for use across validation-driven UI components.
+- Exported the `FeedbackType` helpers for use across validation-driven UI components.
 
 ### 🔄 Changed
 
-- Hardened plugin configuration typings in `src/plugin.ts` and `src/utils/fieldsUtils.ts`, including the new `ValidHiddenFieldKeys` guard and stricter `fieldOverrides` typing.
-- Returned explicit `SchemaTypeDefinition` instances from the schema factories in `src/schemas/index.ts` and `src/schemas/types/*`, ensuring config is forwarded while keeping Sanity typings intact.
-- Refreshed the SEO form inputs in `src/components/**/*.tsx` to rely on the shared feedback types, memoised keyword lookups, and clearer schema option typing.
-- Reordered public exports in `src/index.ts` so schema factories are grouped consistently with the plugin entry point.
+- Hardened plugin configuration typings, including the new `ValidHiddenFieldKeys` guard and stricter `fieldOverrides` typing.
+- Returned explicit `SchemaTypeDefinition` instances from the schema factories, ensuring config is forwarded while keeping Sanity typings intact.
+- Refreshed SEO form inputs to rely on shared feedback types, memoised keyword lookups, and clearer schema option typing.
+- Reordered public exports so schema factories are grouped consistently with the plugin entry point.
 
 ### 🐛 Fixed
 
-- Ensured config-driven hidden logic reaches nested Open Graph and X image selectors by delegating to the factory helpers in `src/schemas/types/openGraph/index.ts` and `src/schemas/types/twitter/index.ts`. [#2](https://github.com/hardik-143/sanity-plugin-seofields/issues/2)
+- Ensured config-driven hidden logic reaches nested Open Graph and X image selectors. [#2](https://github.com/hardik-143/sanity-plugin-seofields/issues/2)
 
 ---
 
@@ -68,8 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Fixed
 
-- Fixed issue with initial value assignment in SEO preview field schema
-  In `src/schemas/index.ts`, updated the `initialValue` assignment for the SEO preview field schema to ensure it is correctly set as an empty string.
+- Fixed incorrect initial value assignment in the SEO preview field schema — the value is now correctly set to an empty string.
 
 ---
 

@@ -111,7 +111,7 @@ export const getMetaDescriptionValidationMessages = (
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
 
-  const minChar = 150
+  const minChar = 120
   const maxChar = 160
   const charCount = description?.length || 0
 

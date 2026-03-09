@@ -197,6 +197,13 @@ const ColTitle = styled.div`
   min-width: 0;
 `
 
+const TitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+`
+
 const ColType = styled.div`
   flex: 0.8;
   min-width: 80px;
@@ -246,6 +253,24 @@ const TypeBadge = styled.span`
   font-weight: 500;
   background: #ede9fe;
   color: #5b21b6;
+`
+
+const TypeText = styled.span`
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+`
+
+const CustomBadge = styled.span<{$bgColor?: string; $textColor?: string; $fontSize?: string}>`
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: ${(p) => p.$fontSize || '10px'};
+  font-weight: 600;
+  margin-left: 6px;
+  background: ${(p) => p.$bgColor || '#e0e7ff'};
+  color: ${(p) => p.$textColor || '#3730a3'};
+  white-space: nowrap;
 `
 
 const ScoreBadge = styled.span<{$score: number}>`
@@ -440,6 +465,22 @@ const DocTitleAnchor: React.FC<{id: string; type: string; children: React.ReactN
   )
 }
 
+// Sub-component to safely call docBadge outside a .map expression
+const DocBadgeRenderer: React.FC<{
+  doc: DocumentWithSeoHealth & Record<string, unknown>
+  docBadge: (
+    doc: DocumentWithSeoHealth & Record<string, unknown>,
+  ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
+}> = ({doc, docBadge}) => {
+  const badge = docBadge(doc)
+  if (!badge) return null
+  return (
+    <CustomBadge $bgColor={badge.bgColor} $textColor={badge.textColor} $fontSize={badge.fontSize}>
+      {badge.label}
+    </CustomBadge>
+  )
+}
+
 const spin = keyframes`
   to { transform: rotate(360deg); }
 `
@@ -608,6 +649,24 @@ const calculateHealthScore = (doc: any): SeoHealthMetrics => {
   return {score: totalScore, status, issues: allIssues}
 }
 
+const resolveTypeLabel = (type: string, typeLabels?: Record<string, string>): string =>
+  typeLabels?.[type] ?? type
+
+/**
+ * Builds the GROQ projection snippet for the title field.
+ * - undefined / 'title'        → `title`
+ * - 'name'                     → `"title": name`
+ * - { post: 'title', product: 'name' } → `"title": select(_type == "post" => title, _type == "product" => name, title)`
+ */
+const buildTitleProjection = (titleField?: string | Record<string, string>): string => {
+  if (!titleField || titleField === 'title') return 'title'
+  if (typeof titleField === 'string') return `"title": ${titleField}`
+  const cases = Object.entries(titleField)
+    .map(([type, field]) => `_type == "${type}" => ${field}`)
+    .join(', ')
+  return `"title": select(${cases}, title)`
+}
+
 export interface SeoHealthDashboardProps {
   icon?: string
   title?: string
@@ -641,6 +700,66 @@ export interface SeoHealthDashboardProps {
    * Obtain a key at https://sanity-plugin-seofields.thehardik.in
    */
   licenseKey?: string
+  /**
+   * Map raw `_type` values to human-readable display labels used in the
+   * Type column and the Type filter dropdown.
+   * Any type without an entry falls back to the raw `_type` string.
+   *
+   * @example
+   * typeLabels={{ productDrug: 'Products', singleCondition: 'Condition' }}
+   */
+  typeLabels?: Record<string, string>
+  /**
+   * Controls how the type is rendered in the Type column.
+   * - `'badge'` (default) — coloured pill, consistent with score badges
+   * - `'text'` — plain text, useful for dense layouts
+   */
+  typeColumnMode?: 'badge' | 'text'
+  /**
+   * The document field to use as the display title.
+   *
+   * - `string` — use this field for every document type (e.g. `'name'`)
+   * - `Record<string, string>` — per-type mapping; unmapped types fall back to `title`
+   *
+   * @example
+   * // Same field for all types
+   * titleField: 'name'
+   *
+   * @example
+   * // Different field per type
+   * titleField: { post: 'title', product: 'name', category: 'label' }
+   */
+  titleField?: string | Record<string, string>
+  /**
+   * Callback function to render a custom badge next to the document title.
+   * Receives the full document and should return badge data or undefined.
+   *
+   * @example
+   * docBadge: (doc) => {
+   *   if (doc.services === 'NHS')
+   *     return { label: 'NHS', bgColor: '#e0f2fe', textColor: '#0369a1' }
+   *   if (doc.services === 'Private')
+   *     return { label: 'Private', bgColor: '#fef3c7', textColor: '#92400e' }
+   * }
+   */
+  docBadge?: (
+    doc: DocumentWithSeoHealth & Record<string, unknown>,
+  ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
+  /**
+   * Custom text shown while the license key is being verified.
+   * Defaults to `"Verifying license…"`.
+   */
+  loadingLicense?: React.ReactNode
+  /**
+   * Custom text shown while documents are being fetched.
+   * Defaults to `"Loading documents…"`.
+   */
+  loadingDocuments?: React.ReactNode
+  /**
+   * Custom text shown when the query returns zero results.
+   * Defaults to `"No documents found"`.
+   */
+  noDocuments?: React.ReactNode
 }
 
 const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
@@ -654,6 +773,13 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   customQuery,
   apiVersion = '2023-01-01',
   licenseKey,
+  typeLabels,
+  typeColumnMode = 'badge',
+  titleField,
+  docBadge,
+  loadingLicense,
+  loadingDocuments,
+  noDocuments,
 }) => {
   const client = useClient({apiVersion})
   const [licenseStatus, setLicenseStatus] = useState<'loading' | 'valid' | 'invalid'>('loading')
@@ -764,10 +890,11 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
         } else if (queryTypes && queryTypes.length > 0) {
           // Mode 2: filter by specific document types (excluding drafts)
           const seoFilter = queryRequireSeo ? ' && seo != null' : ''
+          const titleProj = buildTitleProjection(titleField)
           groqQuery = `*[_type in $types${seoFilter} && !(_id in path("drafts.**"))]{
             _id,
             _type,
-            title,
+            ${titleProj},
             slug,
             seo,
             _updatedAt
@@ -775,10 +902,11 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
           params = {types: queryTypes}
         } else {
           // Mode 1: default — all documents with an seo field (excluding drafts)
+          const titleProj = buildTitleProjection(titleField)
           groqQuery = `*[seo != null && !(_id in path("drafts.**"))]{
             _id,
             _type,
-            title,
+            ${titleProj},
             slug,
             seo,
             _updatedAt
@@ -804,7 +932,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
 
     fetchDocuments()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, customQuery, queryRequireSeo, JSON.stringify(queryTypes)])
+  }, [client, customQuery, queryRequireSeo, JSON.stringify(queryTypes), JSON.stringify(titleField)])
 
   const uniqueDocumentTypes = useMemo(() => {
     const types = new Set(documents.map((doc) => doc._type))
@@ -863,7 +991,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
       {licenseStatus === 'loading' && (
         <LoadingState style={{padding: '80px 24px'}}>
           <Spinner />
-          Verifying license…
+          {loadingLicense ?? 'Verifying license…'}
         </LoadingState>
       )}
       {licenseStatus === 'invalid' && (
@@ -1005,7 +1133,7 @@ export default defineConfig({
                 <option value="all">All Types</option>
                 {uniqueDocumentTypes.map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {resolveTypeLabel(type, typeLabels)}
                   </option>
                 ))}
               </StyledSelect>
@@ -1024,12 +1152,12 @@ export default defineConfig({
             {loading && (
               <LoadingState>
                 <Spinner />
-                Loading documents…
+                {loadingDocuments ?? 'Loading documents…'}
               </LoadingState>
             )}
             {!loading &&
               (filteredAndSortedDocs.length === 0 ? (
-                <EmptyState>No documents found</EmptyState>
+                <EmptyState>{noDocuments ?? 'No documents found'}</EmptyState>
               ) : (
                 <>
                   <TableHeader>
@@ -1042,14 +1170,28 @@ export default defineConfig({
                     return (
                       <TableRow key={doc._id}>
                         <ColTitle>
-                          <DocTitleAnchor id={doc._id} type={doc._type}>
-                            {doc.title || 'Untitled'}
-                          </DocTitleAnchor>
-                          {showDocumentId && <DocId>{doc._id}</DocId>}
+                          <TitleWrapper>
+                            <div>
+                              <DocTitleAnchor id={doc._id} type={doc._type}>
+                                {doc.title || 'Untitled'}
+                              </DocTitleAnchor>
+                              {showDocumentId && <DocId>{doc._id}</DocId>}
+                            </div>
+                            {docBadge && (
+                              <DocBadgeRenderer
+                                doc={doc as DocumentWithSeoHealth & Record<string, unknown>}
+                                docBadge={docBadge}
+                              />
+                            )}
+                          </TitleWrapper>
                         </ColTitle>
                         {showTypeColumn && (
                           <ColType>
-                            <TypeBadge>{doc._type}</TypeBadge>
+                            {typeColumnMode === 'text' ? (
+                              <TypeText>{resolveTypeLabel(doc._type, typeLabels)}</TypeText>
+                            ) : (
+                              <TypeBadge>{resolveTypeLabel(doc._type, typeLabels)}</TypeBadge>
+                            )}
                           </ColType>
                         )}
                         <ColScore>

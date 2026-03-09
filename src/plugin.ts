@@ -4,6 +4,7 @@ import {definePlugin} from 'sanity'
 
 import SeoHealthTool from './components/SeoHealthTool'
 import types from './schemas/types'
+import type {DocumentWithSeoHealth} from './types'
 
 export interface SeoFieldConfig {
   title?: string
@@ -131,6 +132,12 @@ export interface SeoFieldsPluginConfig {
           icon?: string
           title?: string
           description?: string
+          /** Text shown while the license key is being verified. Defaults to "Verifying license…" */
+          loadingLicense?: string
+          /** Text shown while documents are being fetched. Defaults to "Loading documents…" */
+          loadingDocuments?: string
+          /** Text shown when the query returns zero results. Defaults to "No documents found" */
+          noDocuments?: string
         }
         display?: {
           typeColumn?: boolean
@@ -164,73 +171,142 @@ export interface SeoFieldsPluginConfig {
          * Obtain a license at https://sanity-plugin-seofields.thehardik.in
          */
         licenseKey?: string
+        /**
+         * Map raw `_type` values to human-readable display labels.
+         * Used in both the Type column and the Type filter dropdown.
+         * Any type without an entry falls back to the raw `_type` string.
+         *
+         * @example
+         * typeLabels: { productDrug: 'Products', singleCondition: 'Condition' }
+         */
+        typeLabels?: Record<string, string>
+        /**
+         * Controls how the document type is rendered in the Type column.
+         * - `'badge'` (default) — coloured pill
+         * - `'text'` — plain text, useful for dense layouts
+         */
+        typeColumnMode?: 'badge' | 'text'
+        /**
+         * The document field to use as the display title in the dashboard.
+         *
+         * - `string` — use this field for every document type (e.g. `'name'`)
+         * - `Record<string, string>` — per-type mapping; unmapped types fall back to `title`
+         *
+         * @example
+         * titleField: 'name'
+         *
+         * @example
+         * titleField: { post: 'title', product: 'name', category: 'label' }
+         */
+        titleField?: string | Record<string, string>
+        /**
+         * Callback function to render a custom badge next to the document title.
+         * Receives the full document and should return badge data or undefined.
+         *
+         * @example
+         * docBadge: (doc) => {
+         *   if (doc.services === 'NHS')
+         *     return { label: 'NHS', bgColor: '#e0f2fe', textColor: '#0369a1' }
+         *   if (doc.services === 'Private')
+         *     return { label: 'Private', bgColor: '#fef3c7', textColor: '#92400e' }
+         * }
+         */
+        docBadge?: (
+          doc: DocumentWithSeoHealth & Record<string, unknown>,
+        ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
       }
+}
+
+interface ResolvedDashboardConfig {
+  enabled: boolean
+  toolTitle: string
+  toolName: string
+  icon: string | undefined
+  title: string | undefined
+  description: string | undefined
+  showTypeColumn: boolean | undefined
+  showDocumentId: boolean | undefined
+  queryTypes: string[] | undefined
+  queryRequireSeo: boolean | undefined
+  queryGroq: string | undefined
+  apiVersion: string | undefined
+  licenseKey: string | undefined
+  typeLabels: Record<string, string> | undefined
+  typeColumnMode: 'badge' | 'text' | undefined
+  titleField: string | Record<string, string> | undefined
+  docBadge:
+    | ((
+        doc: DocumentWithSeoHealth & Record<string, unknown>,
+      ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined)
+    | undefined
+  loadingLicense: string | undefined
+  loadingDocuments: string | undefined
+  noDocuments: string | undefined
+}
+
+const resolveDashboardConfig = (
+  healthDashboard: SeoFieldsPluginConfig['healthDashboard'],
+): ResolvedDashboardConfig => {
+  const cfg = typeof healthDashboard === 'object' ? healthDashboard : undefined
+  return {
+    enabled: healthDashboard !== false,
+    toolTitle: cfg?.tool?.title ?? 'SEO Health',
+    toolName: cfg?.tool?.name ?? 'seo-health-dashboard',
+    icon: cfg?.content?.icon,
+    title: cfg?.content?.title,
+    description: cfg?.content?.description,
+    showTypeColumn: cfg?.display?.typeColumn,
+    showDocumentId: cfg?.display?.documentId,
+    queryTypes: cfg?.query?.types,
+    queryRequireSeo: cfg?.query?.requireSeo,
+    queryGroq: cfg?.query?.groq,
+    apiVersion: cfg?.apiVersion,
+    licenseKey: cfg?.licenseKey,
+    typeLabels: cfg?.typeLabels,
+    typeColumnMode: cfg?.typeColumnMode,
+    titleField: cfg?.titleField,
+    docBadge: cfg?.docBadge,
+    loadingLicense: cfg?.content?.loadingLicense,
+    loadingDocuments: cfg?.content?.loadingDocuments,
+    noDocuments: cfg?.content?.noDocuments,
+  }
 }
 
 const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
   const {healthDashboard = true} = config as SeoFieldsPluginConfig
-  const dashboardEnabled = healthDashboard !== false
-  const dashboardToolTitle =
-    typeof healthDashboard === 'object'
-      ? (healthDashboard.tool?.title ?? 'SEO Health')
-      : 'SEO Health'
-  const dashboardName =
-    typeof healthDashboard === 'object'
-      ? (healthDashboard.tool?.name ?? 'seo-health-dashboard')
-      : 'seo-health-dashboard'
-  const dashboardPageIcon =
-    typeof healthDashboard === 'object' ? (healthDashboard.content?.icon ?? undefined) : undefined
-  const dashboardPageTitle =
-    typeof healthDashboard === 'object' ? (healthDashboard.content?.title ?? undefined) : undefined
-  const dashboardDescription =
-    typeof healthDashboard === 'object'
-      ? (healthDashboard.content?.description ?? undefined)
-      : undefined
-  const dashboardShowTypeColumn =
-    typeof healthDashboard === 'object'
-      ? (healthDashboard.display?.typeColumn ?? undefined)
-      : undefined
-  const dashboardShowDocumentId =
-    typeof healthDashboard === 'object'
-      ? (healthDashboard.display?.documentId ?? undefined)
-      : undefined
-  const dashboardQueryTypes =
-    typeof healthDashboard === 'object' ? (healthDashboard.query?.types ?? undefined) : undefined
-  const dashboardQueryRequireSeo =
-    typeof healthDashboard === 'object'
-      ? (healthDashboard.query?.requireSeo ?? undefined)
-      : undefined
-  const dashboardQueryGroq =
-    typeof healthDashboard === 'object' ? (healthDashboard.query?.groq ?? undefined) : undefined
-  const dashboardApiVersion =
-    typeof healthDashboard === 'object' ? (healthDashboard.apiVersion ?? undefined) : undefined
-  const dashboardLicenseKey =
-    typeof healthDashboard === 'object' ? (healthDashboard.licenseKey ?? undefined) : undefined
+  const dash = resolveDashboardConfig(healthDashboard)
 
   const BoundSeoHealthTool = () =>
     React.createElement(SeoHealthTool, {
-      icon: dashboardPageIcon,
-      title: dashboardPageTitle,
-      description: dashboardDescription,
-      showTypeColumn: dashboardShowTypeColumn,
-      showDocumentId: dashboardShowDocumentId,
-      queryTypes: dashboardQueryTypes,
-      queryRequireSeo: dashboardQueryRequireSeo,
-      customQuery: dashboardQueryGroq,
-      apiVersion: dashboardApiVersion,
-      licenseKey: dashboardLicenseKey,
+      icon: dash.icon,
+      title: dash.title,
+      description: dash.description,
+      showTypeColumn: dash.showTypeColumn,
+      showDocumentId: dash.showDocumentId,
+      queryTypes: dash.queryTypes,
+      queryRequireSeo: dash.queryRequireSeo,
+      customQuery: dash.queryGroq,
+      apiVersion: dash.apiVersion,
+      licenseKey: dash.licenseKey,
+      typeLabels: dash.typeLabels,
+      typeColumnMode: dash.typeColumnMode,
+      titleField: dash.titleField,
+      docBadge: dash.docBadge,
+      loadingLicense: dash.loadingLicense,
+      loadingDocuments: dash.loadingDocuments,
+      noDocuments: dash.noDocuments,
     })
 
   return {
     name: 'sanity-plugin-seofields',
     schema: {
-      types: types(config as SeoFieldsPluginConfig), // pass config down to schemas
+      types: types(config as SeoFieldsPluginConfig),
     },
-    ...(dashboardEnabled && {
+    ...(dash.enabled && {
       tools: [
         {
-          name: dashboardName,
-          title: dashboardToolTitle,
+          name: dash.toolName,
+          title: dash.toolTitle,
           component: BoundSeoHealthTool,
           icon: () => '📊',
         },
