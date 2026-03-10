@@ -214,6 +214,16 @@ export interface SeoFieldsPluginConfig {
         docBadge?: (
           doc: DocumentWithSeoHealth & Record<string, unknown>,
         ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
+        /**
+         * Enable preview/demo mode to show dummy data.
+         * Useful for testing, documentation, or showcasing the dashboard.
+         * When enabled, displays realistic sample documents with various SEO scores.
+         * Defaults to `false`.
+         *
+         * @example
+         * previewMode: true
+         */
+        previewMode?: boolean
       }
 }
 
@@ -242,6 +252,7 @@ interface ResolvedDashboardConfig {
   loadingLicense: string | undefined
   loadingDocuments: string | undefined
   noDocuments: string | undefined
+  previewMode: boolean | undefined
 }
 
 const resolveDashboardConfig = (
@@ -269,6 +280,7 @@ const resolveDashboardConfig = (
     loadingLicense: cfg?.content?.loadingLicense,
     loadingDocuments: cfg?.content?.loadingDocuments,
     noDocuments: cfg?.content?.noDocuments,
+    previewMode: cfg?.previewMode,
   }
 }
 
@@ -295,6 +307,7 @@ const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
       loadingLicense: dash.loadingLicense,
       loadingDocuments: dash.loadingDocuments,
       noDocuments: dash.noDocuments,
+      previewMode: dash.previewMode,
     })
 
   return {

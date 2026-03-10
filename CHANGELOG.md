@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] — 2026-03-10
+
+### ✨ Added
+
+- **`previewMode`** — New `healthDashboard.previewMode` option that loads realistic dummy documents into the SEO Health Dashboard without querying your dataset. Useful for showcasing, documentation screenshots, and testing the dashboard UI before real content exists.
+  - License validation is bypassed when `previewMode` is active.
+  - An amber **"Preview Mode"** badge is shown in the dashboard header to make the state visually obvious.
+
+  ```ts
+  healthDashboard: {
+    previewMode: true,
+  }
+  ```
+
+  The dummy dataset includes 7 sample documents (`post`, `page`, `product`) covering the full score range — excellent, good, fair, and poor/missing — so every part of the dashboard UI is exercised.
+
+### 🔄 Changed
+
+- **Dynamic type-badge colours** — Type badges in the Type column are no longer mapped to a fixed. Colours are now derived at runtime from a 16-colour palette using a deterministic hash of the `_type` string. This means:
+  - Any document type — including custom ones — automatically receives a distinct, consistent colour.
+  - The same type always gets the same colour across renders.
+  - No configuration is required.
+
+---
+
 ## [1.2.0] — 2026-03-09
 
 ### ✨ Added

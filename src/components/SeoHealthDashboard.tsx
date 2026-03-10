@@ -24,6 +24,22 @@ const PageTitle = styled.h1`
   font-weight: 700;
   color: #111827;
   letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`
+
+const PreviewBadge = styled.span`
+  display: inline-block;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
 `
 
 const PageSubtitle = styled.p`
@@ -245,14 +261,14 @@ const DocId = styled.div`
   text-overflow: ellipsis;
 `
 
-const TypeBadge = styled.span`
+const TypeBadge = styled.span<{$bgColor?: string; $textColor?: string}>`
   display: inline-block;
   padding: 3px 8px;
   border-radius: 5px;
   font-size: 11px;
   font-weight: 500;
-  background: #ede9fe;
-  color: #5b21b6;
+  background: ${(p) => p.$bgColor || '#ede9fe'};
+  color: ${(p) => p.$textColor || '#5b21b6'};
 `
 
 const TypeText = styled.span`
@@ -509,6 +525,47 @@ const EmptyState = styled.div`
   font-size: 13px;
 `
 
+/**
+ * Color palette for dynamic document type badges
+ * Colors are randomly assigned based on type hash for visual variety
+ * while maintaining consistency across sessions
+ */
+const TYPE_COLOR_PALETTE: Array<{bg: string; text: string}> = [
+  {bg: '#dbeafe', text: '#0c4a6e'}, // Blue
+  {bg: '#dcfce7', text: '#14532d'}, // Green
+  {bg: '#fce7f3', text: '#500724'}, // Pink
+  {bg: '#fed7aa', text: '#7c2d12'}, // Orange
+  {bg: '#e9d5ff', text: '#581c87'}, // Purple
+  {bg: '#f3e8ff', text: '#3f0f5c'}, // Deep Purple
+  {bg: '#ccfbf1', text: '#134e4a'}, // Teal
+  {bg: '#ddd6fe', text: '#3730a3'}, // Indigo
+  {bg: '#fca5a5', text: '#7f1d1d'}, // Red
+  {bg: '#a7f3d0', text: '#065f46'}, // Emerald
+  {bg: '#fbbf24', text: '#78350f'}, // Amber
+  {bg: '#c4b5fd', text: '#3b0764'}, // Violet
+  {bg: '#f0fdf4', text: '#15803d'}, // Light Green
+  {bg: '#fef2f2', text: '#991b1b'}, // Light Red
+  {bg: '#f5f3ff', text: '#5b21b6'}, // Light Purple
+  {bg: '#fffbeb', text: '#92400e'}, // Light Amber
+]
+
+/**
+ * Get dynamic color for a document type based on type name hash
+ * Same type always gets the same color, but assignment is not fixed
+ */
+const getTypeColor = (type: string): {bg: string; text: string} => {
+  // Generate consistent hash from type string using simple arithmetic
+  let hash = 0
+  for (let i = 0; i < type.length; i += 1) {
+    const char = type.charCodeAt(i)
+    hash = Math.abs(hash * 31 + char)
+  }
+
+  // Use modulo to get index within palette range
+  const colorIndex = hash % TYPE_COLOR_PALETTE.length
+  return TYPE_COLOR_PALETTE[colorIndex]
+}
+
 const getStatusCategory = (score: number): SeoHealthMetrics['status'] => {
   if (score >= 80) return 'excellent'
   if (score >= 60) return 'good'
@@ -760,6 +817,155 @@ export interface SeoHealthDashboardProps {
    * Defaults to `"No documents found"`.
    */
   noDocuments?: React.ReactNode
+  /**
+   * Enable preview/demo mode to show dummy data.
+   * Useful for testing, documentation, or showcasing the dashboard.
+   * When enabled, displays realistic sample documents with various SEO scores.
+   * Defaults to `false`.
+   */
+  previewMode?: boolean
+}
+
+/**
+ * Generate dummy data for preview mode showing various SEO health scenarios
+ */
+const generateDummyData = (): DocumentWithSeoHealth[] => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dummyDocs: any[] = [
+    {
+      _id: 'preview-post-1',
+      _type: 'post',
+      title: 'Getting Started with SEO Best Practices',
+      slug: {current: 'getting-started-seo'},
+      _updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      seo: {
+        title: 'Getting Started with SEO Best Practices | My Blog',
+        description:
+          'Learn the fundamentals of SEO optimization to improve your website visibility and search rankings.',
+        keywords: ['seo', 'best practices', 'optimization'],
+        metaImage: {_type: 'image', asset: {_ref: 'image-123', _type: 'reference'}},
+        openGraph: {
+          title: 'SEO Best Practices Guide',
+          description: 'Master SEO optimization',
+          image: {_type: 'image', asset: {_ref: 'image-123', _type: 'reference'}, alt: 'SEO Guide'},
+          type: 'article',
+        },
+        twitter: {
+          title: 'SEO Best Practices',
+          description: 'Learn SEO optimization',
+          image: {_type: 'image', asset: {_ref: 'image-123', _type: 'reference'}, alt: 'Guide'},
+          card: 'summary_large_image',
+        },
+      },
+    },
+    {
+      _id: 'preview-post-2',
+      _type: 'post',
+      title: 'Advanced Analytics Strategy',
+      slug: {current: 'advanced-analytics'},
+      _updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      seo: {
+        title: 'Advanced Analytics',
+        description: 'Strategy tips',
+        keywords: ['analytics', 'data'],
+        openGraph: {
+          title: 'Analytics Guide',
+        },
+      },
+    },
+    {
+      _id: 'preview-page-1',
+      _type: 'page',
+      title: 'About Us',
+      slug: {current: 'about'},
+      _updatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      seo: {
+        title: 'About',
+        keywords: ['company', 'team'],
+        metaImage: {_type: 'image', asset: {_ref: 'image-456', _type: 'reference'}},
+      },
+    },
+    {
+      _id: 'preview-post-3',
+      _type: 'post',
+      title: 'Content Marketing Trends for 2024',
+      slug: {current: 'content-marketing-trends'},
+      _updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      seo: {
+        title: 'Content Marketing Trends 2024',
+        description:
+          'Discover the latest content marketing trends and strategies to engage your audience effectively.',
+        keywords: ['content marketing', 'trends', 'strategy', 'engagement'],
+        metaImage: {_type: 'image', asset: {_ref: 'image-789', _type: 'reference'}},
+        openGraph: {
+          title: 'Content Marketing Trends 2024',
+          description: 'Latest trends in content marketing',
+          image: {_type: 'image', asset: {_ref: 'image-789', _type: 'reference'}, alt: 'Trends'},
+          type: 'article',
+        },
+        twitter: {
+          title: 'Content Marketing Trends',
+          description: 'Discover the latest trends',
+          card: 'summary',
+        },
+      },
+    },
+    {
+      _id: 'preview-post-4',
+      _type: 'product',
+      title: 'Pro Plan',
+      slug: {current: 'pro-plan'},
+      _updatedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      seo: {
+        title: 'Pro',
+        keywords: ['pricing'],
+      },
+    },
+    {
+      _id: 'preview-page-2',
+      _type: 'page',
+      title: 'Contact',
+      slug: {current: 'contact'},
+      _updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+      seo: {
+        openGraph: {
+          title: 'Get in Touch',
+        },
+      },
+    },
+    {
+      _id: 'preview-post-5',
+      _type: 'post',
+      title: 'Mobile Optimization Guide',
+      slug: {current: 'mobile-optimization'},
+      _updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      seo: {
+        title: 'Mobile Optimization Guide: Best Practices for Responsive Design',
+        description:
+          'Complete guide to mobile optimization including responsive design, performance tips, and user experience best practices for modern web development.',
+        keywords: ['mobile', 'optimization', 'responsive', 'performance'],
+        metaImage: {_type: 'image', asset: {_ref: 'image-mobile', _type: 'reference'}},
+        openGraph: {
+          title: 'Mobile Optimization Best Practices',
+          description: 'Master mobile web optimization',
+          image: {_type: 'image', asset: {_ref: 'image-mobile', _type: 'reference'}, alt: 'Mobile'},
+          type: 'article',
+        },
+        twitter: {
+          title: 'Mobile Optimization Tips',
+          description: 'Responsive design best practices',
+          image: {_type: 'image', asset: {_ref: 'image-mobile', _type: 'reference'}, alt: 'Mobile'},
+          card: 'summary_large_image',
+        },
+      },
+    },
+  ]
+
+  // Calculate health scores and return
+  return dummyDocs.map((doc) => ({
+    ...doc,
+    health: calculateHealthScore(doc),
+  }))
 }
 
 const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
@@ -780,6 +986,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   loadingLicense,
   loadingDocuments,
   noDocuments,
+  previewMode = false,
 }) => {
   const client = useClient({apiVersion})
   const [licenseStatus, setLicenseStatus] = useState<'loading' | 'valid' | 'invalid'>('loading')
@@ -800,6 +1007,12 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
 
   const validateLicense = useCallback(
     async (forceRefresh = false) => {
+      // Preview mode bypasses license validation
+      if (previewMode) {
+        setLicenseStatus('valid')
+        return
+      }
+
       // No key provided
       if (!licenseKey) {
         setLicenseStatus('invalid')
@@ -854,13 +1067,13 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [licenseKey],
+    [licenseKey, previewMode],
   )
 
   useEffect(() => {
     validateLicense()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [licenseKey])
+  }, [licenseKey, previewMode])
 
   const handleMouseEnterIssues = (el: HTMLDivElement | null, issues: string[]) => {
     if (!el) return
@@ -880,6 +1093,12 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
     const fetchDocuments = async () => {
       try {
         setLoading(true)
+
+        // Use dummy data in preview mode
+        if (previewMode) {
+          setDocuments(generateDummyData())
+          return
+        }
 
         let groqQuery: string
         let params: Record<string, unknown> = {}
@@ -932,7 +1151,16 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
 
     fetchDocuments()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, customQuery, queryRequireSeo, JSON.stringify(queryTypes), JSON.stringify(titleField)])
+  }, [
+    client,
+    customQuery,
+    queryRequireSeo,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    JSON.stringify(queryTypes),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    JSON.stringify(titleField),
+    previewMode,
+  ])
 
   const uniqueDocumentTypes = useMemo(() => {
     const types = new Set(documents.map((doc) => doc._type))
@@ -1060,7 +1288,10 @@ export default defineConfig({
           {/* Header */}
           <PageHeader>
             <PageTitle>
-              {icon} {title}
+              <span>
+                {icon} {title}
+              </span>
+              {previewMode && <PreviewBadge>Preview Mode</PreviewBadge>}
             </PageTitle>
             <PageSubtitle>{description}</PageSubtitle>
           </PageHeader>
@@ -1190,7 +1421,14 @@ export default defineConfig({
                             {typeColumnMode === 'text' ? (
                               <TypeText>{resolveTypeLabel(doc._type, typeLabels)}</TypeText>
                             ) : (
-                              <TypeBadge>{resolveTypeLabel(doc._type, typeLabels)}</TypeBadge>
+                              (() => {
+                                const typeColor = getTypeColor(doc._type)
+                                return (
+                                  <TypeBadge $bgColor={typeColor.bg} $textColor={typeColor.text}>
+                                    {resolveTypeLabel(doc._type, typeLabels)}
+                                  </TypeBadge>
+                                )
+                              })()
                             )}
                           </ColType>
                         )}
