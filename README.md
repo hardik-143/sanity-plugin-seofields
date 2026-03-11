@@ -21,6 +21,7 @@ A comprehensive Sanity Studio v3 plugin to manage SEO fields like meta titles, d
 - ✅ **Validation**: Built-in character limits and best practices
 - 🎛️ **Field Visibility**: Hide sitewide fields on specific content types
 - 📊 **SEO Health Dashboard**: Studio-wide overview of SEO completeness with scores, issue highlights, and direct document links
+- 🗂️ **Desk Structure Pane**: Embed the dashboard inside the Structure tool with `createSeoHealthPane` — supports split-pane document editing
 
 ## 📦 Installation
 
@@ -530,6 +531,65 @@ seofields({
 | **Total**           | **95**     |
 
 > **Scoring logic:** each field earns its full points when a non-empty value is present, zero when missing. `query.groq` lets you control exactly which documents are included in the audit.
+
+## 🗂️ Desk Structure Pane
+
+Embed the SEO Health Dashboard **directly inside the Structure tool** as a pane with split-pane document editing — clicking any row opens the document editor to the right.
+
+### Import
+
+```typescript
+import {createSeoHealthPane} from 'sanity-plugin-seofields'
+```
+
+### Usage
+
+`createSeoHealthPane(S, options)` requires both arguments: Sanity's structure builder `S` and an options object with a required `licenseKey`. It returns a **`ComponentBuilder`** — use it **directly** as the `.child()` value.
+
+> ⚠️ **Do NOT wrap in `S.component()`.** The function already calls `S.component()` internally. Wrapping it again causes: _"component is required for component structure item"_.
+
+```typescript
+// sanity.config.ts
+import {defineConfig} from 'sanity'
+import {structureTool} from 'sanity/structure'
+import seofields, {createSeoHealthPane} from 'sanity-plugin-seofields'
+
+export default defineConfig({
+  plugins: [
+    seofields({healthDashboard: false}), // optional: hide the top-level tool tab
+    structureTool({
+      structure: (S) =>
+        S.list()
+          .title('Content')
+          .items([
+            S.documentTypeListItem('post').title('Posts'),
+            S.divider(),
+            S.listItem()
+              .title('SEO Health')
+              .child(
+                createSeoHealthPane(S, {
+                  licenseKey: 'SEOF-XXXX-XXXX-XXXX',
+                  query: `*[_type == "post" && defined(seo)]{
+                    _id, _type, title, slug, seo, _updatedAt
+                  }`,
+                  title: 'Posts SEO Health',
+                }),
+              ),
+          ]),
+    }),
+  ],
+})
+```
+
+### `createSeoHealthPane` options
+
+| Option       | Type      | Default        | Description                                                           |
+| ------------ | --------- | -------------- | --------------------------------------------------------------------- |
+| `licenseKey` | `string`  | **required**   | License key (format `SEOF-XXXX-XXXX-XXXX`).                           |
+| `query`      | `string`  | —              | GROQ query. Must return `_id`, `_type`, `title`, `seo`, `_updatedAt`. |
+| `title`      | `string`  | `'SEO Health'` | Pane title shown in breadcrumb                                        |
+| `openInPane` | `boolean` | `true`         | Enable row links that open the document editor as a pane to the right. |
+| `...rest`    | —         | —              | All other `SeoHealthDashboardProps`                                   |
 
 ## 🌐 Frontend Integration
 

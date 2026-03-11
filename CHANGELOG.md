@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.2] — 2026-03-11
+
+### ✨ Added
+
+- **Desk Structure Pane** (`createSeoHealthPane`) — Embed the SEO Health Dashboard directly inside Sanity Studio's Structure tool.
+  - `createSeoHealthPane(S, options)` — returns a `ComponentBuilder` with a built-in `.child()` resolver so clicking any document row opens the document editor as a pane to the right. Automatically wires up `schemaType` via `childParameters`.
+  - `options.licenseKey` is **required**.
+  - Exported from the package root as `createSeoHealthPane` and `SeoHealthPaneOptions`.
+
+  ```ts
+  import {createSeoHealthPane} from 'sanity-plugin-seofields'
+
+  structure: (S) =>
+    S.list().items([
+      S.listItem()
+        .title('SEO Health')
+        .child(
+          createSeoHealthPane(S, {
+            licenseKey: 'SEOF-XXXX-XXXX-XXXX',
+            query: `*[_type == "post" && defined(seo)]{ _id, _type, title, slug, seo, _updatedAt }`,
+          }),
+        ),
+    ])
+  ```
+
+- **Title truncation in split pane** — Document titles now truncate with an ellipsis at any pane width. Fixed by propagating `min-width: 0` through the full flex ancestor chain and adding a dedicated `TitleCell` wrapper.
+
+- **Stats grid auto-wrapping** — The stats bar cards now use `repeat(auto-fit, minmax(130px, 1fr))` instead of a fixed 6-column grid. Cards wrap naturally at narrow pane widths and always fill the full available width when there is space.
+
+---
+
 ## [1.2.1] — 2026-03-10
 
 ### ✨ Added

@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import {useClient} from 'sanity'
 import {useIntentLink} from 'sanity/router'
+import {usePaneRouter} from 'sanity/structure'
 import styled, {keyframes} from 'styled-components'
 
 import {DocumentWithSeoHealth, SeoHealthMetrics} from '../types'
@@ -50,16 +51,9 @@ const PageSubtitle = styled.p`
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 14px;
   margin-bottom: 20px;
-
-  @media (max-width: 1100px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  @media (max-width: 600px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
 `
 
 const StatCard = styled.div<{$accent?: string}>`
@@ -218,6 +212,14 @@ const TitleWrapper = styled.div`
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
+  min-width: 0;
+`
+
+/* Constrains the title + doc-id block so text-overflow works inside flex */
+const TitleCell = styled.div`
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
 `
 
 const ColType = styled.div`
@@ -478,6 +480,48 @@ const DocTitleAnchor: React.FC<{id: string; type: string; children: React.ReactN
     <DocTitleLink href={href} onClick={onClick} title="Open document">
       {children}
     </DocTitleLink>
+  )
+}
+
+// Wrapper that applies DocTitleLink styles to the ChildLink <a> rendered by Sanity's pane router
+const PaneLinkWrapper = styled.span`
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+
+  a {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4f46e5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    display: block;
+    transition: color 0.15s;
+
+    &:hover {
+      color: #4338ca;
+      text-decoration: underline;
+    }
+  }
+`
+
+// Sub-component for desk-structure split-pane navigation.
+// Uses ChildLink from usePaneRouter to open the document editor to the right
+// while keeping the SEO Health pane visible on the left.
+const DocTitleAnchorPane: React.FC<{id: string; type: string; children: React.ReactNode}> = ({
+  id,
+  type,
+  children,
+}) => {
+  const {ChildLink} = usePaneRouter()
+  return (
+    <PaneLinkWrapper>
+      <ChildLink childId={id} childParameters={{type}}>
+        {children}
+      </ChildLink>
+    </PaneLinkWrapper>
   )
 }
 
@@ -824,6 +868,18 @@ export interface SeoHealthDashboardProps {
    * Defaults to `false`.
    */
   previewMode?: boolean
+  /**
+   * When `true`, clicking a document title opens the document editor as a split
+   * pane to the right, keeping the SEO Health pane visible on the left.
+   * This uses Sanity's pane router and requires the component to be rendered
+   * inside a desk-structure pane context (i.e. via `createSeoHealthPane`).
+   *
+   * When `false` (default), clicking navigates to the document via the standard
+   * intent-link system (full navigation).
+   *
+   * This is set to `true` automatically by `createSeoHealthPane`.
+   */
+  openInPane?: boolean
 }
 
 /**
@@ -987,6 +1043,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   loadingDocuments,
   noDocuments,
   previewMode = false,
+  openInPane = false,
 }) => {
   const client = useClient({apiVersion})
   const [licenseStatus, setLicenseStatus] = useState<'loading' | 'valid' | 'invalid'>('loading')
@@ -1402,12 +1459,18 @@ export default defineConfig({
                       <TableRow key={doc._id}>
                         <ColTitle>
                           <TitleWrapper>
-                            <div>
-                              <DocTitleAnchor id={doc._id} type={doc._type}>
-                                {doc.title || 'Untitled'}
-                              </DocTitleAnchor>
+                            <TitleCell>
+                              {openInPane ? (
+                                <DocTitleAnchorPane id={doc._id} type={doc._type}>
+                                  {doc.title || 'Untitled'}
+                                </DocTitleAnchorPane>
+                              ) : (
+                                <DocTitleAnchor id={doc._id} type={doc._type}>
+                                  {doc.title || 'Untitled'}
+                                </DocTitleAnchor>
+                              )}
                               {showDocumentId && <DocId>{doc._id}</DocId>}
-                            </div>
+                            </TitleCell>
                             {docBadge && (
                               <DocBadgeRenderer
                                 doc={doc as DocumentWithSeoHealth & Record<string, unknown>}
