@@ -215,6 +215,16 @@ export interface SeoFieldsPluginConfig {
           doc: DocumentWithSeoHealth & Record<string, unknown>,
         ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
         /**
+         * The `name` of the Sanity structure tool that contains the monitored documents.
+         * Required when you have multiple structure tools and the documents live in a
+         * non-default one. Clicking a title will navigate to
+         * `/{basePath}/{structureTool}/intent/edit/…` directly.
+         *
+         * @example
+         * structureTool: 'common'
+         */
+        structureTool?: string
+        /**
          * Enable preview/demo mode to show dummy data.
          * Useful for testing, documentation, or showcasing the dashboard.
          * When enabled, displays realistic sample documents with various SEO scores.
@@ -253,6 +263,7 @@ interface ResolvedDashboardConfig {
   loadingDocuments: string | undefined
   noDocuments: string | undefined
   previewMode: boolean | undefined
+  structureTool: string | undefined
 }
 
 const resolveDashboardConfig = (
@@ -281,6 +292,7 @@ const resolveDashboardConfig = (
     loadingDocuments: cfg?.content?.loadingDocuments,
     noDocuments: cfg?.content?.noDocuments,
     previewMode: cfg?.previewMode,
+    structureTool: cfg?.structureTool,
   }
 }
 
@@ -308,6 +320,7 @@ const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
       loadingDocuments: dash.loadingDocuments,
       noDocuments: dash.noDocuments,
       previewMode: dash.previewMode,
+      structureTool: dash.structureTool,
     })
 
   return {

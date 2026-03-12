@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
-import {useClient} from 'sanity'
+import {useClient, useWorkspace} from 'sanity'
 import {useIntentLink} from 'sanity/router'
 import {usePaneRouter} from 'sanity/structure'
 import styled, {keyframes} from 'styled-components'
@@ -470,12 +470,20 @@ const ReloadButton = styled.button`
 `
 
 // Sub-component so useIntentLink can be called at the top level of a component (not inside .map)
-const DocTitleAnchor: React.FC<{id: string; type: string; children: React.ReactNode}> = ({
-  id,
-  type,
-  children,
-}) => {
-  const {onClick, href} = useIntentLink({intent: 'edit', params: {id, type}})
+const DocTitleAnchor: React.FC<{
+  id: string
+  type: string
+  structureTool?: string
+  children: React.ReactNode
+}> = ({id, type, structureTool, children}) => {
+  const {basePath} = useWorkspace()
+  const {onClick: intentOnClick, href: intentHref} = useIntentLink({intent: 'edit', params: {id, type}})
+  // When a specific structure tool name is provided, build a tool-scoped intent URL so that
+  // Sanity routes directly to that tool instead of letting the router pick the first match.
+  const href = structureTool
+    ? `${basePath}/${structureTool}/intent/edit/id=${id};type=${type}/`
+    : intentHref
+  const onClick = structureTool ? undefined : intentOnClick
   return (
     <DocTitleLink href={href} onClick={onClick} title="Open document">
       {children}
@@ -880,6 +888,19 @@ export interface SeoHealthDashboardProps {
    * This is set to `true` automatically by `createSeoHealthPane`.
    */
   openInPane?: boolean
+  /**
+   * The `name` of the Sanity structure tool that contains the monitored documents.
+   * When provided, clicking a document title navigates directly to that tool's
+   * intent URL (`/{basePath}/{structureTool}/intent/edit/id=…;type=…/`) instead of
+   * using the generic intent resolver, which always picks the first registered tool.
+   *
+   * Required when you have multiple structure tools and the documents live in a
+   * non-default one (e.g. `name: 'common'`).
+   *
+   * @example
+   * structureTool: 'common'
+   */
+  structureTool?: string
 }
 
 /**
@@ -1044,6 +1065,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   noDocuments,
   previewMode = false,
   openInPane = false,
+  structureTool,
 }) => {
   const client = useClient({apiVersion})
   const [licenseStatus, setLicenseStatus] = useState<'loading' | 'valid' | 'invalid'>('loading')
@@ -1465,7 +1487,7 @@ export default defineConfig({
                                   {doc.title || 'Untitled'}
                                 </DocTitleAnchorPane>
                               ) : (
-                                <DocTitleAnchor id={doc._id} type={doc._type}>
+                                <DocTitleAnchor id={doc._id} type={doc._type} structureTool={structureTool}>
                                   {doc.title || 'Untitled'}
                                 </DocTitleAnchor>
                               )}

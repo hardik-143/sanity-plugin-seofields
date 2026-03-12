@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.3] — 2026-03-12
+
+### ✨ Added
+
+- **`structureTool` option** — New `healthDashboard.structureTool` option that routes document-title clicks directly to a named Structure tool instead of relying on Sanity's generic intent resolver. Required when you have multiple structure tools and the monitored documents live in a non-default one. Clicking a title navigates to `/{basePath}/{structureTool}/intent/edit/id=…;type=…/` directly.
+
+  ```ts
+  healthDashboard: {
+    licenseKey: 'SEOF-XXXX-XXXX-XXXX',
+    structureTool: 'common',
+  }
+  ```
+
+  Also available as a prop on `SeoHealthDashboardProps` and `SeoHealthPaneOptions` for direct component usage.
+
+---
+
 ## [1.2.2] — 2026-03-11
 
 ### ✨ Added
