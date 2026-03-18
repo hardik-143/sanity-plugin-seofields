@@ -20,13 +20,11 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "default": "./dist/index.js"
     },
     "./next": {
       "source": "./src/next.ts",
-      "types": "./dist/next.d.ts",
       "import": "./dist/next.mjs",
       "require": "./dist/next.js",
       "default": "./dist/next.js"
