@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
   "keywords": [
     "sanity",
@@ -20,11 +20,13 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "default": "./dist/index.js"
     },
     "./next": {
       "source": "./src/next.ts",
+      "types": "./dist/next.d.ts",
       "import": "./dist/next.mjs",
       "require": "./dist/next.js",
       "default": "./dist/next.js"
@@ -33,6 +35,11 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "next": ["./dist/next.d.ts"]
+    }
+  },
   "files": [
     "dist",
     "sanity.json",
