@@ -35,8 +35,8 @@ export interface RobotsSettings {
 // Meta Attribute
 export interface MetaAttribute {
   _type: 'metaAttribute'
-  key: string
-  type: 'string' | 'image'
+  key?: string
+  type?: 'string' | 'image'
   value?: string
   image?: SanityImage
 }
@@ -44,6 +44,8 @@ export interface MetaAttribute {
 // Open Graph settings
 export interface OpenGraphSettings {
   _type: 'openGraph'
+  /** The canonical URL for OpenGraph (og:url). Maps to the `url` field in Sanity. */
+  url?: string
   title?: string
   description?: string
   siteName?: string
@@ -58,6 +60,7 @@ export interface TwitterCardSettings {
   _type: 'twitter'
   card?: 'summary' | 'summary_large_image' | 'app' | 'player'
   site?: string
+  creator?: string
   title?: string
   description?: string
   imageType?: 'upload' | 'url'
@@ -73,6 +76,7 @@ export interface SeoFields {
   title?: string
   description?: string
   metaImage?: SanityImage
+  metaAttributes?: MetaAttribute[]
   keywords?: string[]
   canonicalUrl?: string
   openGraph?: OpenGraphSettings

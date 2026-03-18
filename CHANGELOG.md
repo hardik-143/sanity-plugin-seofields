@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.4] — 2026-03-18
+
+### ✨ Added
+
+- **`sanity-plugin-seofields/next` entry point** — New sub-path export for use in Next.js Server Components and `generateMetadata()` functions.
+
+  ```ts
+  import {buildSeoMeta, SeoMetaTags} from 'sanity-plugin-seofields/next'
+  ```
+
+- **`buildSeoMeta(options)`** — Converts a Sanity SEO object into a structured metadata object compatible with Next.js App Router's `Metadata` type. Returns `title`, `description`, `keywords`, `robots`, `openGraph`, `twitter`, `alternates.canonical`, and `other` (custom meta attributes). Safe to call in RSC / `generateMetadata()`.
+
+  ```ts
+  export async function generateMetadata({params}): Promise<Metadata> {
+    const {data} = await sanityFetch({query: SEO_QUERY, params})
+    return buildSeoMeta({
+      seo: data.seo,
+      baseUrl: 'https://example.com',
+      path: '/about',
+      defaults: {title: 'My Site', siteName: 'My Site'},
+      imageUrlResolver: (img) => urlFor(img).width(1200).url(),
+    })
+  }
+  ```
+
+- **`<SeoMetaTags>`** — Framework-agnostic React component that renders all SEO meta tags as plain React elements (`<title>`, `<meta>`, `<link rel="canonical">`). Designed for Next.js Pages Router `<Head>`, Nuxt, Remix, or any SSR `<head>` slot. Also works in Next.js App Router RSC when imported from `sanity-plugin-seofields/next`.
+
+  ```tsx
+  import {SeoMetaTags} from 'sanity-plugin-seofields/next'
+
+  // Next.js App Router (RSC)
+  export default async function Page({params}) {
+    const {data} = await sanityFetch({query: BLOG_QUERY, params})
+    return (
+      <>
+        <SeoMetaTags data={data.seo} baseUrl="https://example.com" path={`/blogs/${params.slug}`} />
+        <main>...</main>
+      </>
+    )
+  }
+  ```
+
+### 🔄 Changed
+
+- **`MetaAttribute.key` and `MetaAttribute.type`** are now optional (`key?`, `type?`) — previously required, this change aligns the type with real Sanity document shapes where these fields may be absent.
+- **`OpenGraphSettings`** gains an explicit `url?: string` field (maps to `og:url`).
+- **`TwitterCardSettings`** gains an explicit `creator?: string` field (maps to `twitter:creator`).
+- **`SeoFields`** now includes `metaAttributes?: MetaAttribute[]` in its type definition (was missing despite being part of the schema).
+
+---
+
 ## [1.2.3] — 2026-03-12
 
 ### ✨ Added
