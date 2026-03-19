@@ -4,9 +4,12 @@
  * @example
  * import { buildSeoMeta, SeoMetaTags } from 'sanity-plugin-seofields/next'
  */
+export type {
+  BuildSeoMetaOptions,
+  SeoFieldsInput,
+  SeoMetadata,
+  SeoMetaDefaults,
+} from './helpers/seoMeta'
 export {buildSeoMeta, sanitizeOGType, sanitizeTwitterCard} from './helpers/seoMeta'
-
-export type {BuildSeoMetaOptions, SeoMetaDefaults, SeoMetadata} from './helpers/seoMeta'
-
-export {SeoMetaTags} from './helpers/SeoMetaTags'
 export type {SeoMetaTagsProps} from './helpers/SeoMetaTags'
+export {SeoMetaTags} from './helpers/SeoMetaTags'

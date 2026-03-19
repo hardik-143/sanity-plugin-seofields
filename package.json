@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
   "keywords": [
     "sanity",
@@ -52,8 +52,10 @@
     "format": "prettier --write --cache --ignore-unknown .",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
-    "generate-schema": "npx tsx schema-generator.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "sanityPlugin": {
     "linkWatch": {
@@ -78,9 +80,13 @@
   "devDependencies": {
     "@sanity/codegen": "^4.9.0",
     "@sanity/plugin-kit": "^4.0.20",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/react": "^19.1.13",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
+    "babel-jest": "^30.3.0",
     "baseline-browser-mapping": "^2.10.8",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
@@ -88,12 +94,18 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.7",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.6.2",
     "prettier-plugin-packagejson": "^2.5.19",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "sanity": "^4.10.0",
     "styled-components": "^6.1.19",
+    "ts-jest": "^29.4.6",
     "ts-json-schema-generator": "^2.4.0",
     "tsup": "^8.0.0",
     "tsx": "^4.20.5",

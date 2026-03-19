@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.7] — 2026-03-19
+
+### 🐛 Fixed
+
+- **`SeoFieldsInput` now exported from `sanity-plugin-seofields/next`** — the type was defined in `seoMeta.ts` but missing from the `/next` re-export, making `import type { SeoFieldsInput } from 'sanity-plugin-seofields/next'` fail at compile time.
+
+---
+
 ## [1.2.6] — 2026-03-19
 
 ### 🔧 Internal

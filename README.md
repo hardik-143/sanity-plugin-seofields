@@ -658,6 +658,205 @@ export function SEO({seo}) {
 }
 ```
 
+## 🎯 Framework Integration Examples
+
+### Remix (Loader + Action Approach)
+
+Handle SEO metadata in Remix loaders for server-side rendering with JSON responses:
+
+```typescript
+// routes/posts.$slug.tsx
+import {json, type LoaderFunction} from '@remix-run/node'
+import {useLoaderData} from '@remix-run/react'
+import {buildSeoMeta} from 'sanity-plugin-seofields/utils'
+
+export const loader: LoaderFunction = async ({params}) => {
+  // Fetch post with SEO fields from Sanity
+  const post = await sanityClient.fetch(
+    `*[_type == "post" && slug.current == $slug][0]{
+      title, content, seo, slug
+    }`,
+    {slug: params.slug},
+  )
+  
+  // Use buildSeoMeta to generate meta tags
+  const seoMeta = buildSeoMeta(post.seo, {
+    defaultTitle: 'Blog',
+    siteUrl: 'https://example.com',
+  })
+  
+  return json({post, seoMeta})
+}
+
+export const meta: MetaFunction<typeof loader> = ({data}) => {
+  return data?.seoMeta || []
+}
+
+export default function PostRoute() {
+  const {post} = useLoaderData<typeof loader>()
+  return <article>{post.title}</article>
+}
+```
+
+### Nuxt 3 (Composable Approach)
+
+Create a composable for SSR-friendly SEO management:
+
+```typescript
+// composables/useSanityMeta.ts
+import {buildSeoMeta} from 'sanity-plugin-seofields/utils'
+
+export const useSanityMeta = (seo: SEOFields, options = {}) => {
+  const {
+    defaultTitle = 'My Site',
+    siteUrl = 'https://example.com',
+  } = options
+  
+  const meta = buildSeoMeta(seo, {defaultTitle, siteUrl})
+  
+  // useHead() handles SSR + client-side rendering
+  useHead({
+    title: seo?.title || defaultTitle,
+    meta: meta.map(m => ({
+      name: m.name || m.property,
+      content: m.content,
+    })),
+    link: seo?.canonicalUrl 
+      ? [{rel: 'canonical', href: seo.canonicalUrl}]
+      : [],
+  })
+}
+
+// pages/blog/[slug].vue
+<script setup lang="ts">
+const route = useRoute()
+const {data: post} = await useFetch(`/api/posts/${route.params.slug}`)
+
+useSanityMeta(post.value?.seo, {
+  siteUrl: 'https://example.com',
+})
+</script>
+
+<template>
+  <article v-if="post">
+    <h1>{{ post.title }}</h1>
+  </article>
+</template>
+```
+
+### Astro (Server-Side Rendering)
+
+Leverage Astro's component-level SEO with static generation:
+
+```typescript
+// src/pages/blog/[slug].astro
+---
+import {buildSeoMeta} from 'sanity-plugin-seofields/utils'
+import Layout from '../../layouts/Layout.astro'
+
+// Fetch from Sanity at build time
+const {slug} = Astro.params
+const post = await sanityClient.fetch(
+  `*[_type == "post" && slug.current == $slug][0]{
+    title, content, seo, slug
+  }`,
+  {slug},
+)
+
+// Generate meta tags for static HTML
+const seoMeta = buildSeoMeta(post.seo, {
+  defaultTitle: 'Blog',
+  siteUrl: Astro.site,
+})
+---
+
+<Layout
+  title={post.seo?.title}
+  meta={seoMeta}
+  canonicalUrl={post.seo?.canonicalUrl}
+>
+  <article>
+    <h1>{post.title}</h1>
+  </article>
+</Layout>
+
+<!-- Astro layouts handle meta tag rendering -->
+```
+
+### React SPA (Client-Side with Helmet)
+
+For client-rendered React apps without SSR:
+
+```typescript
+// components/PostHead.tsx
+import {Helmet} from 'react-helmet-async'
+import type {SEOFields} from 'sanity-plugin-seofields'
+
+interface PostHeadProps {
+  seo?: SEOFields
+  fallbackTitle: string
+}
+
+export function PostHead({seo, fallbackTitle}: PostHeadProps) {
+  return (
+    <Helmet>
+      {/* Basic Meta */}
+      <title>{seo?.title || fallbackTitle}</title>
+      <meta name="description" content={seo?.description || ''} />
+      
+      {/* Open Graph - critical for social shares */}
+      <meta property="og:title" content={seo?.openGraph?.title} />
+      <meta property="og:description" content={seo?.openGraph?.description} />
+      {seo?.openGraph?.image?.url && (
+        <meta property="og:image" content={seo.openGraph.image.url} />
+      )}
+      
+      {/* Robots */}
+      {seo?.robots?.noIndex && <meta name="robots" content="noindex" />}
+      
+      {/* Canonical (limit crawl budget) */}
+      {seo?.canonicalUrl && (
+        <link rel="canonical" href={seo.canonicalUrl} />
+      )}
+    </Helmet>
+  )
+}
+
+// Usage in page component
+// Note: Client-side rendering cannot inject meta tags pre-page-load.
+// For public pages, use SSR or static generation instead.
+```
+
+---
+
+## 🚀 Migrating from Other SEO Plugins
+
+Coming from **Yoast**, **All in One SEO**, or **RankMath**?
+
+| Feature | Yoast | All in One SEO | RankMath | sanity-plugin-seofields |
+|---------|-------|----------------|----------|------------------------|
+| **Meta Title/Description** | ✅ | ✅ | ✅ | ✅ |
+| **Open Graph Tags** | ✅ | ✅ | ✅ | ✅ |
+| **Twitter Cards** | ⚠️ Limited | ✅ | ✅ | ✅ |
+| **Readability Analysis** | ✅ | ✅ | ✅ | ❌ (Sanity-native focus) |
+| **Keyword Density** | ✅ | ✅ | ✅ | ❌ (External tools) |
+| **Custom Meta Attributes** | ⚠️ Limited | ✅ | ✅ | ✅ |
+| **Robots/Canonical** | ✅ | ✅ | ✅ | ✅ |
+| **Headless-First** | ❌ | ❌ | ❌ | ✅ Framework-agnostic |
+| **SSR-Ready** | N/A | N/A | N/A | ✅ All frameworks |
+
+### Migration Path
+
+1. **Export existing metadata** from your old plugin (title, description, OG tags)
+2. **Create a Sanity schema** matching your current fields — map to `seoFields` type
+3. **Bulk import** using Sanity's API or migration scripts
+4. **Update your frontend** to use `buildSeoMeta` utilities instead of plugin hooks
+5. **Test meta rendering** in browsers DevTools and social preview tools
+
+For detailed migration guides, see [Migration Guides](#) in our documentation.
+
+---
+
 ## 📚 API Reference
 
 ### Main Export
@@ -674,6 +873,272 @@ import seofields from 'sanity-plugin-seofields'
 - `metaTag` - Custom meta tag collection
 - `metaAttribute` - Individual meta attribute
 - `robots` - Search engine robots settings
+
+## 🔧 Troubleshooting
+
+### TypeScript auto-import not working
+
+**Problem:** `buildSeoMeta` doesn't appear in IDE autocomplete
+
+**Solution:**
+
+1. Check your `package.json` exports field has a `"types"` condition:
+```json
+{
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "default": "./dist/next.js"
+    }
+  }
+}
+```
+
+2. Verify your `tsconfig.json` has the correct `moduleResolution`:
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true
+  }
+}
+```
+
+---
+
+### "Cannot find module 'sanity-plugin-seofields/next'"
+
+**Problem:** Runtime import error when trying to use Next.js utilities
+
+**Solution:**
+
+1. Ensure built files exist in `dist/next.js`:
+```bash
+npm run build
+```
+
+2. Clear and reinstall node_modules:
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+3. Verify `package.json` exports includes the next export:
+```json
+{
+  "exports": {
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "default": "./dist/next.js"
+    }
+  }
+}
+```
+
+---
+
+### Type inference in generateMetadata()
+
+**Problem:** `buildSeoMeta()` return type is not recognized as Next.js `Metadata`
+
+**Solution:** Explicitly type the return value:
+
+```tsx
+import type {Metadata} from 'next'
+import {buildSeoMeta} from 'sanity-plugin-seofields/next'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await fetchSeoData()
+  const metadata = buildSeoMeta(seoData)
+  
+  return {
+    title: metadata.title,
+    description: metadata.description,
+    openGraph: {
+      title: metadata.openGraph?.title,
+      description: metadata.openGraph?.description,
+      url: metadata.openGraph?.url,
+    },
+    twitter: {
+      card: metadata.twitter?.card as any,
+      site: metadata.twitter?.site,
+      creator: metadata.twitter?.creator,
+    },
+  }
+}
+```
+
+---
+
+### Dashboard not showing in Sanity Studio
+
+**Problem:** SEO Health tool doesn't appear in the studio
+
+**Solution:**
+
+1. Ensure the plugin is added to `sanity.config.ts`:
+```typescript
+import seofields from 'sanity-plugin-seofields'
+
+export default defineConfig({
+  // ... other config
+  plugins: [
+    seofields({
+      documentTypes: ['post', 'page', 'product'],
+      // other options
+    }),
+  ],
+})
+```
+
+2. Check that `documentTypes` array includes your document types:
+```typescript
+seofields({
+  documentTypes: ['post', 'page'], // Add your document types here
+})
+```
+
+3. Verify plugin config fieldVisibility is not hiding SEO fields:
+```typescript
+seofields({
+  documentTypes: ['post'],
+  fieldVisibility: {
+    // Make sure SEO fields aren't set to hidden
+  },
+})
+```
+
+---
+
+### Image URLs not resolving
+
+**Problem:** OG/Twitter images show as `undefined` in meta tags
+
+**Solution:** Provide an `imageUrlResolver` function:
+
+```tsx
+import imageUrlBuilder from '@sanity/image-url'
+import {client} from './sanity.client'
+
+const imageBuilder = imageUrlBuilder(client)
+
+export function buildImageUrl(source) {
+  if (!source) return undefined
+  return imageBuilder.image(source).url()
+}
+
+// In your buildSeoMeta call:
+const metadata = buildSeoMeta({
+  ...seoData,
+  imageUrlResolver: buildImageUrl,
+})
+```
+
+Or use it in your Next.js layout:
+
+```tsx
+import {buildSeoMeta} from 'sanity-plugin-seofields/next'
+import imageUrlBuilder from '@sanity/image-url'
+
+const imageBuilder = imageUrlBuilder(client)
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await sanityFetch(SeoQuery)
+  
+  const metadata = buildSeoMeta({
+    ...seoData,
+    imageUrlResolver: (image) => imageBuilder.image(image).url(),
+  })
+  
+  return metadata
+}
+```
+
+---
+
+### generateMetadata() not finding Sanity data
+
+**Problem:** Data is `undefined` when trying to fetch from Sanity in Next.js
+
+**Solution:**
+
+1. Ensure `sanityFetch` is properly awaited:
+```tsx
+import {sanityFetch} from '@/lib/sanity.client'
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const seoData = await sanityFetch(SeoQuery) // Don't forget await!
+    return buildSeoMeta(seoData)
+  } catch (error) {
+    console.error('Failed to fetch SEO data:', error)
+    return {title: 'Default Title'}
+  }
+}
+```
+
+2. Verify environment variables are set:
+```bash
+# .env.local
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_TOKEN=your_token (if using authenticated fetches)
+```
+
+3. Complete example with proper error handling:
+```tsx
+import type {Metadata} from 'next'
+import {buildSeoMeta} from 'sanity-plugin-seofields/next'
+import {sanityFetch} from '@/lib/sanity.client'
+
+const SeoQuery = `*[_type == "post" && slug.current == $slug][0] {
+  title,
+  seo {
+    title,
+    description,
+    openGraph {
+      title,
+      description,
+      image,
+    },
+    twitter {
+      card,
+      site,
+      creator,
+    },
+  },
+}`
+
+export async function generateMetadata({
+  params,
+}: {
+  params: {slug: string}
+}): Promise<Metadata> {
+  try {
+    const doc = await sanityFetch(SeoQuery, {slug: params.slug})
+    
+    if (!doc) {
+      return {title: 'Post not found'}
+    }
+    
+    return buildSeoMeta(doc.seo || {})
+  } catch (error) {
+    console.error('SEO metadata error:', error)
+    return {title: 'Error loading page'}
+  }
+}
+```
+
+---
+
+**Still stuck?** Check our:
+- 📖 [Full Documentation](./TYPES_SCHEMA_DOCS.md)
+- 🐛 [GitHub Issues](https://github.com/hardik-143/sanity-plugin-seofields/issues)
+- 📧 [Email Support](mailto:dhardik1430@gmail.com)
 
 ## 🤝 Contributing
 
