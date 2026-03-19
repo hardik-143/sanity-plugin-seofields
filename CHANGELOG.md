@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.6] — 2026-03-19
+
+### 🔧 Internal
+
+- Migrated build tool from `@sanity/pkg-utils` to `tsup` — replaced `package.config.ts` with `tsup.config.ts` for a leaner, faster build pipeline.
+- Simplified TypeScript configuration — removed separate `tsconfig.dist.json` and `tsconfig.settings.json`, consolidating settings into a single `tsconfig.json`.
+- Updated `package.json`: set `"type": "module"`, added `"main"` / `"module"` fields, and expanded the exports map with explicit `types`, `source`, `import`, and `require` conditions for both entry points.
+
+---
+
 ## [1.2.5] — 2026-03-18
 
 ### 🔄 Changed
 
-- Cleaned up documentation wording for the `sanity-plugin-seofields/next` entry point across the package and website.
+- Cleaned up internal JSDoc and website documentation wording for the `sanity-plugin-seofields/next` entry point.
+- Reverted exports map to flat string values (`import`/`require` as plain strings) — `@sanity/pkg-utils` does not support nested condition objects and rejects the package during build validation.
 
 ---
 

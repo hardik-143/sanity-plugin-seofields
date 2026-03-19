@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
   "keywords": [
     "sanity",
@@ -15,43 +15,57 @@
   ],
   "license": "MIT",
   "author": "Desai Hardik <dhardik1430@gmail.com>",
-  "sideEffects": false,
-  "type": "commonjs",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "source": "./src/index.ts",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./next": {
+      "types": "./dist/next.d.ts",
       "source": "./src/next.ts",
-      "import": "./dist/next.mjs",
-      "require": "./dist/next.js",
-      "default": "./dist/next.js"
+      "import": "./dist/next.js",
+      "require": "./dist/next.cjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "next": ["./dist/next.d.ts"]
+      "next": [
+        "./dist/next.d.ts"
+      ]
     }
   },
+  "sideEffects": false,
   "files": [
-    "dist",
-    "sanity.json",
-    "src",
-    "v2-incompatible.js"
+    "dist"
   ],
   "scripts": {
-    "build": "plugin-kit verify-package --silent && pkg-utils build --strict --check --clean",
-    "format": "prettier --write --cache --ignore-unknown .",
+    "build": "tsup",
+    "watch": "tsup --watch",
     "link-watch": "plugin-kit link-watch",
+    "format": "prettier --write --cache --ignore-unknown .",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
     "generate-schema": "npx tsx schema-generator.ts",
-    "watch": "pkg-utils watch --strict"
+    "typecheck": "tsc --noEmit"
+  },
+  "sanityPlugin": {
+    "linkWatch": {
+      "command": "pnpm run watch"
+    },
+    "verifyPackage": {
+      "pkg-utils": false,
+      "scripts": false,
+      "tsconfig": false,
+      "sanityV2Json": false,
+      "eslintImports": false
+    }
   },
   "dependencies": {
     "@sanity/incompatible-plugin": "^1.0.5",
@@ -63,8 +77,7 @@
   },
   "devDependencies": {
     "@sanity/codegen": "^4.9.0",
-    "@sanity/pkg-utils": "^8.1.13",
-    "@sanity/plugin-kit": "^4.0.19",
+    "@sanity/plugin-kit": "^4.0.20",
     "@types/react": "^19.1.13",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
@@ -82,6 +95,7 @@
     "sanity": "^4.10.0",
     "styled-components": "^6.1.19",
     "ts-json-schema-generator": "^2.4.0",
+    "tsup": "^8.0.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   },
