@@ -421,3 +421,223 @@ export const getTwitterDescriptionValidation = (
 
   return feedback
 }
+
+// ── Image Validation Helpers ──
+
+/** Check if an image is set in an OG/Twitter sub-object (handles upload vs URL) */
+export const isSubImageSet = (subObj: Record<string, unknown> | null | undefined): boolean => {
+  if (!subObj) return false
+  if (subObj.imageType === 'url') return !!(subObj.imageUrl as string)?.trim()
+  const img = subObj.image as Record<string, unknown> | undefined
+  return !!img?.asset
+}
+
+/** Check if metaImage asset is set */
+const isMetaImageSet = (seoParent: Record<string, unknown> | null | undefined): boolean => {
+  if (!seoParent) return false
+  const metaImage = seoParent.metaImage as Record<string, unknown> | undefined
+  return !!metaImage?.asset
+}
+
+export const getMetaImageValidation = (
+  hasImage: boolean,
+  seoParent: Record<string, unknown> | null | undefined,
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
+
+  if (!hasImage) {
+    feedback.push({
+      text: 'No meta image provided. Adding an image improves click-through rates.',
+      color: 'red',
+    })
+    return feedback
+  }
+
+  feedback.push({text: 'Meta image is set — great for SEO and social sharing.', color: 'green'})
+
+  const ogSet = isSubImageSet(seoParent?.openGraph as Record<string, unknown> | undefined)
+  const twSet = isSubImageSet(seoParent?.twitter as Record<string, unknown> | undefined)
+
+  if (!ogSet && !twSet) {
+    feedback.push({
+      text: 'OG and Twitter images are missing — add them for full social coverage.',
+      color: 'orange',
+    })
+  } else if (!ogSet) {
+    feedback.push({
+      text: 'OG image is missing — add it for better Facebook/LinkedIn previews.',
+      color: 'orange',
+    })
+  } else if (twSet) {
+    feedback.push({text: 'All images set (Meta, OG, Twitter) — full coverage!', color: 'green'})
+  } else {
+    feedback.push({
+      text: 'Twitter image is missing — add it for better X (Twitter) cards.',
+      color: 'orange',
+    })
+  }
+
+  return feedback
+}
+
+export const getOgImageValidation = (
+  hasImage: boolean,
+  altText: string | undefined,
+  seoParent: Record<string, unknown> | null | undefined,
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
+
+  if (!hasImage) {
+    feedback.push({
+      text: 'No OG image provided. Social shares will lack a visual preview.',
+      color: 'red',
+    })
+    return feedback
+  }
+
+  feedback.push({text: 'OG image is set — good for social sharing.', color: 'green'})
+
+  if (altText?.trim()) {
+    feedback.push({text: 'Alt text is set — good for accessibility.', color: 'green'})
+  } else {
+    feedback.push({text: 'Consider adding alt text for better accessibility.', color: 'orange'})
+  }
+
+  const metaSet = isMetaImageSet(seoParent)
+  const twSet = isSubImageSet(seoParent?.twitter as Record<string, unknown> | undefined)
+
+  if (metaSet && twSet) {
+    feedback.push({text: 'All images set (Meta, OG, Twitter) — full coverage!', color: 'green'})
+  } else {
+    if (!metaSet)
+      feedback.push({
+        text: 'Meta image is missing — add it for search engine results.',
+        color: 'orange',
+      })
+    if (!twSet)
+      feedback.push({
+        text: 'Twitter image is missing — add it for X (Twitter) cards.',
+        color: 'orange',
+      })
+  }
+
+  return feedback
+}
+
+export const getOgImageUrlValidation = (
+  imageUrl: string | undefined,
+  seoParent: Record<string, unknown> | null | undefined,
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
+
+  if (!imageUrl?.trim()) {
+    feedback.push({
+      text: 'No OG image URL provided. Social shares will lack a visual preview.',
+      color: 'red',
+    })
+    return feedback
+  }
+
+  feedback.push({text: 'OG image URL is set — good for social sharing.', color: 'green'})
+
+  const metaSet = isMetaImageSet(seoParent)
+  const twSet = isSubImageSet(seoParent?.twitter as Record<string, unknown> | undefined)
+
+  if (metaSet && twSet) {
+    feedback.push({text: 'All images set (Meta, OG, Twitter) — full coverage!', color: 'green'})
+  } else {
+    if (!metaSet)
+      feedback.push({
+        text: 'Meta image is missing — add it for search engine results.',
+        color: 'orange',
+      })
+    if (!twSet)
+      feedback.push({
+        text: 'Twitter image is missing — add it for X (Twitter) cards.',
+        color: 'orange',
+      })
+  }
+
+  return feedback
+}
+
+export const getTwitterImageValidation = (
+  hasImage: boolean,
+  altText: string | undefined,
+  seoParent: Record<string, unknown> | null | undefined,
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
+
+  if (!hasImage) {
+    feedback.push({
+      text: 'No Twitter image provided. Posts on X will lack a visual.',
+      color: 'red',
+    })
+    return feedback
+  }
+
+  feedback.push({text: 'Twitter image is set — good for X sharing.', color: 'green'})
+
+  if (altText?.trim()) {
+    feedback.push({text: 'Alt text is set — good for accessibility.', color: 'green'})
+  } else {
+    feedback.push({text: 'Consider adding alt text for better accessibility.', color: 'orange'})
+  }
+
+  const metaSet = isMetaImageSet(seoParent)
+  const ogSet = isSubImageSet(seoParent?.openGraph as Record<string, unknown> | undefined)
+
+  if (metaSet && ogSet) {
+    feedback.push({text: 'All images set (Meta, OG, Twitter) — full coverage!', color: 'green'})
+  } else {
+    if (!metaSet)
+      feedback.push({
+        text: 'Meta image is missing — add it for search engine results.',
+        color: 'orange',
+      })
+    if (!ogSet)
+      feedback.push({
+        text: 'OG image is missing — add it for Facebook/LinkedIn sharing.',
+        color: 'orange',
+      })
+  }
+
+  return feedback
+}
+
+export const getTwitterImageUrlValidation = (
+  imageUrl: string | undefined,
+  seoParent: Record<string, unknown> | null | undefined,
+): FeedbackType[] => {
+  const feedback: FeedbackType[] = []
+
+  if (!imageUrl?.trim()) {
+    feedback.push({
+      text: 'No Twitter image URL provided. Posts on X will lack a visual.',
+      color: 'red',
+    })
+    return feedback
+  }
+
+  feedback.push({text: 'Twitter image URL is set — good for X sharing.', color: 'green'})
+
+  const metaSet = isMetaImageSet(seoParent)
+  const ogSet = isSubImageSet(seoParent?.openGraph as Record<string, unknown> | undefined)
+
+  if (metaSet && ogSet) {
+    feedback.push({text: 'All images set (Meta, OG, Twitter) — full coverage!', color: 'green'})
+  } else {
+    if (!metaSet)
+      feedback.push({
+        text: 'Meta image is missing — add it for search engine results.',
+        color: 'orange',
+      })
+    if (!ogSet)
+      feedback.push({
+        text: 'OG image is missing — add it for Facebook/LinkedIn sharing.',
+        color: 'orange',
+      })
+  }
+
+  return feedback
+}

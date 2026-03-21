@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] — 2026-03-21
+
+### 🧹 Internal
+
+- Replaced `as any` type casts in schema index with proper `FieldDefinition` typing.
+- Fixed negated condition in image cross-check logic.
+
+---
+
+## [1.3.0] — 2026-03-21
+
+### ✨ Added
+
+- **Inline image validation components** — five new Sanity Studio input components that render live, colour-coded feedback hints directly below image upload/URL fields. Feedback cross-checks whether all three image types (meta, OG, Twitter) are set, prompting the editor when any are missing.
+- **Image validation helpers** — new utility functions that power the inline components and can also be reused in custom tooling. Each function returns colour-coded feedback messages and performs cross-field image coverage checks.
+- Added an `isSubImageSet` utility that correctly detects whether an OG or Twitter sub-object has an image configured, supporting both asset upload and URL modes.
+
+### 🔧 Changed
+
+- **SEO Health Dashboard scoring** — OpenGraph and Twitter card scores are now included in the overall score. Added an Image Completeness bonus when all three image types are present, and robots `noIndex` now contributes to the score when indexing is enabled.
+- Image validation components are automatically registered on their respective schema fields — no consumer-side configuration needed; existing installs pick up the inline hints on upgrade.
+
 ## [1.2.7] — 2026-03-19
 
 ### 🐛 Fixed

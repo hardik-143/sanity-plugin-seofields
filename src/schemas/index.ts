@@ -1,6 +1,7 @@
-import {defineField, defineType, SchemaTypeDefinition} from 'sanity'
+import {defineField, defineType, FieldDefinition, SchemaTypeDefinition} from 'sanity'
 
 import MetaDescription from '../components/meta/MetaDescription'
+import MetaImage from '../components/meta/MetaImage'
 import MetaTitle from '../components/meta/MetaTitle'
 import SeoPreview from '../components/SeoPreview'
 import {SeoFieldsPluginConfig} from '../plugin'
@@ -83,6 +84,9 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
         options: {
           hotspot: true,
         },
+        components: {
+          input: MetaImage,
+        },
         hidden: getFieldHiddenFunction('metaImage', config),
       }),
       defineField({
@@ -114,8 +118,8 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           'Specify the canonical URL for this page. This helps prevent duplicate content issues by indicating the preferred version of a page.',
         hidden: getFieldHiddenFunction('canonicalUrl', config),
       }),
-      openGraph(config) as any,
-      twitter(config) as any,
+      openGraph(config) as unknown as FieldDefinition,
+      twitter(config) as unknown as FieldDefinition,
     ],
   })
 }

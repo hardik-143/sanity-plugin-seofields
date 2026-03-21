@@ -1,6 +1,8 @@
 import {defineField, defineType, SchemaTypeDefinition} from 'sanity'
 
 import OgDescription from '../../../components/openGraph/OgDescription'
+import OgImage from '../../../components/openGraph/OgImage'
+import OgImageUrl from '../../../components/openGraph/OgImageUrl'
 import OgTitle from '../../../components/openGraph/OgTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
 import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
@@ -83,6 +85,9 @@ export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTyp
         options: {
           hotspot: true,
         },
+        components: {
+          input: OgImage,
+        },
         fields: [
           defineField({
             name: 'alt',
@@ -102,6 +107,9 @@ export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTyp
         name: 'imageUrl',
         ...getFieldInfo('openGraphImageUrl', config.fieldOverrides),
         type: 'url',
+        components: {
+          input: OgImageUrl,
+        },
         hidden: (context) => {
           const {parent} = context
           if (parent?.imageType !== 'url') return true

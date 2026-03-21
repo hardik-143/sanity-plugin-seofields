@@ -18,9 +18,9 @@ export {default as twitterSchema} from './schemas/types/twitter'
 
 // Export dashboard components and types
 export {default as SeoHealthDashboard} from './components/SeoHealthDashboard'
-export {default as SeoHealthTool} from './components/SeoHealthTool'
-export {createSeoHealthPane} from './components/SeoHealthPane'
 export type {SeoHealthPaneOptions} from './components/SeoHealthPane'
+export {createSeoHealthPane} from './components/SeoHealthPane'
+export {default as SeoHealthTool} from './components/SeoHealthTool'
 
 // Export types
 export type {DocumentWithSeoHealth, SeoHealthMetrics, SeoHealthStatus} from './types'

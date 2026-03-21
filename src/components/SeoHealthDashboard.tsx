@@ -285,7 +285,6 @@ const CustomBadge = styled.span<{$bgColor?: string; $textColor?: string; $fontSi
   border-radius: 4px;
   font-size: ${(p) => p.$fontSize || '10px'};
   font-weight: 600;
-  margin-left: 6px;
   background: ${(p) => p.$bgColor || '#e0e7ff'};
   color: ${(p) => p.$textColor || '#3730a3'};
   white-space: nowrap;
@@ -477,7 +476,10 @@ const DocTitleAnchor: React.FC<{
   children: React.ReactNode
 }> = ({id, type, structureTool, children}) => {
   const {basePath} = useWorkspace()
-  const {onClick: intentOnClick, href: intentHref} = useIntentLink({intent: 'edit', params: {id, type}})
+  const {onClick: intentOnClick, href: intentHref} = useIntentLink({
+    intent: 'edit',
+    params: {id, type},
+  })
   // When a specific structure tool name is provided, build a tool-scoped intent URL so that
   // Sanity routes directly to that tool instead of letting the router pick the first match.
   const href = structureTool
@@ -705,57 +707,61 @@ const scoreTwitterCard = (twitter?: Record<string, unknown>): {score: number; is
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const calculateHealthScore = (doc: any): SeoHealthMetrics => {
-  let totalScore = 0
-  const allIssues: string[] = []
-
   if (!doc.seo) {
     return {score: 0, status: 'missing', issues: ['SEO fields not configured']}
   }
 
-  const {title, description, metaImage, keywords, robots, openGraph, twitter} = doc.seo
+  const {title, description, keywords, robots, canonicalUrl, openGraph, twitter} = doc.seo
+  let score = 0
+  const issues: string[] = []
 
-  // Meta Title
-  const titleScore = scoreMetaTitle(title)
-  totalScore += titleScore.score
-  allIssues.push(...titleScore.issues)
+  const titleResult = scoreMetaTitle(title)
+  score += titleResult.score
+  issues.push(...titleResult.issues)
 
-  // Meta Description
-  const descriptionScore = scoreMetaDescription(description)
-  totalScore += descriptionScore.score
-  allIssues.push(...descriptionScore.issues)
+  const descResult = scoreMetaDescription(description)
+  score += descResult.score
+  issues.push(...descResult.issues)
 
-  // Meta Image
-  if (metaImage) {
-    totalScore += 10
-  } else {
-    allIssues.push('Missing meta image')
-  }
+  // Image
+  if (doc.seo.metaImage) score += 10
+  else issues.push('Missing meta image')
 
   // Keywords
-  if (keywords && keywords.length > 0) {
-    totalScore += 10
+  if (keywords && keywords.length > 0) score += 10
+  else issues.push('No keywords defined')
+
+  // Robots
+  if (robots && !robots.noIndex) score += 5
+  else if (!robots) score += 5
+
+  // Canonical URL
+  if (canonicalUrl) score += 0 // bonus, not counted in base
+
+  const ogResult = scoreOpenGraph(openGraph)
+  score += ogResult.score
+  issues.push(...ogResult.issues)
+
+  const twResult = scoreTwitterCard(twitter)
+  score += twResult.score
+  issues.push(...twResult.issues)
+
+  // Image Completeness bonus (+5 pts when all three images are present)
+  const hasMetaImage = !!doc.seo.metaImage
+  const hasOgImage = !!(openGraph && openGraph.image)
+  const hasTwitterImage = !!(twitter && twitter.image)
+  if (hasMetaImage && hasOgImage && hasTwitterImage) {
+    score += 5
   } else {
-    allIssues.push('No keywords defined')
+    const missingImages: string[] = []
+    if (!hasMetaImage) missingImages.push('meta image')
+    if (!hasOgImage) missingImages.push('OG image')
+    if (!hasTwitterImage) missingImages.push('Twitter image')
+    issues.push(`Missing images for full score: ${missingImages.join(', ')}`)
   }
 
-  // Open Graph
-  const ogScore = scoreOpenGraph(openGraph as Record<string, unknown> | undefined)
-  totalScore += ogScore.score
-  allIssues.push(...ogScore.issues)
-
-  // Twitter Card
-  const twitterScore = scoreTwitterCard(twitter as Record<string, unknown> | undefined)
-  totalScore += twitterScore.score
-  allIssues.push(...twitterScore.issues)
-
-  // Robots settings
-  if (robots && !robots.noIndex) {
-    totalScore += 5
-  }
-
-  const status = getStatusCategory(totalScore)
-
-  return {score: totalScore, status, issues: allIssues}
+  const status = getStatusCategory(score)
+  return {score, status, issues}
 }
 
 const resolveTypeLabel = (type: string, typeLabels?: Record<string, string>): string =>
@@ -1487,18 +1493,22 @@ export default defineConfig({
                                   {doc.title || 'Untitled'}
                                 </DocTitleAnchorPane>
                               ) : (
-                                <DocTitleAnchor id={doc._id} type={doc._type} structureTool={structureTool}>
+                                <DocTitleAnchor
+                                  id={doc._id}
+                                  type={doc._type}
+                                  structureTool={structureTool}
+                                >
                                   {doc.title || 'Untitled'}
                                 </DocTitleAnchor>
                               )}
                               {showDocumentId && <DocId>{doc._id}</DocId>}
+                              {docBadge && (
+                                <DocBadgeRenderer
+                                  doc={doc as DocumentWithSeoHealth & Record<string, unknown>}
+                                  docBadge={docBadge}
+                                />
+                              )}
                             </TitleCell>
-                            {docBadge && (
-                              <DocBadgeRenderer
-                                doc={doc as DocumentWithSeoHealth & Record<string, unknown>}
-                                docBadge={docBadge}
-                              />
-                            )}
                           </TitleWrapper>
                         </ColTitle>
                         {showTypeColumn && (

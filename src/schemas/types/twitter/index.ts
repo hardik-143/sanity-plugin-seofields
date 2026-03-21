@@ -1,6 +1,8 @@
 import {defineField, defineType, SchemaTypeDefinition} from 'sanity'
 
 import TwitterDescription from '../../../components/twitter/twitterDescription'
+import TwitterImage from '../../../components/twitter/TwitterImage'
+import TwitterImageUrl from '../../../components/twitter/TwitterImageUrl'
 import TwitterTitle from '../../../components/twitter/twitterTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
 import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
@@ -77,6 +79,9 @@ export default function twitter(config: SeoFieldsPluginConfig = {}): SchemaTypeD
         options: {
           hotspot: true,
         },
+        components: {
+          input: TwitterImage,
+        },
         fields: [
           defineField({
             name: 'alt',
@@ -96,6 +101,9 @@ export default function twitter(config: SeoFieldsPluginConfig = {}): SchemaTypeD
         name: 'imageUrl',
         ...getFieldInfo('twitterImageUrl', config.fieldOverrides),
         type: 'url',
+        components: {
+          input: TwitterImageUrl,
+        },
         hidden: (context) => {
           const {parent} = context
           if (parent?.imageType !== 'url') return true
