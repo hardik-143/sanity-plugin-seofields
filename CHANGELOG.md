@@ -51,12 +51,6 @@ be removed in a future major release.
 The same renames apply when using `SeoHealthDashboardProps` directly (e.g. via
 `createSeoHealthPane`).
 
-### 🔧 Internal
-
-- **Structured `DeprecationWarning` type** — deprecation warnings are now typed objects (`{ key, version, changelogUrl }`) instead of plain strings, making the system multi-version-aware from end to end.
-- **Plugin-level version constants** — `DEPRECATION_VERSION` and `DEPRECATION_CHANGELOG_ANCHOR` centralise version metadata in `plugin.ts`. Adding deprecations in a future release only requires updating these two constants and pushing a new `DeprecationWarning` entry — no changes needed in the dashboard component.
-- **Per-version banner links** — the dashboard deprecation banner now groups warnings by release and renders a separate versioned changelog link for each group, so mixed-version deprecations are always clearly attributed.
-
 ---
 
 ## [1.3.1] — 2026-03-21
