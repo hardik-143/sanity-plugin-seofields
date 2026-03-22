@@ -482,11 +482,9 @@ seofields({
       description: 'Track SEO quality across all published content.',
     },
 
-    // Table columns
-    display: {
-      typeColumn: true, // show document type column (default: true)
-      documentId: false, // show document _id (default: true)
-    },
+    // Table columns (flat keys — replaces the deprecated display.* object)
+    showTypeColumn: true, // show document type column (default: true)
+    showDocumentId: false, // show document _id under titles (default: true)
 
     // Document query
     query: {
@@ -494,6 +492,14 @@ seofields({
       requireSeo: true, // only include docs with seo != null (default: true)
       // groq: '*[seo != null] { _id, _type, title, seo, _updatedAt }',
       // ^ custom GROQ takes precedence over types + requireSeo
+    },
+
+    // Human-readable labels for document type names
+    typeDisplayLabels: {productDrug: 'Products', landingPage: 'Landing Page'},
+
+    // Custom badge next to the document title
+    getDocumentBadge: (doc) => {
+      if (doc.status === 'draft') return {label: 'Draft', bgColor: '#f3f4f6', textColor: '#6b7280'}
     },
 
     apiVersion: '2023-01-01', // Sanity API version (default: '2023-01-01')
@@ -505,6 +511,21 @@ seofields({
   healthDashboard: false,
 })
 ```
+
+### Deprecated keys (v1.3.2)
+
+The following keys were renamed in **v1.3.2** for clarity. The old keys still work but will print a console warning and show an amber banner inside the dashboard. They will be removed in a future major release.
+
+| Deprecated (old)                     | Replacement (new)                   |
+| ------------------------------------ | ----------------------------------- |
+| `healthDashboard.display.typeColumn` | `healthDashboard.showTypeColumn`    |
+| `healthDashboard.display.documentId` | `healthDashboard.showDocumentId`    |
+| `healthDashboard.typeLabels`         | `healthDashboard.typeDisplayLabels` |
+| `healthDashboard.docBadge`           | `healthDashboard.getDocumentBadge`  |
+
+The same renames apply to `SeoHealthDashboardProps` when using `createSeoHealthPane` directly.
+
+See the [v1.3.2 changelog](./CHANGELOG.md#132--2026-03-23) for the full migration diff.
 
 ### What it shows
 
@@ -583,13 +604,13 @@ export default defineConfig({
 
 ### `createSeoHealthPane` options
 
-| Option       | Type      | Default        | Description                                                           |
-| ------------ | --------- | -------------- | --------------------------------------------------------------------- |
-| `licenseKey` | `string`  | **required**   | License key (format `SEOF-XXXX-XXXX-XXXX`).                           |
-| `query`      | `string`  | —              | GROQ query. Must return `_id`, `_type`, `title`, `seo`, `_updatedAt`. |
-| `title`      | `string`  | `'SEO Health'` | Pane title shown in breadcrumb                                        |
+| Option       | Type      | Default        | Description                                                            |
+| ------------ | --------- | -------------- | ---------------------------------------------------------------------- |
+| `licenseKey` | `string`  | **required**   | License key (format `SEOF-XXXX-XXXX-XXXX`).                            |
+| `query`      | `string`  | —              | GROQ query. Must return `_id`, `_type`, `title`, `seo`, `_updatedAt`.  |
+| `title`      | `string`  | `'SEO Health'` | Pane title shown in breadcrumb                                         |
 | `openInPane` | `boolean` | `true`         | Enable row links that open the document editor as a pane to the right. |
-| `...rest`    | —         | —              | All other `SeoHealthDashboardProps`                                   |
+| `...rest`    | —         | —              | All other `SeoHealthDashboardProps`                                    |
 
 ## 🌐 Frontend Integration
 
@@ -678,13 +699,13 @@ export const loader: LoaderFunction = async ({params}) => {
     }`,
     {slug: params.slug},
   )
-  
+
   // Use buildSeoMeta to generate meta tags
   const seoMeta = buildSeoMeta(post.seo, {
     defaultTitle: 'Blog',
     siteUrl: 'https://example.com',
   })
-  
+
   return json({post, seoMeta})
 }
 
@@ -711,9 +732,9 @@ export const useSanityMeta = (seo: SEOFields, options = {}) => {
     defaultTitle = 'My Site',
     siteUrl = 'https://example.com',
   } = options
-  
+
   const meta = buildSeoMeta(seo, {defaultTitle, siteUrl})
-  
+
   // useHead() handles SSR + client-side rendering
   useHead({
     title: seo?.title || defaultTitle,
@@ -721,7 +742,7 @@ export const useSanityMeta = (seo: SEOFields, options = {}) => {
       name: m.name || m.property,
       content: m.content,
     })),
-    link: seo?.canonicalUrl 
+    link: seo?.canonicalUrl
       ? [{rel: 'canonical', href: seo.canonicalUrl}]
       : [],
   })
@@ -803,17 +824,17 @@ export function PostHead({seo, fallbackTitle}: PostHeadProps) {
       {/* Basic Meta */}
       <title>{seo?.title || fallbackTitle}</title>
       <meta name="description" content={seo?.description || ''} />
-      
+
       {/* Open Graph - critical for social shares */}
       <meta property="og:title" content={seo?.openGraph?.title} />
       <meta property="og:description" content={seo?.openGraph?.description} />
       {seo?.openGraph?.image?.url && (
         <meta property="og:image" content={seo.openGraph.image.url} />
       )}
-      
+
       {/* Robots */}
       {seo?.robots?.noIndex && <meta name="robots" content="noindex" />}
-      
+
       {/* Canonical (limit crawl budget) */}
       {seo?.canonicalUrl && (
         <link rel="canonical" href={seo.canonicalUrl} />
@@ -833,17 +854,17 @@ export function PostHead({seo, fallbackTitle}: PostHeadProps) {
 
 Coming from **Yoast**, **All in One SEO**, or **RankMath**?
 
-| Feature | Yoast | All in One SEO | RankMath | sanity-plugin-seofields |
-|---------|-------|----------------|----------|------------------------|
-| **Meta Title/Description** | ✅ | ✅ | ✅ | ✅ |
-| **Open Graph Tags** | ✅ | ✅ | ✅ | ✅ |
-| **Twitter Cards** | ⚠️ Limited | ✅ | ✅ | ✅ |
-| **Readability Analysis** | ✅ | ✅ | ✅ | ❌ (Sanity-native focus) |
-| **Keyword Density** | ✅ | ✅ | ✅ | ❌ (External tools) |
-| **Custom Meta Attributes** | ⚠️ Limited | ✅ | ✅ | ✅ |
-| **Robots/Canonical** | ✅ | ✅ | ✅ | ✅ |
-| **Headless-First** | ❌ | ❌ | ❌ | ✅ Framework-agnostic |
-| **SSR-Ready** | N/A | N/A | N/A | ✅ All frameworks |
+| Feature                    | Yoast      | All in One SEO | RankMath | sanity-plugin-seofields  |
+| -------------------------- | ---------- | -------------- | -------- | ------------------------ |
+| **Meta Title/Description** | ✅         | ✅             | ✅       | ✅                       |
+| **Open Graph Tags**        | ✅         | ✅             | ✅       | ✅                       |
+| **Twitter Cards**          | ⚠️ Limited | ✅             | ✅       | ✅                       |
+| **Readability Analysis**   | ✅         | ✅             | ✅       | ❌ (Sanity-native focus) |
+| **Keyword Density**        | ✅         | ✅             | ✅       | ❌ (External tools)      |
+| **Custom Meta Attributes** | ⚠️ Limited | ✅             | ✅       | ✅                       |
+| **Robots/Canonical**       | ✅         | ✅             | ✅       | ✅                       |
+| **Headless-First**         | ❌         | ❌             | ❌       | ✅ Framework-agnostic    |
+| **SSR-Ready**              | N/A        | N/A            | N/A      | ✅ All frameworks        |
 
 ### Migration Path
 
@@ -883,6 +904,7 @@ import seofields from 'sanity-plugin-seofields'
 **Solution:**
 
 1. Check your `package.json` exports field has a `"types"` condition:
+
 ```json
 {
   "exports": {
@@ -899,6 +921,7 @@ import seofields from 'sanity-plugin-seofields'
 ```
 
 2. Verify your `tsconfig.json` has the correct `moduleResolution`:
+
 ```json
 {
   "compilerOptions": {
@@ -917,17 +940,20 @@ import seofields from 'sanity-plugin-seofields'
 **Solution:**
 
 1. Ensure built files exist in `dist/next.js`:
+
 ```bash
 npm run build
 ```
 
 2. Clear and reinstall node_modules:
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
 ```
 
 3. Verify `package.json` exports includes the next export:
+
 ```json
 {
   "exports": {
@@ -954,7 +980,7 @@ import {buildSeoMeta} from 'sanity-plugin-seofields/next'
 export async function generateMetadata(): Promise<Metadata> {
   const seoData = await fetchSeoData()
   const metadata = buildSeoMeta(seoData)
-  
+
   return {
     title: metadata.title,
     description: metadata.description,
@@ -981,6 +1007,7 @@ export async function generateMetadata(): Promise<Metadata> {
 **Solution:**
 
 1. Ensure the plugin is added to `sanity.config.ts`:
+
 ```typescript
 import seofields from 'sanity-plugin-seofields'
 
@@ -996,6 +1023,7 @@ export default defineConfig({
 ```
 
 2. Check that `documentTypes` array includes your document types:
+
 ```typescript
 seofields({
   documentTypes: ['post', 'page'], // Add your document types here
@@ -1003,6 +1031,7 @@ seofields({
 ```
 
 3. Verify plugin config fieldVisibility is not hiding SEO fields:
+
 ```typescript
 seofields({
   documentTypes: ['post'],
@@ -1048,12 +1077,12 @@ const imageBuilder = imageUrlBuilder(client)
 
 export async function generateMetadata(): Promise<Metadata> {
   const seoData = await sanityFetch(SeoQuery)
-  
+
   const metadata = buildSeoMeta({
     ...seoData,
     imageUrlResolver: (image) => imageBuilder.image(image).url(),
   })
-  
+
   return metadata
 }
 ```
@@ -1067,6 +1096,7 @@ export async function generateMetadata(): Promise<Metadata> {
 **Solution:**
 
 1. Ensure `sanityFetch` is properly awaited:
+
 ```tsx
 import {sanityFetch} from '@/lib/sanity.client'
 
@@ -1082,6 +1112,7 @@ export async function generateMetadata(): Promise<Metadata> {
 ```
 
 2. Verify environment variables are set:
+
 ```bash
 # .env.local
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
@@ -1090,6 +1121,7 @@ SANITY_API_TOKEN=your_token (if using authenticated fetches)
 ```
 
 3. Complete example with proper error handling:
+
 ```tsx
 import type {Metadata} from 'next'
 import {buildSeoMeta} from 'sanity-plugin-seofields/next'
@@ -1113,18 +1145,14 @@ const SeoQuery = `*[_type == "post" && slug.current == $slug][0] {
   },
 }`
 
-export async function generateMetadata({
-  params,
-}: {
-  params: {slug: string}
-}): Promise<Metadata> {
+export async function generateMetadata({params}: {params: {slug: string}}): Promise<Metadata> {
   try {
     const doc = await sanityFetch(SeoQuery, {slug: params.slug})
-    
+
     if (!doc) {
       return {title: 'Post not found'}
     }
-    
+
     return buildSeoMeta(doc.seo || {})
   } catch (error) {
     console.error('SEO metadata error:', error)
@@ -1136,6 +1164,7 @@ export async function generateMetadata({
 ---
 
 **Still stuck?** Check our:
+
 - 📖 [Full Documentation](./TYPES_SCHEMA_DOCS.md)
 - 🐛 [GitHub Issues](https://github.com/hardik-143/sanity-plugin-seofields/issues)
 - 📧 [Email Support](mailto:dhardik1430@gmail.com)

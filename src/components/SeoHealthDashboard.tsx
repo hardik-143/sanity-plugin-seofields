@@ -2,9 +2,9 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import {useClient, useWorkspace} from 'sanity'
 import {useIntentLink} from 'sanity/router'
 import {usePaneRouter} from 'sanity/structure'
-import styled, {keyframes} from 'styled-components'
+import styled, {css, keyframes} from 'styled-components'
 
-import {DocumentWithSeoHealth, SeoHealthMetrics} from '../types'
+import {DeprecationWarning, DocumentWithSeoHealth, SeoHealthMetrics} from '../types'
 
 const DashboardContainer = styled.div`
   width: 100%;
@@ -16,6 +16,10 @@ const DashboardContainer = styled.div`
 `
 
 const PageHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 28px;
 `
 
@@ -319,6 +323,23 @@ const IssueTag = styled.div`
   text-overflow: ellipsis;
 `
 
+const NonStringTitleWarning = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  font-size: 10px;
+  font-weight: 600;
+  color: #92400e;
+  line-height: 1.4;
+  cursor: default;
+  white-space: normal;
+`
+
 const MoreIssues = styled.div`
   font-size: 11px;
   color: #6b7280;
@@ -468,6 +489,51 @@ const ReloadButton = styled.button`
   }
 `
 
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`
+
+const DashboardRefreshButton = styled.button<{$spinning?: boolean}>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  svg {
+    animation: ${(p) =>
+      p.$spinning
+        ? css`
+            ${spin} 0.7s linear infinite
+          `
+        : 'none'};
+  }
+
+  &:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`
+
 // Sub-component so useIntentLink can be called at the top level of a component (not inside .map)
 const DocTitleAnchor: React.FC<{
   id: string
@@ -551,10 +617,6 @@ const DocBadgeRenderer: React.FC<{
   )
 }
 
-const spin = keyframes`
-  to { transform: rotate(360deg); }
-`
-
 const Spinner = styled.div`
   width: 28px;
   height: 28px;
@@ -577,6 +639,26 @@ const EmptyState = styled.div`
   text-align: center;
   color: #9ca3af;
   font-size: 13px;
+`
+
+const DeprecationBanner = styled.div`
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #78350f;
+  margin-bottom: 16px;
+  line-height: 1.6;
+`
+
+const DeprecationBannerLink = styled.a`
+  color: #92400e;
+  font-weight: 600;
+  text-decoration: underline;
+  &:hover {
+    color: #78350f;
+  }
 `
 
 /**
@@ -818,12 +900,13 @@ export interface SeoHealthDashboardProps {
   /**
    * Map raw `_type` values to human-readable display labels used in the
    * Type column and the Type filter dropdown.
+   * Replaces the deprecated `typeLabels`.
    * Any type without an entry falls back to the raw `_type` string.
    *
    * @example
-   * typeLabels={{ productDrug: 'Products', singleCondition: 'Condition' }}
+   * typeDisplayLabels={{ productDrug: 'Products', singleCondition: 'Condition' }}
    */
-  typeLabels?: Record<string, string>
+  typeDisplayLabels?: Record<string, string>
   /**
    * Controls how the type is rendered in the Type column.
    * - `'badge'` (default) — coloured pill, consistent with score badges
@@ -847,17 +930,18 @@ export interface SeoHealthDashboardProps {
   titleField?: string | Record<string, string>
   /**
    * Callback function to render a custom badge next to the document title.
+   * Replaces the deprecated `docBadge`.
    * Receives the full document and should return badge data or undefined.
    *
    * @example
-   * docBadge: (doc) => {
+   * getDocumentBadge: (doc) => {
    *   if (doc.services === 'NHS')
    *     return { label: 'NHS', bgColor: '#e0f2fe', textColor: '#0369a1' }
    *   if (doc.services === 'Private')
    *     return { label: 'Private', bgColor: '#fef3c7', textColor: '#92400e' }
    * }
    */
-  docBadge?: (
+  getDocumentBadge?: (
     doc: DocumentWithSeoHealth & Record<string, unknown>,
   ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
   /**
@@ -907,6 +991,12 @@ export interface SeoHealthDashboardProps {
    * structureTool: 'common'
    */
   structureTool?: string
+  /**
+   * @internal — populated by the plugin when deprecated config keys are detected.
+   * Each entry carries the migration hint, the version it was deprecated in, and
+   * the matching changelog URL so the banner can group warnings by release.
+   */
+  _deprecationWarnings?: DeprecationWarning[]
 }
 
 /**
@@ -1062,21 +1152,41 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   customQuery,
   apiVersion = '2023-01-01',
   licenseKey,
-  typeLabels,
+  typeDisplayLabels,
   typeColumnMode = 'badge',
   titleField,
-  docBadge,
+  getDocumentBadge,
   loadingLicense,
   loadingDocuments,
   noDocuments,
   previewMode = false,
   openInPane = false,
   structureTool,
+  _deprecationWarnings,
 }) => {
+  // Resolve deprecated prop pairs to their new counterparts, while allowing both to be used simultaneously for backward compatibility.
+  const resolvedTypeLabels = typeDisplayLabels
+  const resolvedDocBadge = getDocumentBadge
+
+  // Collect all deprecation warnings to display in the UI banner
+  const allDeprecationWarnings = useMemo(() => _deprecationWarnings ?? [], [_deprecationWarnings])
+
+  // Group warnings by version so the banner renders one changelog link per release.
+  const deprecationGroups = useMemo(() => {
+    const groups = new Map<string, {version: string; changelogUrl: string; keys: string[]}>()
+    for (const w of allDeprecationWarnings) {
+      if (!groups.has(w.version)) {
+        groups.set(w.version, {version: w.version, changelogUrl: w.changelogUrl, keys: []})
+      }
+      groups.get(w.version)!.keys.push(w.key)
+    }
+    return Array.from(groups.values())
+  }, [allDeprecationWarnings])
   const client = useClient({apiVersion})
   const [licenseStatus, setLicenseStatus] = useState<'loading' | 'valid' | 'invalid'>('loading')
   const [documents, setDocuments] = useState<DocumentWithSeoHealth[]>([])
   const [loading, setLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [filterType, setFilterType] = useState<string>('all')
@@ -1174,10 +1284,17 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
     setActivePopover({top: rect.top, left, issues})
   }
 
-  useEffect(() => {
-    const fetchDocuments = async () => {
+  const JSONStringifiedQueryTypes = JSON.stringify(queryTypes)
+  const JSONStringifiedTitleField = JSON.stringify(titleField)
+
+  const fetchDocuments = useCallback(
+    async (isManualRefresh = false) => {
       try {
-        setLoading(true)
+        if (isManualRefresh) {
+          setIsRefreshing(true)
+        } else {
+          setLoading(true)
+        }
 
         // Use dummy data in preview mode
         if (previewMode) {
@@ -1231,21 +1348,35 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
         console.error('Error fetching documents:', error)
       } finally {
         setLoading(false)
+        setIsRefreshing(false)
       }
-    }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      client,
+      customQuery,
+      queryRequireSeo,
+      JSONStringifiedQueryTypes,
+      JSONStringifiedTitleField,
+      previewMode,
+    ],
+  )
 
+  useEffect(() => {
     fetchDocuments()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     client,
     customQuery,
     queryRequireSeo,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    JSON.stringify(queryTypes),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    JSON.stringify(titleField),
+    JSONStringifiedQueryTypes,
+    JSONStringifiedTitleField,
     previewMode,
   ])
+
+  const handleRefresh = useCallback(() => {
+    fetchDocuments(true)
+  }, [fetchDocuments])
 
   const uniqueDocumentTypes = useMemo(() => {
     const types = new Set(documents.map((doc) => doc._type))
@@ -1372,14 +1503,70 @@ export default defineConfig({
         <>
           {/* Header */}
           <PageHeader>
-            <PageTitle>
-              <span>
-                {icon} {title}
-              </span>
-              {previewMode && <PreviewBadge>Preview Mode</PreviewBadge>}
-            </PageTitle>
-            <PageSubtitle>{description}</PageSubtitle>
+            <div>
+              <PageTitle>
+                <span>
+                  {icon} {title}
+                </span>
+                {previewMode && <PreviewBadge>Preview Mode</PreviewBadge>}
+              </PageTitle>
+              <PageSubtitle>{description}</PageSubtitle>
+            </div>
+            <DashboardRefreshButton
+              onClick={handleRefresh}
+              disabled={loading || isRefreshing}
+              $spinning={isRefreshing}
+              title="Refresh documents"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="23 4 23 10 17 10" />
+                <polyline points="1 20 1 14 7 14" />
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
+              Refresh
+            </DashboardRefreshButton>
           </PageHeader>
+          {/* Deprecation warning banner */}
+          {deprecationGroups.length > 0 && (
+            <DeprecationBanner>
+              <strong>⚠️ Deprecated config keys detected:</strong>{' '}
+              {deprecationGroups.map((group, gi) => (
+                <span key={group.version}>
+                  {group.keys.map((w, i) => (
+                    <span key={w}>
+                      <code style={{background: '#fef9c3', padding: '1px 4px', borderRadius: 3}}>
+                        {w.split('→')[0].trim()}
+                      </code>
+                      {' → '}
+                      <code style={{background: '#dcfce7', padding: '1px 4px', borderRadius: 3}}>
+                        {w.split('→')[1].trim()}
+                      </code>
+                      {i < group.keys.length - 1 ? ' · ' : ''}
+                    </span>
+                  ))}{' '}
+                  (
+                  <DeprecationBannerLink
+                    href={group.changelogUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {group.version} changelog
+                  </DeprecationBannerLink>
+                  ){gi < deprecationGroups.length - 1 ? ' · ' : ''}
+                </span>
+              ))}{' '}
+              — Please update your config.
+            </DeprecationBanner>
+          )}
           {/* Stats Grid */}
           {!loading && (
             <StatsGrid>
@@ -1449,7 +1636,7 @@ export default defineConfig({
                 <option value="all">All Types</option>
                 {uniqueDocumentTypes.map((type) => (
                   <option key={type} value={type}>
-                    {resolveTypeLabel(type, typeLabels)}
+                    {resolveTypeLabel(type, resolvedTypeLabels)}
                   </option>
                 ))}
               </StyledSelect>
@@ -1488,24 +1675,36 @@ export default defineConfig({
                         <ColTitle>
                           <TitleWrapper>
                             <TitleCell>
-                              {openInPane ? (
-                                <DocTitleAnchorPane id={doc._id} type={doc._type}>
-                                  {doc.title || 'Untitled'}
-                                </DocTitleAnchorPane>
+                              {doc.title !== null && typeof doc.title !== 'string' ? (
+                                <NonStringTitleWarning title="title is not a string — use pt::text(title) in your query.groq projection to convert Portable Text to a plain string">
+                                  ⚠ title is not a string — use pt::text(title) in query.groq
+                                </NonStringTitleWarning>
                               ) : (
-                                <DocTitleAnchor
-                                  id={doc._id}
-                                  type={doc._type}
-                                  structureTool={structureTool}
-                                >
-                                  {doc.title || 'Untitled'}
-                                </DocTitleAnchor>
+                                <>
+                                  {openInPane ? (
+                                    <DocTitleAnchorPane id={doc._id} type={doc._type}>
+                                      {typeof doc.title === 'string'
+                                        ? doc.title || 'Untitled'
+                                        : 'Untitled'}
+                                    </DocTitleAnchorPane>
+                                  ) : (
+                                    <DocTitleAnchor
+                                      id={doc._id}
+                                      type={doc._type}
+                                      structureTool={structureTool}
+                                    >
+                                      {typeof doc.title === 'string'
+                                        ? doc.title || 'Untitled'
+                                        : 'Untitled'}
+                                    </DocTitleAnchor>
+                                  )}
+                                </>
                               )}
                               {showDocumentId && <DocId>{doc._id}</DocId>}
-                              {docBadge && (
+                              {resolvedDocBadge && (
                                 <DocBadgeRenderer
                                   doc={doc as DocumentWithSeoHealth & Record<string, unknown>}
-                                  docBadge={docBadge}
+                                  docBadge={resolvedDocBadge}
                                 />
                               )}
                             </TitleCell>
@@ -1514,13 +1713,13 @@ export default defineConfig({
                         {showTypeColumn && (
                           <ColType>
                             {typeColumnMode === 'text' ? (
-                              <TypeText>{resolveTypeLabel(doc._type, typeLabels)}</TypeText>
+                              <TypeText>{resolveTypeLabel(doc._type, resolvedTypeLabels)}</TypeText>
                             ) : (
                               (() => {
                                 const typeColor = getTypeColor(doc._type)
                                 return (
                                   <TypeBadge $bgColor={typeColor.bg} $textColor={typeColor.text}>
-                                    {resolveTypeLabel(doc._type, typeLabels)}
+                                    {resolveTypeLabel(doc._type, resolvedTypeLabels)}
                                   </TypeBadge>
                                 )
                               })()
@@ -1540,7 +1739,7 @@ export default defineConfig({
                               onMouseEnter={function (e) {
                                 handleMouseEnterIssues(
                                   e.currentTarget as HTMLDivElement,
-                                  doc.health.issues,
+                                  doc.health.issues.slice(2),
                                 )
                               }}
                               onMouseLeave={handleMouseLeave}

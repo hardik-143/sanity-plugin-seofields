@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.2] — 2026-03-23
+
+### ✨ Added
+
+- **Refresh button** — a "Refresh" button now appears in the dashboard header. Clicking it re-fetches documents without a full-page loading flash: the button icon spins while the update completes, and the table updates in place. The button is disabled while an initial load or refresh is already in progress.
+- **Non-string title warning** — when a document's `title` field is not a plain string (e.g. a Portable Text array returned from a custom GROQ query), an amber inline badge is shown in the Title column instead of a broken/empty link. The badge reads `*"⚠ title is not a string — use pt::text(title) in query.groq"*` with a tooltip explaining the fix.
+
+### 🔄 Renamed (with backwards-compatible deprecations)
+
+Four configuration keys have been renamed for clarity and consistency. The old
+keys still work but are **deprecated** — a visible amber warning banner will
+appear in the dashboard whenever a deprecated key is detected. The old keys will
+be removed in a future major release.
+
+| Deprecated key                       | Replacement key                     | Notes                                        |
+| ------------------------------------ | ----------------------------------- | -------------------------------------------- |
+| `healthDashboard.display.typeColumn` | `healthDashboard.showTypeColumn`    | Promoted to a top-level flat key             |
+| `healthDashboard.display.documentId` | `healthDashboard.showDocumentId`    | Promoted to a top-level flat key             |
+| `healthDashboard.typeLabels`         | `healthDashboard.typeDisplayLabels` | Renamed for clarity                          |
+| `healthDashboard.docBadge`           | `healthDashboard.getDocumentBadge`  | Renamed to follow `get*` callback convention |
+
+**Migration — update your `sanity.config.ts`:**
+
+```diff
+ seofields({
+   healthDashboard: {
+     licenseKey: 'SEOF-XXXX-XXXX-XXXX',
+-    display: {
+-      typeColumn: true,
+-      documentId: false,
+-    },
++    showTypeColumn: true,
++    showDocumentId: false,
+-    typeLabels: { productDrug: 'Products' },
++    typeDisplayLabels: { productDrug: 'Products' },
+-    docBadge: (doc) => ({ label: doc.status }),
++    getDocumentBadge: (doc) => ({ label: doc.status }),
+   },
+ })
+```
+
+The same renames apply when using `SeoHealthDashboardProps` directly (e.g. via
+`createSeoHealthPane`).
+
+### 🔧 Internal
+
+- **Structured `DeprecationWarning` type** — deprecation warnings are now typed objects (`{ key, version, changelogUrl }`) instead of plain strings, making the system multi-version-aware from end to end.
+- **Plugin-level version constants** — `DEPRECATION_VERSION` and `DEPRECATION_CHANGELOG_ANCHOR` centralise version metadata in `plugin.ts`. Adding deprecations in a future release only requires updating these two constants and pushing a new `DeprecationWarning` entry — no changes needed in the dashboard component.
+- **Per-version banner links** — the dashboard deprecation banner now groups warnings by release and renders a separate versioned changelog link for each group, so mixed-version deprecations are always clearly attributed.
+
+---
+
 ## [1.3.1] — 2026-03-21
 
 ### 🧹 Internal
