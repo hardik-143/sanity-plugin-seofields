@@ -359,7 +359,7 @@ const MoreIssuesWrapper = styled.div`
 const IssuesPopover = styled.div<{
   $left?: number
 }>`
-  position: absolute;
+  position: fixed;
   bottom: auto;
   left: 0;
   transform: translateY(calc(-100% - 14px));

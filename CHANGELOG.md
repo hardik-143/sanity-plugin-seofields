@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] — 2026-03-25
+
+### 🐛 Fixed
+
+- **`IssuesPopover` positioning in desk panes** — The popover that displays hidden SEO issues now renders at the correct position when using `createSeoHealthPane` inside a Sanity desk structure. Changed `position: absolute` to `position: fixed` so popover coordinates (from `getBoundingClientRect()`, which are viewport-relative) align correctly regardless of parent container context or scroll state.
+
+---
+
 ## [1.4.0] — 2026-03-25
 
 ### ✨ Added
