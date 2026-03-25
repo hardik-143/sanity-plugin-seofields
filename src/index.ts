@@ -16,11 +16,9 @@ export {default as openGraphSchema} from './schemas/types/openGraph'
 export {default as robotsSchema} from './schemas/types/robots'
 export {default as twitterSchema} from './schemas/types/twitter'
 
-// Export dashboard components and types
-export {default as SeoHealthDashboard} from './components/SeoHealthDashboard'
+// Export dashboard factory (lazy — avoids styled-components at import time)
 export type {SeoHealthPaneOptions} from './components/SeoHealthPane'
 export {createSeoHealthPane} from './components/SeoHealthPane'
-export {default as SeoHealthTool} from './components/SeoHealthTool'
 
 // Export types
 export type {DocumentWithSeoHealth, SeoHealthMetrics, SeoHealthStatus} from './types'

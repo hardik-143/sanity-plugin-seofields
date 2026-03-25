@@ -1,14 +1,25 @@
-import {defineField, defineType, FieldDefinition, SchemaTypeDefinition} from 'sanity'
+import React from 'react'
+import {
+  defineField,
+  defineType,
+  FieldDefinition,
+  SchemaTypeDefinition,
+  StringInputProps,
+} from 'sanity'
 
 import MetaDescription from '../components/meta/MetaDescription'
 import MetaImage from '../components/meta/MetaImage'
 import MetaTitle from '../components/meta/MetaTitle'
-import SeoPreview from '../components/SeoPreview'
 import {SeoFieldsPluginConfig} from '../plugin'
 import {getFieldHiddenFunction, getFieldInfo} from '../utils/fieldsUtils'
 import {isEmpty} from '../utils/utils'
 import openGraph from './types/openGraph'
 import twitter from './types/twitter'
+
+// Lazy-load SeoPreview to avoid styled-components breaking `sanity schema extract`
+const LazySeoPreview = React.lazy(() => import('../components/SeoPreview'))
+const SeoPreviewWrapper = (props: StringInputProps) =>
+  React.createElement(React.Suspense, {fallback: null}, React.createElement(LazySeoPreview, props))
 
 export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
@@ -30,7 +41,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
               name: 'preview',
               title: 'SEO Preview',
               type: 'string',
-              components: {input: SeoPreview},
+              components: {input: SeoPreviewWrapper},
               options: {
                 baseUrl: config.baseUrl || 'https://www.example.com',
                 ...(typeof config.seoPreview === 'object' &&

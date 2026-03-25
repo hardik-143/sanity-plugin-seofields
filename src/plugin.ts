@@ -2,7 +2,6 @@
 import React from 'react'
 import {definePlugin} from 'sanity'
 
-import SeoHealthTool from './components/SeoHealthTool'
 import types from './schemas/types'
 import type {DeprecationWarning, DocumentWithSeoHealth} from './types'
 
@@ -425,29 +424,35 @@ const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
   const {healthDashboard = true} = config as SeoFieldsPluginConfig
   const dash = resolveDashboardConfig(healthDashboard)
 
+  const LazySeoHealthTool = React.lazy(() => import('./components/SeoHealthTool'))
+
   const BoundSeoHealthTool = () =>
-    React.createElement(SeoHealthTool, {
-      icon: dash.icon,
-      title: dash.title,
-      description: dash.description,
-      showTypeColumn: dash.showTypeColumn,
-      showDocumentId: dash.showDocumentId,
-      queryTypes: dash.queryTypes,
-      queryRequireSeo: dash.queryRequireSeo,
-      customQuery: dash.queryGroq,
-      apiVersion: dash.apiVersion,
-      licenseKey: dash.licenseKey,
-      typeDisplayLabels: dash.typeDisplayLabels,
-      typeColumnMode: dash.typeColumnMode,
-      titleField: dash.titleField,
-      getDocumentBadge: dash.getDocumentBadge,
-      loadingLicense: dash.loadingLicense,
-      loadingDocuments: dash.loadingDocuments,
-      noDocuments: dash.noDocuments,
-      previewMode: dash.previewMode,
-      structureTool: dash.structureTool,
-      _deprecationWarnings: dash.deprecationWarnings,
-    })
+    React.createElement(
+      React.Suspense,
+      {fallback: null},
+      React.createElement(LazySeoHealthTool, {
+        icon: dash.icon,
+        title: dash.title,
+        description: dash.description,
+        showTypeColumn: dash.showTypeColumn,
+        showDocumentId: dash.showDocumentId,
+        queryTypes: dash.queryTypes,
+        queryRequireSeo: dash.queryRequireSeo,
+        customQuery: dash.queryGroq,
+        apiVersion: dash.apiVersion,
+        licenseKey: dash.licenseKey,
+        typeDisplayLabels: dash.typeDisplayLabels,
+        typeColumnMode: dash.typeColumnMode,
+        titleField: dash.titleField,
+        getDocumentBadge: dash.getDocumentBadge,
+        loadingLicense: dash.loadingLicense,
+        loadingDocuments: dash.loadingDocuments,
+        noDocuments: dash.noDocuments,
+        previewMode: dash.previewMode,
+        structureTool: dash.structureTool,
+        _deprecationWarnings: dash.deprecationWarnings,
+      }),
+    )
 
   return {
     name: 'sanity-plugin-seofields',

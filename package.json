@@ -21,15 +21,24 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "source": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./next": {
       "types": "./dist/next.d.ts",
-      "source": "./src/next.ts",
       "import": "./dist/next.js",
       "require": "./dist/next.cjs"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "import": "./dist/schema.js",
+      "require": "./dist/schema.cjs"
+    },
+    "./schema/next": {
+      "source": "./src/schema/next.ts",
+      "import": "./dist/schema/next.js",
+      "require": "./dist/schema/next.cjs",
+      "default": "./dist/schema/next.js"
     },
     "./package.json": "./package.json"
   },
@@ -38,6 +47,12 @@
     "*": {
       "next": [
         "./dist/next.d.ts"
+      ],
+      "schema": [
+        "./dist/schema.d.ts"
+      ],
+      "schema/next": [
+        "./dist/schema/next.d.ts"
       ]
     }
   },
