@@ -7,6 +7,135 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] — 2026-03-25
+
+### ✨ Added
+
+#### Schema.org Structured Data — 24 types
+
+A complete Schema.org JSON-LD system is now built into the plugin. All 24 types are available as Sanity Studio schema fields and as React components that render `<script type="application/ld+json">` tags.
+
+**Supported types:**
+`Website` · `Organization` · `WebPage` · `Person` · `Article` · `BlogPosting` · `FAQPage` · `HowTo` · `Product` · `Offer` · `AggregateRating` · `Review` · `BreadcrumbList` · `LocalBusiness` · `Event` · `Course` · `SoftwareApplication` · `WebApplication` · `VideoObject` · `ImageObject` · `Place` · `PostalAddress` · `Brand` · `ContactPoint`
+
+---
+
+#### New import path: `sanity-plugin-seofields/schema`
+
+Register Schema.org types as Sanity plugins. The combined `schemaOrg()` plugin registers all 24 types at once; individual plugins let you register only what you need.
+
+```ts
+import {schemaOrg} from 'sanity-plugin-seofields/schema'
+
+// Combined — all 24 types
+export default defineConfig({
+  plugins: [seofields(), schemaOrg()],
+})
+```
+
+```ts
+// Individual types only
+import {
+  schemaOrgArticlePlugin,
+  schemaOrgFAQPagePlugin,
+  schemaOrgProductPlugin,
+} from 'sanity-plugin-seofields/schema'
+
+export default defineConfig({
+  plugins: [schemaOrgArticlePlugin(), schemaOrgFAQPagePlugin()],
+})
+```
+
+Once registered, add to any document schema with `defineField`:
+
+```ts
+defineField({name: 'structuredData', type: 'schemaOrg'}) // combined array — all 24 types
+defineField({name: 'article', type: 'schemaOrgArticle'}) // specific type
+defineField({name: 'faq', type: 'schemaOrgFAQPage'})
+```
+
+**Exports from `sanity-plugin-seofields/schema`:**
+
+- `schemaOrg()` — combined Sanity plugin (all 24 types + the `schemaOrg` array type)
+- `schemaOrgArticlePlugin()`, `schemaOrgFAQPagePlugin()`, `schemaOrgProductPlugin()` … (one per type)
+- Individual raw schema definitions: `schemaOrgArticle`, `schemaOrgWebsite`, `schemaOrgProduct` … (24 total, for manual `schema.types` registration)
+- `generateSchemaType()` — generator utility for building custom Schema.org types
+- `buildGenericJsonLd()` — generic JSON-LD builder
+- TypeScript interfaces: `SchemaFieldDef`, `SchemaFieldOption`, `SchemaTypeDef`, `SchemaOrgConfig`, `SchemaOrgCombinedConfig`
+
+---
+
+#### New export path: `sanity-plugin-seofields/schema/next`
+
+React/Next.js components that render `<script type="application/ld+json">` tags from Sanity document data.
+
+```tsx
+import {SchemaOrgScripts} from 'sanity-plugin-seofields/schema/next'
+
+// Render all structured data from the combined array field
+;<SchemaOrgScripts data={doc.structuredData} />
+```
+
+**Exports from `sanity-plugin-seofields/schema/next`:**
+
+- `SchemaOrgScripts` — renders all JSON-LD scripts from a combined `schemaOrg` array field, automatically dispatching to the correct renderer per `_type`
+- `SchemaOrgScript` — low-level single script tag renderer
+
+---
+
+#### Schema.org components also available from `sanity-plugin-seofields/next`
+
+All 24 Schema.org React components and their JSON-LD builder functions are re-exported from the existing `/next` entry point for convenience:
+
+```tsx
+import {
+  ArticleSchema,
+  FAQPageSchema,
+  ProductSchema,
+  OrganizationSchema,
+  WebsiteSchema,
+  BreadcrumbListSchema,
+  SchemaOrgScripts,
+  // ... all 24
+} from 'sanity-plugin-seofields/next'
+```
+
+Each component renders a single `<script type="application/ld+json">` tag. Each also exports a `build*JsonLd()` function for generating the JSON-LD object directly (useful for SSG, sitemaps, or custom rendering):
+
+```ts
+import {buildArticleJsonLd, buildProductJsonLd} from 'sanity-plugin-seofields/next'
+
+const json = buildArticleJsonLd(doc.article) // returns plain JSON-LD object
+```
+
+---
+
+#### Schema.org generator — build your own types
+
+A declarative generator lets you define custom Schema.org types using a plain field definition array, then auto-generates the Sanity schema, JSON-LD builder, and React component:
+
+```ts
+import {generateSchemaType, buildGenericJsonLd} from 'sanity-plugin-seofields/schema'
+
+const myType = generateSchemaType({
+  name: 'schemaOrgRecipe',
+  schemaType: 'Recipe',
+  title: 'Schema.org — Recipe',
+  fields: [
+    {name: 'name', title: 'Name', type: 'string', required: {key: 'name', message: 'Required'}},
+    {name: 'cookTime', title: 'Cook Time', type: 'string'},
+  ],
+})
+```
+
+---
+
+### 🚀 Improved
+
+- **`SeoHealthTool` and `SeoHealthDashboard` are now lazy-loaded** — wrapped in `React.lazy()` + `React.Suspense`. The Studio bundle no longer pays the upfront cost of loading the dashboard code until it is actually navigated to, improving initial Studio load time.
+
+---
+
 ## [1.3.2] — 2026-03-23
 
 ### ✨ Added
