@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.2] — 2026-03-28
+
+### 🔄 Changed
+
+- **Sanity v5 compatibility** — Added `sanity ^5` to peer dependencies. The plugin now officially supports Sanity Studio v3, v4, and v5. No API changes were required — all existing Studio APIs used by the plugin remain unchanged in v5.
+- Updated `devDependencies` to use `sanity@^5.0.0` for development and testing.
+- Updated README description to reflect v3/v4/v5 support.
+
+---
+
 ## [1.4.1] — 2026-03-25
 
 ### 🐛 Fixed

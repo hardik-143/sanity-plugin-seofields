@@ -6,7 +6,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/hardik-143/sanity-plugin-seofields?color=orange)](https://github.com/hardik-143/sanity-plugin-seofields/issues)
 [![GitHub stars](https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social)](https://github.com/hardik-143/sanity-plugin-seofields)
 
-A comprehensive Sanity Studio v3 plugin to manage SEO fields like meta titles, descriptions, Open Graph tags, and X (Formerly Twitter) Cards for structured, search-optimized content.
+A comprehensive Sanity Studio (v3/v4/v5) plugin to manage SEO fields like meta titles, descriptions, Open Graph tags, and X (Formerly Twitter) Cards for structured, search-optimized content.
 
 ## ✨ Features
 
