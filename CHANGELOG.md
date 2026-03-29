@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] — 2026-03-29
+
+### ✨ Added
+
+- **`seofields` CLI** — A new `seofields` binary is included with the package. Run commands directly from your terminal with `npx seofields <command>`.
+- **`seofields create-config`** — Interactive wizard that scaffolds a `seofields.cli.ts` or `seofields.cli.js` config file with your project credentials. No more manual config file creation or copy-pasting required.
+- **`seofields init`** — Automatically detects your `sanity.config.ts/js` and injects the `seofields()` plugin if not already registered. Supports `--schema-org` flag to also inject `schemaOrg()`.
+- **`seofields config`** — Update `seofields()` configuration options directly from the terminal using dotted key flags (e.g. `--baseUrl=https://example.com`, `--healthDashboard.licenseKey=SEOF-…`).
+- **`seofields report`** — Queries your Sanity dataset and prints an SEO health report as a formatted table or summary. Scores each document across title, description, image, keywords, and Open Graph fields.
+- **`seofields export`** — Exports all documents with SEO fields as JSON or CSV. Useful for audits and spreadsheet analysis.
+- **`seofields doctor`** — Checks your local setup: verifies `seofields()` is registered in `sanity.config`, confirms peer dependencies are installed, and detects your CLI config file.
+- **`seofields.cli.ts` config file** — Create a `seofields.cli.ts` (or `.js`) file using `defineSeoCli()` to store your project ID, dataset, and token so you never need to pass flags on every command.
+- **`defineSeoCli()` helper** — Importable from `sanity-plugin-seofields/define-cli`. Provides full TypeScript types for the CLI config object including `showConnectionInfo` and `types` options.
+- **Random color themes** — The CLI banner uses a random accent color on every run, drawn from the plugin's brand color palette.
+
+---
+
 ## [1.4.2] — 2026-03-28
 
 ### 🔄 Changed

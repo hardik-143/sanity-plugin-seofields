@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
   "keywords": [
     "sanity",
@@ -16,6 +16,9 @@
   "license": "MIT",
   "author": "Desai Hardik <dhardik1430@gmail.com>",
   "type": "module",
+  "bin": {
+    "seofields": "./dist/cli.js"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "exports": {
@@ -40,7 +43,12 @@
       "require": "./dist/schema/next.cjs",
       "default": "./dist/schema/next.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./define-cli": {
+      "types": "./dist/define-cli.d.ts",
+      "import": "./dist/define-cli.js",
+      "require": "./dist/define-cli.cjs"
+    }
   },
   "types": "./dist/index.d.ts",
   "typesVersions": {
@@ -53,6 +61,9 @@
       ],
       "schema/next": [
         "./dist/schema/next.d.ts"
+      ],
+      "define-cli": [
+        "./dist/define-cli.d.ts"
       ]
     }
   },
@@ -85,8 +96,13 @@
     }
   },
   "dependencies": {
+    "@clack/prompts": "^1.1.0",
+    "@sanity/client": "^7.20.0",
     "@sanity/incompatible-plugin": "^1.0.5",
-    "@sanity/ui": "^3.1.4"
+    "@sanity/ui": "^3.1.4",
+    "commander": "^14.0.3",
+    "ora": "^9.3.0",
+    "picocolors": "^1.1.1"
   },
   "repository": {
     "type": "git",
