@@ -6,13 +6,135 @@ import styled, {css, keyframes} from 'styled-components'
 
 import {DeprecationWarning, DocumentWithSeoHealth, SeoHealthMetrics} from '../types'
 
+type ThemeMode = 'light' | 'dark' | 'system'
+
+const themeVars = {
+  light: {
+    '--seo-bg': '#f0f2f5',
+    '--seo-card-bg': '#ffffff',
+    '--seo-text-primary': '#1f2937',
+    '--seo-text-secondary': '#6b7280',
+    '--seo-text-muted': '#9ca3af',
+    '--seo-border': '#e5e7eb',
+    '--seo-border-light': '#f3f4f6',
+    '--seo-input-bg': '#f9fafb',
+    '--seo-header-bg': '#f9fafb',
+    '--seo-accent': '#6366f1',
+    '--seo-accent-hover': '#4f46e5',
+    '--seo-link': '#4f46e5',
+    '--seo-link-hover': '#4338ca',
+    '--seo-hover-bg': '#fafafa',
+    '--seo-shadow': 'rgba(0, 0, 0, 0.07)',
+    '--seo-shadow-hover': 'rgba(0, 0, 0, 0.1)',
+    '--seo-focus-ring': 'rgba(99, 102, 241, 0.1)',
+    '--seo-issue-color': '#ef4444',
+    '--seo-more-issues': '#6b7280',
+    '--seo-more-issues-hover': '#374151',
+    '--seo-popover-bg': '#1f2937',
+    '--seo-popover-text': '#ffffff',
+    '--seo-spinner-track': '#e5e7eb',
+    '--seo-spinner-fill': '#6366f1',
+    '--seo-btn-bg': '#ffffff',
+    '--seo-btn-text': '#374151',
+    '--seo-btn-border': '#d1d5db',
+    '--seo-btn-hover-bg': '#f3f4f6',
+    '--seo-btn-hover-border': '#9ca3af',
+    '--seo-select-arrow': '%236b7280',
+    '--seo-score-excellent-bg': '#d1fae5',
+    '--seo-score-excellent-text': '#065f46',
+    '--seo-score-good-bg': '#fef3c7',
+    '--seo-score-good-text': '#92400e',
+    '--seo-score-fair-bg': '#ffedd5',
+    '--seo-score-fair-text': '#9a3412',
+    '--seo-score-poor-bg': '#fee2e2',
+    '--seo-score-poor-text': '#991b1b',
+    '--seo-preview-bg': '#fef3c7',
+    '--seo-preview-text': '#92400e',
+    '--seo-deprecation-bg': '#fffbeb',
+    '--seo-deprecation-border': '#fcd34d',
+    '--seo-deprecation-text': '#78350f',
+    '--seo-deprecation-link': '#92400e',
+    '--seo-upgrade-bg': '#ffffff',
+    '--seo-upgrade-border': '#e5e7eb',
+    '--seo-upgrade-code-bg': '#f3f4f6',
+    '--seo-upgrade-code-text': '#374151',
+    '--seo-upgrade-code-border': '#e5e7eb',
+    '--seo-warning-bg': '#fef3c7',
+    '--seo-warning-border': '#fcd34d',
+    '--seo-warning-text': '#92400e',
+    '--seo-theme-picker-bg': '#ffffff',
+    '--seo-theme-picker-border': '#e5e7eb',
+    '--seo-theme-picker-active': '#f0f0ff',
+    '--seo-theme-picker-active-border': '#6366f1',
+  } as Record<string, string>,
+  dark: {
+    '--seo-bg': '#1a1b1e',
+    '--seo-card-bg': '#25262b',
+    '--seo-text-primary': '#c9cdd3',
+    '--seo-text-secondary': '#8b919a',
+    '--seo-text-muted': '#6b7280',
+    '--seo-border': '#373a40',
+    '--seo-border-light': '#2c2e33',
+    '--seo-input-bg': '#2c2e33',
+    '--seo-header-bg': '#2c2e33',
+    '--seo-accent': '#818cf8',
+    '--seo-accent-hover': '#6366f1',
+    '--seo-link': '#818cf8',
+    '--seo-link-hover': '#a5b4fc',
+    '--seo-hover-bg': '#2c2e33',
+    '--seo-shadow': 'rgba(0, 0, 0, 0.25)',
+    '--seo-shadow-hover': 'rgba(0, 0, 0, 0.35)',
+    '--seo-focus-ring': 'rgba(129, 140, 248, 0.15)',
+    '--seo-issue-color': '#f87171',
+    '--seo-more-issues': '#8b919a',
+    '--seo-more-issues-hover': '#c9cdd3',
+    '--seo-popover-bg': '#373a40',
+    '--seo-popover-text': '#e5e7eb',
+    '--seo-spinner-track': '#373a40',
+    '--seo-spinner-fill': '#818cf8',
+    '--seo-btn-bg': '#2c2e33',
+    '--seo-btn-text': '#c9cdd3',
+    '--seo-btn-border': '#373a40',
+    '--seo-btn-hover-bg': '#373a40',
+    '--seo-btn-hover-border': '#4b5058',
+    '--seo-select-arrow': '%238b919a',
+    '--seo-score-excellent-bg': '#064e3b',
+    '--seo-score-excellent-text': '#6ee7b7',
+    '--seo-score-good-bg': '#78350f',
+    '--seo-score-good-text': '#fcd34d',
+    '--seo-score-fair-bg': '#7c2d12',
+    '--seo-score-fair-text': '#fdba74',
+    '--seo-score-poor-bg': '#7f1d1d',
+    '--seo-score-poor-text': '#fca5a5',
+    '--seo-preview-bg': '#78350f',
+    '--seo-preview-text': '#fcd34d',
+    '--seo-deprecation-bg': '#422006',
+    '--seo-deprecation-border': '#a16207',
+    '--seo-deprecation-text': '#fcd34d',
+    '--seo-deprecation-link': '#fbbf24',
+    '--seo-upgrade-bg': '#25262b',
+    '--seo-upgrade-border': '#373a40',
+    '--seo-upgrade-code-bg': '#2c2e33',
+    '--seo-upgrade-code-text': '#c9cdd3',
+    '--seo-upgrade-code-border': '#373a40',
+    '--seo-warning-bg': '#422006',
+    '--seo-warning-border': '#a16207',
+    '--seo-warning-text': '#fcd34d',
+    '--seo-theme-picker-bg': '#25262b',
+    '--seo-theme-picker-border': '#373a40',
+    '--seo-theme-picker-active': '#2d2d44',
+    '--seo-theme-picker-active-border': '#818cf8',
+  } as Record<string, string>,
+}
+
 const DashboardContainer = styled.div`
   width: 100%;
   min-height: 100%;
-  background: #f0f2f5;
+  background: var(--seo-bg);
   padding: 28px 32px;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--seo-text-primary);
 `
 
 const PageHeader = styled.div`
@@ -27,7 +149,7 @@ const PageTitle = styled.h1`
   margin: 0 0 6px 0;
   font-size: 22px;
   font-weight: 700;
-  color: #111827;
+  color: var(--seo-text-primary);
   letter-spacing: -0.3px;
   display: flex;
   align-items: center;
@@ -36,8 +158,8 @@ const PageTitle = styled.h1`
 
 const PreviewBadge = styled.span`
   display: inline-block;
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--seo-preview-bg);
+  color: var(--seo-preview-text);
   font-size: 11px;
   font-weight: 600;
   padding: 4px 8px;
@@ -50,7 +172,7 @@ const PreviewBadge = styled.span`
 const PageSubtitle = styled.p`
   margin: 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--seo-text-secondary);
 `
 
 const StatsGrid = styled.div`
@@ -61,24 +183,24 @@ const StatsGrid = styled.div`
 `
 
 const StatCard = styled.div<{$accent?: string}>`
-  background: #ffffff;
+  background: var(--seo-card-bg);
   border-radius: 10px;
   padding: 16px 18px;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.07),
-    0 1px 2px rgba(0, 0, 0, 0.05);
+    0 1px 3px var(--seo-shadow),
+    0 1px 2px var(--seo-shadow);
   border-left: ${(p) => (p.$accent ? `4px solid ${p.$accent}` : '4px solid transparent')};
   transition: box-shadow 0.15s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--seo-shadow-hover);
   }
 `
 
 const StatLabel = styled.div`
   font-size: 11px;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--seo-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -87,12 +209,12 @@ const StatLabel = styled.div`
 const StatValue = styled.div`
   font-size: 26px;
   font-weight: 700;
-  color: #111827;
+  color: var(--seo-text-primary);
   line-height: 1;
 `
 
 const ControlsBar = styled.div`
-  background: #ffffff;
+  background: var(--seo-card-bg);
   border-radius: 10px;
   padding: 14px 18px;
   display: flex;
@@ -100,7 +222,7 @@ const ControlsBar = styled.div`
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 1px 3px var(--seo-shadow);
 `
 
 const SearchWrapper = styled.div`
@@ -114,7 +236,7 @@ const SearchIconSvg = styled.span`
   left: 11px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: var(--seo-text-muted);
   display: flex;
   align-items: center;
   pointer-events: none;
@@ -124,11 +246,11 @@ const SearchInput = styled.input`
   width: 100%;
   height: 36px;
   padding: 0 12px 0 34px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--seo-border);
   border-radius: 7px;
   font-size: 13px;
-  color: #111827;
-  background: #f9fafb;
+  color: var(--seo-text-primary);
+  background: var(--seo-input-bg);
   box-sizing: border-box;
   outline: none;
   transition:
@@ -136,24 +258,24 @@ const SearchInput = styled.input`
     background 0.15s;
 
   &::placeholder {
-    color: #9ca3af;
+    color: var(--seo-text-muted);
   }
 
   &:focus {
-    border-color: #6366f1;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--seo-accent);
+    background: var(--seo-card-bg);
+    box-shadow: 0 0 0 3px var(--seo-focus-ring);
   }
 `
 
 const StyledSelect = styled.select`
   height: 36px;
   padding: 0 32px 0 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--seo-border);
   border-radius: 7px;
   font-size: 13px;
-  color: #374151;
-  background: #f9fafb
+  color: var(--seo-text-secondary);
+  background: var(--seo-input-bg)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E")
     no-repeat right 10px center;
   appearance: none;
@@ -162,16 +284,16 @@ const StyledSelect = styled.select`
   transition: border-color 0.15s;
 
   &:focus {
-    border-color: #6366f1;
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--seo-accent);
+    background-color: var(--seo-card-bg);
+    box-shadow: 0 0 0 3px var(--seo-focus-ring);
   }
 `
 
 const TableCard = styled.div`
-  background: #ffffff;
+  background: var(--seo-card-bg);
   border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 1px 3px var(--seo-shadow);
   overflow: hidden;
 `
 
@@ -179,11 +301,11 @@ const TableHeader = styled.div`
   display: flex;
   align-items: center;
   padding: 11px 20px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--seo-header-bg);
+  border-bottom: 1px solid var(--seo-border);
   font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--seo-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   gap: 12px;
@@ -193,7 +315,7 @@ const TableRow = styled.div`
   display: flex;
   align-items: center;
   padding: 13px 20px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--seo-border-light);
   gap: 12px;
   transition: background 0.1s;
 
@@ -202,7 +324,7 @@ const TableRow = styled.div`
   }
 
   &:hover {
-    background: #fafafa;
+    background: var(--seo-hover-bg);
   }
 `
 
@@ -244,7 +366,7 @@ const ColIssues = styled.div`
 const DocTitleLink = styled.a`
   font-size: 13px;
   font-weight: 600;
-  color: #4f46e5;
+  color: var(--seo-link);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -253,14 +375,14 @@ const DocTitleLink = styled.a`
   transition: color 0.15s;
 
   &:hover {
-    color: #4338ca;
+    color: var(--seo-link-hover);
     text-decoration: underline;
   }
 `
 
 const DocId = styled.div`
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--seo-text-muted);
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -280,7 +402,7 @@ const TypeBadge = styled.span<{$bgColor?: string; $textColor?: string}>`
 const TypeText = styled.span`
   font-size: 12px;
   font-weight: 500;
-  color: #374151;
+  color: var(--seo-text-secondary);
 `
 
 const CustomBadge = styled.span<{$bgColor?: string; $textColor?: string; $fontSize?: string}>`
@@ -301,22 +423,22 @@ const ScoreBadge = styled.span<{$score: number}>`
   font-size: 12px;
   font-weight: 700;
   background: ${(p) => {
-    if (p.$score >= 80) return '#d1fae5'
-    if (p.$score >= 60) return '#fef3c7'
-    if (p.$score >= 40) return '#ffedd5'
-    return '#fee2e2'
+    if (p.$score >= 80) return 'var(--seo-score-excellent-bg)'
+    if (p.$score >= 60) return 'var(--seo-score-good-bg)'
+    if (p.$score >= 40) return 'var(--seo-score-fair-bg)'
+    return 'var(--seo-score-poor-bg)'
   }};
   color: ${(p) => {
-    if (p.$score >= 80) return '#065f46'
-    if (p.$score >= 60) return '#92400e'
-    if (p.$score >= 40) return '#9a3412'
-    return '#991b1b'
+    if (p.$score >= 80) return 'var(--seo-score-excellent-text)'
+    if (p.$score >= 60) return 'var(--seo-score-good-text)'
+    if (p.$score >= 40) return 'var(--seo-score-fair-text)'
+    return 'var(--seo-score-poor-text)'
   }};
 `
 
 const IssueTag = styled.div`
   font-size: 11px;
-  color: #ef4444;
+  color: var(--seo-issue-color);
   line-height: 1.5;
   white-space: nowrap;
   overflow: hidden;
@@ -330,11 +452,11 @@ const NonStringTitleWarning = styled.div`
   margin-top: 4px;
   padding: 2px 7px;
   border-radius: 4px;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
+  background: var(--seo-warning-bg);
+  border: 1px solid var(--seo-warning-border);
   font-size: 10px;
   font-weight: 600;
-  color: #92400e;
+  color: var(--seo-warning-text);
   line-height: 1.4;
   cursor: default;
   white-space: normal;
@@ -342,12 +464,12 @@ const NonStringTitleWarning = styled.div`
 
 const MoreIssues = styled.div`
   font-size: 11px;
-  color: #6b7280;
+  color: var(--seo-more-issues);
   cursor: pointer;
   transition: color 0.15s;
 
   &:hover {
-    color: #374151;
+    color: var(--seo-more-issues-hover);
   }
 `
 
@@ -363,13 +485,13 @@ const IssuesPopover = styled.div<{
   bottom: auto;
   left: 0;
   transform: translateY(calc(-100% - 14px));
-  background: #1f2937;
-  color: #ffffff;
+  background: var(--seo-popover-bg);
+  color: var(--seo-popover-text);
   padding: 12px;
   border-radius: 8px;
   font-size: 12px;
   z-index: 50;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px var(--seo-shadow-hover);
   width: 280px;
   word-break: break-word;
   line-height: 1.5;
@@ -383,7 +505,7 @@ const IssuesPopover = styled.div<{
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-top: 6px solid #1f2937;
+    border-top: 6px solid var(--seo-popover-bg);
   }
 `
 
@@ -406,16 +528,16 @@ const UpgradeContainer = styled.div`
 `
 
 const UpgradeBox = styled.div`
-  background: #ffffff;
+  background: var(--seo-upgrade-bg);
   border-radius: 16px;
   padding: 48px 40px;
   max-width: 480px;
   width: 100%;
   text-align: center;
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.08),
-    0 1px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+    0 4px 24px var(--seo-shadow),
+    0 1px 4px var(--seo-shadow);
+  border: 1px solid var(--seo-upgrade-border);
 `
 
 const UpgradeLock = styled.div`
@@ -427,32 +549,32 @@ const UpgradeTitle = styled.h2`
   margin: 0 0 10px;
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--seo-text-primary);
 `
 
 const UpgradeText = styled.p`
   margin: 0 0 20px;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--seo-text-secondary);
   line-height: 1.6;
 `
 
 const UpgradeCode = styled.pre`
-  background: #f3f4f6;
+  background: var(--seo-upgrade-code-bg);
   border-radius: 8px;
   padding: 14px 16px;
   font-size: 12px;
-  color: #374151;
+  color: var(--seo-upgrade-code-text);
   text-align: left;
   margin: 0 0 24px;
   overflow-x: auto;
   line-height: 1.6;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--seo-upgrade-code-border);
 `
 
 const UpgradeButton = styled.a`
   display: inline-block;
-  background: #4f46e5;
+  background: var(--seo-accent);
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
@@ -462,19 +584,19 @@ const UpgradeButton = styled.a`
   transition: background 0.15s;
 
   &:hover {
-    background: #4338ca;
+    background: var(--seo-accent-hover);
   }
 `
 
 const ReloadButton = styled.button`
   display: inline-block;
   background: transparent;
-  color: #6b7280;
+  color: var(--seo-text-secondary);
   font-size: 13px;
   font-weight: 500;
   padding: 8px 20px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--seo-btn-border);
   cursor: pointer;
   margin-top: 10px;
   transition:
@@ -483,9 +605,9 @@ const ReloadButton = styled.button`
     border-color 0.15s;
 
   &:hover {
-    background: #f3f4f6;
-    color: #374151;
-    border-color: #9ca3af;
+    background: var(--seo-btn-hover-bg);
+    color: var(--seo-text-primary);
+    border-color: var(--seo-btn-hover-border);
   }
 `
 
@@ -497,13 +619,13 @@ const DashboardRefreshButton = styled.button<{$spinning?: boolean}>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #ffffff;
-  color: #374151;
+  background: var(--seo-btn-bg);
+  color: var(--seo-btn-text);
   font-size: 13px;
   font-weight: 500;
   padding: 8px 14px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--seo-btn-border);
   cursor: pointer;
   flex-shrink: 0;
   transition:
@@ -511,7 +633,7 @@ const DashboardRefreshButton = styled.button<{$spinning?: boolean}>`
     color 0.15s,
     border-color 0.15s,
     box-shadow 0.15s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px var(--seo-shadow);
 
   svg {
     animation: ${(p) =>
@@ -523,9 +645,9 @@ const DashboardRefreshButton = styled.button<{$spinning?: boolean}>`
   }
 
   &:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    background: var(--seo-btn-hover-bg);
+    border-color: var(--seo-btn-hover-border);
+    box-shadow: 0 2px 6px var(--seo-shadow);
   }
 
   &:disabled {
@@ -533,6 +655,173 @@ const DashboardRefreshButton = styled.button<{$spinning?: boolean}>`
     cursor: not-allowed;
   }
 `
+
+const ThemeSwitcher = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--seo-theme-picker-bg);
+  border: 1px solid var(--seo-theme-picker-border);
+  border-radius: 9px;
+  padding: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px var(--seo-shadow);
+`
+
+const getThemeButtonActiveStyles = (theme: 'light' | 'dark' | 'system') => {
+  switch (theme) {
+    case 'light':
+      return css`
+        background: #fff4ed;
+        border: 1.5px solid #f97316;
+        color: #ea6c0a;
+        box-shadow:
+          0 0 0 2px rgba(249, 115, 22, 0.15),
+          0 1px 3px rgba(0, 0, 0, 0.08);
+      `
+    case 'dark':
+      return css`
+        background: #eff6ff;
+        border: 1.5px solid #3b82f6;
+        color: #2563eb;
+        box-shadow:
+          0 0 0 2px rgba(59, 130, 246, 0.15),
+          0 1px 3px rgba(0, 0, 0, 0.08);
+      `
+    case 'system':
+      return css`
+        background: #f0fdf4;
+        border: 1.5px solid #22c55e;
+        color: #16a34a;
+        box-shadow:
+          0 0 0 2px rgba(34, 197, 94, 0.15),
+          0 1px 3px rgba(0, 0, 0, 0.08);
+      `
+    default:
+      return css`
+        background: #f0fdf4;
+        border: 1.5px solid #22c55e;
+        color: #16a34a;
+        box-shadow:
+          0 0 0 2px rgba(34, 197, 94, 0.15),
+          0 1px 3px rgba(0, 0, 0, 0.08);
+      `
+  }
+}
+
+const getThemeButtonHoverStyles = (theme: 'light' | 'dark' | 'system') => {
+  switch (theme) {
+    case 'light':
+      return css`
+        background: #fff4ed;
+        border-color: rgba(249, 115, 22, 0.2);
+        color: #ea6c0a;
+      `
+    case 'dark':
+      return css`
+        background: #eff6ff;
+        border-color: rgba(59, 130, 246, 0.2);
+        color: #2563eb;
+      `
+    case 'system':
+      return css`
+        background: #f0fdf4;
+        border-color: rgba(34, 197, 94, 0.2);
+        color: #16a34a;
+      `
+    default:
+      return css`
+        background: #f0fdf4;
+        border-color: rgba(34, 197, 94, 0.2);
+        color: #16a34a;
+      `
+  }
+}
+
+const ThemeButton = styled.button<{$active?: boolean; $theme: 'light' | 'dark' | 'system'}>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  border-radius: 6px;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background 0.18s,
+    color 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  /* Per-theme active colours */
+  ${(p) =>
+    p.$active
+      ? getThemeButtonActiveStyles(p.$theme)
+      : css`
+          background: transparent;
+          border: 1.5px solid transparent;
+          color: var(--seo-text-muted);
+        `}
+
+  &:hover {
+    ${(p) => (p.$active ? '' : getThemeButtonHoverStyles(p.$theme))}
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`
+
+const SunIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="5" />
+    <line x1="12" y1="1" x2="12" y2="3" />
+    <line x1="12" y1="21" x2="12" y2="23" />
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+    <line x1="1" y1="12" x2="3" y2="12" />
+    <line x1="21" y1="12" x2="23" y2="12" />
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+  </svg>
+)
+
+const MoonIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+)
+
+const MonitorIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+    <line x1="8" y1="21" x2="16" y2="21" />
+    <line x1="12" y1="17" x2="12" y2="21" />
+  </svg>
+)
 
 // Sub-component so useIntentLink can be called at the top level of a component (not inside .map)
 const DocTitleAnchor: React.FC<{
@@ -568,7 +857,7 @@ const PaneLinkWrapper = styled.span`
   a {
     font-size: 13px;
     font-weight: 600;
-    color: #4f46e5;
+    color: var(--seo-link);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -577,7 +866,7 @@ const PaneLinkWrapper = styled.span`
     transition: color 0.15s;
 
     &:hover {
-      color: #4338ca;
+      color: var(--seo-link-hover);
       text-decoration: underline;
     }
   }
@@ -620,8 +909,8 @@ const DocBadgeRenderer: React.FC<{
 const Spinner = styled.div`
   width: 28px;
   height: 28px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #6366f1;
+  border: 3px solid var(--seo-spinner-track);
+  border-top-color: var(--seo-spinner-fill);
   border-radius: 50%;
   animation: ${spin} 0.7s linear infinite;
   margin: 0 auto 12px;
@@ -630,34 +919,34 @@ const Spinner = styled.div`
 const LoadingState = styled.div`
   padding: 48px 24px;
   text-align: center;
-  color: #6b7280;
+  color: var(--seo-text-secondary);
   font-size: 13px;
 `
 
 const EmptyState = styled.div`
   padding: 48px 24px;
   text-align: center;
-  color: #9ca3af;
+  color: var(--seo-text-muted);
   font-size: 13px;
 `
 
 const DeprecationBanner = styled.div`
-  background: #fffbeb;
-  border: 1px solid #fcd34d;
+  background: var(--seo-deprecation-bg);
+  border: 1px solid var(--seo-deprecation-border);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 12px;
-  color: #78350f;
+  color: var(--seo-deprecation-text);
   margin-bottom: 16px;
   line-height: 1.6;
 `
 
 const DeprecationBannerLink = styled.a`
-  color: #92400e;
+  color: var(--seo-deprecation-link);
   font-weight: 600;
   text-decoration: underline;
   &:hover {
-    color: #78350f;
+    color: var(--seo-deprecation-text);
   }
 `
 
@@ -1197,6 +1486,52 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
     issues: string[]
   } | null>(null)
 
+  // Theme state
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    try {
+      const saved = localStorage.getItem('seo-dashboard-theme')
+      if (saved === 'light' || saved === 'dark' || saved === 'system') return saved
+    } catch {
+      // ignore
+    }
+    return 'system'
+  })
+  const [systemPrefersDark, setSystemPrefersDark] = useState(
+    () =>
+      typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches,
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e: MediaQueryListEvent) => setSystemPrefersDark(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  const resolvedTheme = (() => {
+    if (themeMode === 'system') {
+      return systemPrefersDark ? 'dark' : 'light'
+    }
+    return themeMode
+  })()
+  const currentVars = themeVars[resolvedTheme]
+
+  const handleThemeChange = useCallback((mode: ThemeMode) => {
+    setThemeMode(mode)
+    try {
+      localStorage.setItem('seo-dashboard-theme', mode)
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  const handleThemeChangeLight = useCallback(() => handleThemeChange('light'), [handleThemeChange])
+  const handleThemeChangeDark = useCallback(() => handleThemeChange('dark'), [handleThemeChange])
+  const handleThemeChangeSystem = useCallback(
+    () => handleThemeChange('system'),
+    [handleThemeChange],
+  )
+
   const VALIDATION_ENDPOINT = 'https://sanity-plugin-seofields.thehardik.in/api/validate-license'
   const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
 
@@ -1431,7 +1766,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   }, [])
 
   return (
-    <DashboardContainer>
+    <DashboardContainer style={currentVars as React.CSSProperties}>
       {licenseStatus === 'loading' && (
         <LoadingState style={{padding: '80px 24px'}}>
           <Spinner />
@@ -1512,28 +1847,56 @@ export default defineConfig({
               </PageTitle>
               <PageSubtitle>{description}</PageSubtitle>
             </div>
-            <DashboardRefreshButton
-              onClick={handleRefresh}
-              disabled={loading || isRefreshing}
-              $spinning={isRefreshing}
-              title="Refresh documents"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div style={{display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0}}>
+              <ThemeSwitcher>
+                <ThemeButton
+                  $theme="light"
+                  $active={themeMode === 'light'}
+                  onClick={handleThemeChangeLight}
+                  title="Light theme"
+                >
+                  <SunIcon />
+                </ThemeButton>
+                <ThemeButton
+                  $theme="dark"
+                  $active={themeMode === 'dark'}
+                  onClick={handleThemeChangeDark}
+                  title="Dark theme"
+                >
+                  <MoonIcon />
+                </ThemeButton>
+                <ThemeButton
+                  $theme="system"
+                  $active={themeMode === 'system'}
+                  onClick={handleThemeChangeSystem}
+                  title="System default"
+                >
+                  <MonitorIcon />
+                </ThemeButton>
+              </ThemeSwitcher>
+              <DashboardRefreshButton
+                onClick={handleRefresh}
+                disabled={loading || isRefreshing}
+                $spinning={isRefreshing}
+                title="Refresh documents"
               >
-                <polyline points="23 4 23 10 17 10" />
-                <polyline points="1 20 1 14 7 14" />
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-              </svg>
-              Refresh
-            </DashboardRefreshButton>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+                Refresh
+              </DashboardRefreshButton>
+            </div>
           </PageHeader>
           {/* Deprecation warning banner */}
           {deprecationGroups.length > 0 && (

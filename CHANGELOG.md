@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.1] — 2026-03-31
+
+### ✨ Added
+
+- **Theme switcher in SEO Health Dashboard** — A three-way light / dark / system toggle is now rendered in the dashboard header (sun, moon, and monitor icons). The selected theme persists across sessions via `localStorage`. System mode automatically follows the OS `prefers-color-scheme` preference and updates live when the OS preference changes.
+
+---
+
 ## [1.5.0] — 2026-03-29
 
 ### ✨ Added
