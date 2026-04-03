@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.2] — 2026-04-03
+
+### ✨ Added
+
+- **Export to CSV / JSON** — New export buttons in the dashboard controls bar let you download all currently-filtered documents as a `.csv` or `.json` file. Controlled via the new `export` option in `healthDashboard` config:
+  ```ts
+  healthDashboard: {
+    export: { enabled: true, formats: ['csv', 'json'] }
+  }
+  ```
+  Set `export: false` to hide both buttons entirely, or omit `formats` to show both (default).
+- **Pagination** — The documents table is now paginated. Default page size is 25 and can be switched to 50, 100, or 200 per page. The selected page size persists across sessions via `localStorage`. Navigation controls show the current page, total pages, and the document range being displayed.
+- **Compact stats mode** — New `compactStats` option in `healthDashboard` config (defaults to `false`). When `true`, replaces the 6-card stats grid with a single row of inline stat pills, saving vertical space in tighter layouts.
+- **Persistent filters** — The status and type filter dropdown selections are now saved to `localStorage` and restored automatically on next visit.
+
+### 🔄 Changed
+
+- Extracted `RenderLicenseLoading` and `RenderLicenseInvalid` as standalone components, making the main render path significantly cleaner.
+- Moved `VALIDATION_ENDPOINT` and `CACHE_TTL_MS` constants to module scope (previously defined inside the component on every render).
+- Filter change handlers now reset the table back to page 1 to avoid showing an empty page when the result count changes.
+
+---
+
 ## [1.5.1] — 2026-03-31
 
 ### ✨ Added

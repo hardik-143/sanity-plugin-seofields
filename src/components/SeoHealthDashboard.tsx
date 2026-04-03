@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react'
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {useClient, useWorkspace} from 'sanity'
 import {useIntentLink} from 'sanity/router'
 import {usePaneRouter} from 'sanity/structure'
@@ -950,6 +950,97 @@ const DeprecationBannerLink = styled.a`
   }
 `
 
+const ExportButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--seo-btn-bg);
+  color: var(--seo-btn-text);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 11px;
+  border-radius: 7px;
+  border: 1px solid var(--seo-btn-border);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+
+  &:hover {
+    background: var(--seo-btn-hover-bg);
+    border-color: var(--seo-btn-hover-border);
+  }
+`
+
+const PaginationBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--seo-card-bg);
+  border-top: 1px solid var(--seo-border);
+  padding: 10px 20px;
+  font-size: 12px;
+  color: var(--seo-text-secondary);
+`
+
+const PaginationCenter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const PaginationButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--seo-border);
+  background: var(--seo-btn-bg);
+  color: var(--seo-btn-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    background: var(--seo-btn-hover-bg);
+    border-color: var(--seo-btn-hover-border);
+  }
+`
+
+const StatsRow = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+`
+
+const StatPill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--seo-card-bg);
+  border: 1px solid var(--seo-border);
+  color: var(--seo-text-secondary);
+`
+
 /**
  * Color palette for dynamic document type badges
  * Colors are randomly assigned based on type hash for visual variety
@@ -998,6 +1089,80 @@ const getStatusCategory = (score: number): SeoHealthMetrics['status'] => {
   if (score > 0) return 'poor'
   return 'missing'
 }
+
+interface RenderLicenseState {
+  licenseKey?: string
+  validateLicense: (forceRefresh?: boolean) => Promise<void>
+}
+
+const RenderLicenseLoading: React.FC<{text?: React.ReactNode}> = ({text}) => (
+  <LoadingState style={{padding: '80px 24px'}}>
+    <Spinner />
+    {text ?? 'Verifying license…'}
+  </LoadingState>
+)
+
+const RenderLicenseInvalid: React.FC<RenderLicenseState> = ({licenseKey, validateLicense}) => (
+  <UpgradeContainer>
+    <UpgradeBox>
+      {licenseKey ? (
+        <>
+          <UpgradeLock>❌</UpgradeLock>
+          <UpgradeTitle>Invalid License Key</UpgradeTitle>
+          <UpgradeText>
+            The license key you provided is invalid or has been revoked. Please check your key and
+            update it in the plugin config.
+          </UpgradeText>
+          <UpgradeCode>{`seofields({
+    healthDashboard: {
+      licenseKey: 'YOUR_LICENSE_KEY', // ← replace with a valid key
+    },
+  })`}</UpgradeCode>
+          <UpgradeButton
+            href="https://sanity-plugin-seofields.thehardik.in"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get a New License Key →
+          </UpgradeButton>
+          <br />
+          {/* eslint-disable-next-line react/jsx-no-bind */}
+          <ReloadButton onClick={() => validateLicense(true)}>
+            Click here If You Just Updated Your Key
+          </ReloadButton>
+        </>
+      ) : (
+        <>
+          <UpgradeLock>🔒</UpgradeLock>
+          <UpgradeTitle>SEO Health Dashboard</UpgradeTitle>
+          <UpgradeText>
+            This feature requires a license key. Add your key to the plugin config to unlock the
+            full dashboard.
+          </UpgradeText>
+          <UpgradeCode>{`// sanity.config.ts
+  import { seofields } from 'sanity-plugin-seofields'
+  
+  export default defineConfig({
+    plugins: [
+      seofields({
+        healthDashboard: {
+          licenseKey: 'SEOF-XXXX-XXXX-XXXX',
+        },
+      }),
+    ],
+  })`}</UpgradeCode>
+          <UpgradeButton
+            href="https://sanity-plugin-seofields.thehardik.in"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get a License Key →
+          </UpgradeButton>
+        </>
+      )}
+    </UpgradeBox>
+  </UpgradeContainer>
+)
 
 const scoreMetaTitle = (title?: string): {score: number; issues: string[]} => {
   const issues: string[] = []
@@ -1286,6 +1451,21 @@ export interface SeoHealthDashboardProps {
    * the matching changelog URL so the banner can group warnings by release.
    */
   _deprecationWarnings?: DeprecationWarning[]
+  /**
+   * Whether the export (CSV / JSON) feature is enabled.
+   * Defaults to `true`.
+   */
+  exportEnabled?: boolean
+  /**
+   * Which export formats to offer.
+   * Defaults to `['csv', 'json']`.
+   */
+  exportFormats?: Array<'csv' | 'json'>
+  /**
+   * Render compact inline stat pills in the header instead of the full stats grid.
+   * Defaults to `false`.
+   */
+  compactStats?: boolean
 }
 
 /**
@@ -1430,6 +1610,9 @@ const generateDummyData = (): DocumentWithSeoHealth[] => {
   }))
 }
 
+const VALIDATION_ENDPOINT = 'https://sanity-plugin-seofields.thehardik.in/api/validate-license'
+const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
+
 const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   icon = '📊',
   title = 'SEO Health Dashboard',
@@ -1452,6 +1635,9 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   openInPane = false,
   structureTool,
   _deprecationWarnings,
+  exportEnabled = true,
+  exportFormats = ['csv', 'json'],
+  compactStats = false,
 }) => {
   // Resolve deprecated prop pairs to their new counterparts, while allowing both to be used simultaneously for backward compatibility.
   const resolvedTypeLabels = typeDisplayLabels
@@ -1477,9 +1663,31 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterStatus, setFilterStatus] = useState<string>('all')
-  const [filterType, setFilterType] = useState<string>('all')
+  const [filterStatus, setFilterStatus] = useState<string>(() => {
+    try {
+      return localStorage.getItem('seo-dashboard-filter-status') ?? 'all'
+    } catch {
+      return 'all'
+    }
+  })
+  const [filterType, setFilterType] = useState<string>(() => {
+    try {
+      return localStorage.getItem('seo-dashboard-filter-type') ?? 'all'
+    } catch {
+      return 'all'
+    }
+  })
   const [sortBy, setSortBy] = useState<'score' | 'title'>('score')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState<number>(() => {
+    try {
+      const stored = localStorage.getItem('seo-dashboard-page-size')
+      return stored ? Number(stored) : 25
+    } catch {
+      return 25
+    }
+  })
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const [activePopover, setActivePopover] = useState<{
     top: number
     left: number
@@ -1532,8 +1740,25 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
     [handleThemeChange],
   )
 
-  const VALIDATION_ENDPOINT = 'https://sanity-plugin-seofields.thehardik.in/api/validate-license'
-  const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
+  const handleFilterStatusChange = useCallback((value: string) => {
+    setFilterStatus(value)
+    try {
+      localStorage.setItem('seo-dashboard-filter-status', value)
+    } catch {
+      // ignore
+    }
+    setCurrentPage(1)
+  }, [])
+
+  const handleFilterTypeChange = useCallback((value: string) => {
+    setFilterType(value)
+    try {
+      localStorage.setItem('seo-dashboard-filter-type', value)
+    } catch {
+      // ignore
+    }
+    setCurrentPage(1)
+  }, [])
 
   const validateLicense = useCallback(
     async (forceRefresh = false) => {
@@ -1747,6 +1972,57 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
     return sorted
   }, [documents, searchQuery, filterStatus, filterType, sortBy])
 
+  const totalPages = Math.max(1, Math.ceil(filteredAndSortedDocs.length / pageSize))
+
+  const paginatedDocs = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return filteredAndSortedDocs.slice(start, start + pageSize)
+  }, [filteredAndSortedDocs, currentPage, pageSize])
+
+  const handleExportCSV = useCallback(() => {
+    const exportDocs = filteredAndSortedDocs
+    const rows = exportDocs.map((doc) => ({
+      id: doc._id,
+      type: doc._type,
+      title: typeof doc.title === 'string' ? doc.title : '',
+      score: doc.health.score,
+      status: doc.health.status,
+      issues: doc.health.issues.join(' | '),
+    }))
+    const header = 'id,type,title,score,status,issues'
+    const csvRows = rows.map((r) =>
+      [
+        r.id,
+        r.type,
+        `"${r.title.replace(/"/g, '""')}"`,
+        r.score,
+        r.status,
+        `"${r.issues.replace(/"/g, '""')}"`,
+      ].join(','),
+    )
+    const csv = [header, ...csvRows].join('\n')
+    const blob = new Blob([csv], {type: 'text/csv'})
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'seo-health-export.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [filteredAndSortedDocs])
+
+  const handleExportJSON = useCallback(() => {
+    const exportDocs = filteredAndSortedDocs
+    const blob = new Blob([JSON.stringify(exportDocs, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'seo-health-export.json'
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [filteredAndSortedDocs])
+
   const stats = useMemo(() => {
     const total = documents.length
     const excellent = documents.filter((d) => d.health.score >= 80).length
@@ -1765,374 +2041,409 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
     setActivePopover(null)
   }, [])
 
-  return (
-    <DashboardContainer style={currentVars as React.CSSProperties}>
-      {licenseStatus === 'loading' && (
-        <LoadingState style={{padding: '80px 24px'}}>
-          <Spinner />
-          {loadingLicense ?? 'Verifying license…'}
-        </LoadingState>
-      )}
-      {licenseStatus === 'invalid' && (
-        <UpgradeContainer>
-          <UpgradeBox>
-            {licenseKey ? (
-              <>
-                <UpgradeLock>❌</UpgradeLock>
-                <UpgradeTitle>Invalid License Key</UpgradeTitle>
-                <UpgradeText>
-                  The license key you provided is invalid or has been revoked. Please check your key
-                  and update it in the plugin config.
-                </UpgradeText>
-                <UpgradeCode>{`seofields({
-  healthDashboard: {
-    licenseKey: 'YOUR_LICENSE_KEY', // ← replace with a valid key
-  },
-})`}</UpgradeCode>
-                <UpgradeButton
-                  href="https://sanity-plugin-seofields.thehardik.in"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Get a New License Key →
-                </UpgradeButton>
-                <br />
-                {/* eslint-disable-next-line react/jsx-no-bind */}
-                <ReloadButton onClick={() => validateLicense(true)}>
-                  Click here If You Just Updated Your Key
-                </ReloadButton>
-              </>
-            ) : (
-              <>
-                <UpgradeLock>🔒</UpgradeLock>
-                <UpgradeTitle>SEO Health Dashboard</UpgradeTitle>
-                <UpgradeText>
-                  This feature requires a license key. Add your key to the plugin config to unlock
-                  the full dashboard.
-                </UpgradeText>
-                <UpgradeCode>{`// sanity.config.ts
-import { seofields } from 'sanity-plugin-seofields'
+  // Reset to page 1 whenever filters, search, or sort changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, filterStatus, filterType, sortBy])
 
-export default defineConfig({
-  plugins: [
-    seofields({
-      healthDashboard: {
-        licenseKey: 'SEOF-XXXX-XXXX-XXXX',
-      },
-    }),
-  ],
-})`}</UpgradeCode>
-                <UpgradeButton
-                  href="https://sanity-plugin-seofields.thehardik.in"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Get a License Key →
-                </UpgradeButton>
-              </>
-            )}
-          </UpgradeBox>
-        </UpgradeContainer>
-      )}
-      {licenseStatus === 'valid' && (
-        <>
-          {/* Header */}
-          <PageHeader>
-            <div>
-              <PageTitle>
-                <span>
-                  {icon} {title}
-                </span>
-                {previewMode && <PreviewBadge>Preview Mode</PreviewBadge>}
-              </PageTitle>
-              <PageSubtitle>{description}</PageSubtitle>
-            </div>
-            <div style={{display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0}}>
-              <ThemeSwitcher>
-                <ThemeButton
-                  $theme="light"
-                  $active={themeMode === 'light'}
-                  onClick={handleThemeChangeLight}
-                  title="Light theme"
-                >
-                  <SunIcon />
-                </ThemeButton>
-                <ThemeButton
-                  $theme="dark"
-                  $active={themeMode === 'dark'}
-                  onClick={handleThemeChangeDark}
-                  title="Dark theme"
-                >
-                  <MoonIcon />
-                </ThemeButton>
-                <ThemeButton
-                  $theme="system"
-                  $active={themeMode === 'system'}
-                  onClick={handleThemeChangeSystem}
-                  title="System default"
-                >
-                  <MonitorIcon />
-                </ThemeButton>
-              </ThemeSwitcher>
-              <DashboardRefreshButton
-                onClick={handleRefresh}
-                disabled={loading || isRefreshing}
-                $spinning={isRefreshing}
-                title="Refresh documents"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="23 4 23 10 17 10" />
-                  <polyline points="1 20 1 14 7 14" />
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
-                Refresh
-              </DashboardRefreshButton>
-            </div>
-          </PageHeader>
-          {/* Deprecation warning banner */}
-          {deprecationGroups.length > 0 && (
-            <DeprecationBanner>
-              <strong>⚠️ Deprecated config keys detected:</strong>{' '}
-              {deprecationGroups.map((group, gi) => (
-                <span key={group.version}>
-                  {group.keys.map((w, i) => (
-                    <span key={w}>
-                      <code style={{background: '#fef9c3', padding: '1px 4px', borderRadius: 3}}>
-                        {w.split('→')[0].trim()}
-                      </code>
-                      {' → '}
-                      <code style={{background: '#dcfce7', padding: '1px 4px', borderRadius: 3}}>
-                        {w.split('→')[1].trim()}
-                      </code>
-                      {i < group.keys.length - 1 ? ' · ' : ''}
-                    </span>
-                  ))}{' '}
-                  (
-                  <DeprecationBannerLink
-                    href={group.changelogUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {group.version} changelog
-                  </DeprecationBannerLink>
-                  ){gi < deprecationGroups.length - 1 ? ' · ' : ''}
+  // Keyboard shortcuts
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      const isEditable =
+        target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
+
+      if (e.key === '/' && !isEditable) {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  const renderDashboardContent = () => (
+    <>
+      {/* Header */}
+      <PageHeader>
+        <div>
+          <PageTitle>
+            <span>
+              {icon} {title}
+            </span>
+            {previewMode && <PreviewBadge>Preview Mode</PreviewBadge>}
+          </PageTitle>
+          <PageSubtitle>{description}</PageSubtitle>
+        </div>
+        <div style={{display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0}}>
+          <ThemeSwitcher>
+            <ThemeButton
+              $theme="light"
+              $active={themeMode === 'light'}
+              onClick={handleThemeChangeLight}
+              title="Light theme"
+            >
+              <SunIcon />
+            </ThemeButton>
+            <ThemeButton
+              $theme="dark"
+              $active={themeMode === 'dark'}
+              onClick={handleThemeChangeDark}
+              title="Dark theme"
+            >
+              <MoonIcon />
+            </ThemeButton>
+            <ThemeButton
+              $theme="system"
+              $active={themeMode === 'system'}
+              onClick={handleThemeChangeSystem}
+              title="System default"
+            >
+              <MonitorIcon />
+            </ThemeButton>
+          </ThemeSwitcher>
+          <DashboardRefreshButton
+            onClick={handleRefresh}
+            disabled={loading || isRefreshing}
+            $spinning={isRefreshing}
+            title="Refresh documents"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+            Refresh
+          </DashboardRefreshButton>
+        </div>
+      </PageHeader>
+      {/* Deprecation warning banner */}
+      {deprecationGroups.length > 0 && (
+        <DeprecationBanner>
+          <strong>⚠️ Deprecated config keys detected:</strong>{' '}
+          {deprecationGroups.map((group, gi) => (
+            <span key={group.version}>
+              {group.keys.map((w, i) => (
+                <span key={w}>
+                  <code style={{background: '#fef9c3', padding: '1px 4px', borderRadius: 3}}>
+                    {w.split('→')[0].trim()}
+                  </code>
+                  {' → '}
+                  <code style={{background: '#dcfce7', padding: '1px 4px', borderRadius: 3}}>
+                    {w.split('→')[1].trim()}
+                  </code>
+                  {i < group.keys.length - 1 ? ' · ' : ''}
                 </span>
               ))}{' '}
-              — Please update your config.
-            </DeprecationBanner>
-          )}
-          {/* Stats Grid */}
-          {!loading && (
-            <StatsGrid>
-              <StatCard>
-                <StatLabel>Total Docs</StatLabel>
-                <StatValue>{stats.total}</StatValue>
-              </StatCard>
-              <StatCard>
-                <StatLabel>Avg Score</StatLabel>
-                <StatValue>{stats.avgScore}%</StatValue>
-              </StatCard>
-              <StatCard $accent="#10b981">
-                <StatLabel>Excellent (80+)</StatLabel>
-                <StatValue>{stats.excellent}</StatValue>
-              </StatCard>
-              <StatCard $accent="#f59e0b">
-                <StatLabel>Good (60–79)</StatLabel>
-                <StatValue>{stats.good}</StatValue>
-              </StatCard>
-              <StatCard $accent="#f97316">
-                <StatLabel>Fair (40–59)</StatLabel>
-                <StatValue>{stats.fair}</StatValue>
-              </StatCard>
-              <StatCard $accent="#ef4444">
-                <StatLabel>Poor / Missing</StatLabel>
-                <StatValue>{stats.poor + stats.missing}</StatValue>
-              </StatCard>
-            </StatsGrid>
-          )}
-          {/* Controls */}
-          <ControlsBar>
-            <SearchWrapper>
-              <SearchIconSvg>
-                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </SearchIconSvg>
-              <SearchInput
-                placeholder="Search documents..."
-                value={searchQuery}
-                // eslint-disable-next-line react/jsx-no-bind
-                onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              />
-            </SearchWrapper>
-            <StyledSelect
-              value={filterStatus}
-              // eslint-disable-next-line react/jsx-no-bind
-              onChange={(e) => setFilterStatus(e.currentTarget.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="excellent">Excellent</option>
-              <option value="good">Good</option>
-              <option value="fair">Fair</option>
-              <option value="poor">Poor</option>
-              <option value="missing">Missing</option>
-            </StyledSelect>
-            {uniqueDocumentTypes.length > 1 && (
-              <StyledSelect
-                value={filterType}
-                // eslint-disable-next-line react/jsx-no-bind
-                onChange={(e) => setFilterType(e.currentTarget.value)}
+              (
+              <DeprecationBannerLink
+                href={group.changelogUrl}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <option value="all">All Types</option>
-                {uniqueDocumentTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {resolveTypeLabel(type, resolvedTypeLabels)}
-                  </option>
-                ))}
-              </StyledSelect>
-            )}
-            <StyledSelect
-              value={sortBy}
-              // eslint-disable-next-line react/jsx-no-bind
-              onChange={(e) => setSortBy(e.currentTarget.value as 'score' | 'title')}
-            >
-              <option value="score">Sort by Score</option>
-              <option value="title">Sort by Title</option>
-            </StyledSelect>
-          </ControlsBar>
-          {/* Documents Table */}
-          <TableCard>
-            {loading && (
-              <LoadingState>
-                <Spinner />
-                {loadingDocuments ?? 'Loading documents…'}
-              </LoadingState>
-            )}
-            {!loading &&
-              (filteredAndSortedDocs.length === 0 ? (
-                <EmptyState>{noDocuments ?? 'No documents found'}</EmptyState>
-              ) : (
-                <>
-                  <TableHeader>
-                    <ColTitle>Title</ColTitle>
-                    {showTypeColumn && <ColType>Type</ColType>}
-                    <ColScore>Score</ColScore>
-                    <ColIssues>Top Issues</ColIssues>
-                  </TableHeader>
-                  {filteredAndSortedDocs.map((doc) => {
-                    return (
-                      <TableRow key={doc._id}>
-                        <ColTitle>
-                          <TitleWrapper>
-                            <TitleCell>
-                              {doc.title !== null && typeof doc.title !== 'string' ? (
-                                <NonStringTitleWarning title="title is not a string — use pt::text(title) in your query.groq projection to convert Portable Text to a plain string">
-                                  ⚠ title is not a string — use pt::text(title) in query.groq
-                                </NonStringTitleWarning>
+                {group.version} changelog
+              </DeprecationBannerLink>
+              ){gi < deprecationGroups.length - 1 ? ' · ' : ''}
+            </span>
+          ))}{' '}
+          — Please update your config.
+        </DeprecationBanner>
+      )}
+      {/* Stats */}
+      {!loading && compactStats && (
+        <StatsRow>
+          <StatPill>📋 {stats.total}</StatPill>
+          <StatPill>🟢 Excellent: {stats.excellent}</StatPill>
+          <StatPill>🟡 Good: {stats.good}</StatPill>
+          <StatPill>🟠 Fair: {stats.fair}</StatPill>
+          <StatPill>🔴 Poor/Missing: {stats.poor + stats.missing}</StatPill>
+          <StatPill>📊 Avg: {stats.avgScore}%</StatPill>
+          <StatPill>🗂️ Types: {uniqueDocumentTypes.length}</StatPill>
+        </StatsRow>
+      )}
+      {/* Stats Grid */}
+      {!loading && !compactStats && (
+        <StatsGrid>
+          <StatCard>
+            <StatLabel>Total Docs</StatLabel>
+            <StatValue>{stats.total}</StatValue>
+          </StatCard>
+          <StatCard>
+            <StatLabel>Avg Score</StatLabel>
+            <StatValue>{stats.avgScore}%</StatValue>
+          </StatCard>
+          <StatCard $accent="#10b981">
+            <StatLabel>Excellent (80+)</StatLabel>
+            <StatValue>{stats.excellent}</StatValue>
+          </StatCard>
+          <StatCard $accent="#f59e0b">
+            <StatLabel>Good (60–79)</StatLabel>
+            <StatValue>{stats.good}</StatValue>
+          </StatCard>
+          <StatCard $accent="#f97316">
+            <StatLabel>Fair (40–59)</StatLabel>
+            <StatValue>{stats.fair}</StatValue>
+          </StatCard>
+          <StatCard $accent="#ef4444">
+            <StatLabel>Poor / Missing</StatLabel>
+            <StatValue>{stats.poor + stats.missing}</StatValue>
+          </StatCard>
+        </StatsGrid>
+      )}
+      {/* Controls */}
+      <ControlsBar>
+        <SearchWrapper>
+          <SearchIconSvg>
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </SearchIconSvg>
+          <SearchInput
+            ref={searchInputRef}
+            placeholder="Search documents... (press / to focus)"
+            value={searchQuery}
+            // eslint-disable-next-line react/jsx-no-bind
+            onChange={(e) => setSearchQuery(e.currentTarget.value)}
+          />
+        </SearchWrapper>
+        <StyledSelect
+          value={filterStatus}
+          // eslint-disable-next-line react/jsx-no-bind
+          onChange={(e) => handleFilterStatusChange(e.currentTarget.value)}
+        >
+          <option value="all">All Status</option>
+          <option value="excellent">Excellent</option>
+          <option value="good">Good</option>
+          <option value="fair">Fair</option>
+          <option value="poor">Poor</option>
+          <option value="missing">Missing</option>
+        </StyledSelect>
+        {uniqueDocumentTypes.length > 1 && (
+          <StyledSelect
+            value={filterType}
+            // eslint-disable-next-line react/jsx-no-bind
+            onChange={(e) => handleFilterTypeChange(e.currentTarget.value)}
+          >
+            <option value="all">All Types</option>
+            {uniqueDocumentTypes.map((type) => (
+              <option key={type} value={type}>
+                {resolveTypeLabel(type, resolvedTypeLabels)}
+              </option>
+            ))}
+          </StyledSelect>
+        )}
+        <StyledSelect
+          value={sortBy}
+          // eslint-disable-next-line react/jsx-no-bind
+          onChange={(e) => setSortBy(e.currentTarget.value as 'score' | 'title')}
+        >
+          <option value="score">Sort by Score</option>
+          <option value="title">Sort by Title</option>
+        </StyledSelect>
+        {exportEnabled && exportFormats.includes('csv') && (
+          <ExportButton onClick={handleExportCSV} title="Export all filtered as CSV">
+            ⬇ CSV
+          </ExportButton>
+        )}
+        {exportEnabled && exportFormats.includes('json') && (
+          <ExportButton onClick={handleExportJSON} title="Export all filtered as JSON">
+            ⬇ JSON
+          </ExportButton>
+        )}
+      </ControlsBar>
+      {/* Documents Table */}
+      <TableCard>
+        {loading && (
+          <LoadingState>
+            <Spinner />
+            {loadingDocuments ?? 'Loading documents…'}
+          </LoadingState>
+        )}
+        {!loading &&
+          (filteredAndSortedDocs.length === 0 ? (
+            <EmptyState>{noDocuments ?? 'No documents found'}</EmptyState>
+          ) : (
+            <>
+              <TableHeader>
+                <ColTitle>Title</ColTitle>
+                {showTypeColumn && <ColType>Type</ColType>}
+                <ColScore>Score</ColScore>
+                <ColIssues>Top Issues</ColIssues>
+              </TableHeader>
+              {paginatedDocs.map((doc) => {
+                return (
+                  <TableRow key={doc._id}>
+                    <ColTitle>
+                      <TitleWrapper>
+                        <TitleCell>
+                          {doc.title !== null && typeof doc.title !== 'string' ? (
+                            <NonStringTitleWarning title="title is not a string — use pt::text(title) in your query.groq projection to convert Portable Text to a plain string">
+                              ⚠ title is not a string — use pt::text(title) in query.groq
+                            </NonStringTitleWarning>
+                          ) : (
+                            <>
+                              {openInPane ? (
+                                <DocTitleAnchorPane id={doc._id} type={doc._type}>
+                                  {typeof doc.title === 'string'
+                                    ? doc.title || 'Untitled'
+                                    : 'Untitled'}
+                                </DocTitleAnchorPane>
                               ) : (
-                                <>
-                                  {openInPane ? (
-                                    <DocTitleAnchorPane id={doc._id} type={doc._type}>
-                                      {typeof doc.title === 'string'
-                                        ? doc.title || 'Untitled'
-                                        : 'Untitled'}
-                                    </DocTitleAnchorPane>
-                                  ) : (
-                                    <DocTitleAnchor
-                                      id={doc._id}
-                                      type={doc._type}
-                                      structureTool={structureTool}
-                                    >
-                                      {typeof doc.title === 'string'
-                                        ? doc.title || 'Untitled'
-                                        : 'Untitled'}
-                                    </DocTitleAnchor>
-                                  )}
-                                </>
+                                <DocTitleAnchor
+                                  id={doc._id}
+                                  type={doc._type}
+                                  structureTool={structureTool}
+                                >
+                                  {typeof doc.title === 'string'
+                                    ? doc.title || 'Untitled'
+                                    : 'Untitled'}
+                                </DocTitleAnchor>
                               )}
-                              {showDocumentId && <DocId>{doc._id}</DocId>}
-                              {resolvedDocBadge && (
-                                <DocBadgeRenderer
-                                  doc={doc as DocumentWithSeoHealth & Record<string, unknown>}
-                                  docBadge={resolvedDocBadge}
-                                />
-                              )}
-                            </TitleCell>
-                          </TitleWrapper>
-                        </ColTitle>
-                        {showTypeColumn && (
-                          <ColType>
-                            {typeColumnMode === 'text' ? (
-                              <TypeText>{resolveTypeLabel(doc._type, resolvedTypeLabels)}</TypeText>
-                            ) : (
-                              (() => {
-                                const typeColor = getTypeColor(doc._type)
-                                return (
-                                  <TypeBadge $bgColor={typeColor.bg} $textColor={typeColor.text}>
-                                    {resolveTypeLabel(doc._type, resolvedTypeLabels)}
-                                  </TypeBadge>
-                                )
-                              })()
-                            )}
-                          </ColType>
-                        )}
-                        <ColScore>
-                          <ScoreBadge $score={doc.health.score}>{doc.health.score}%</ScoreBadge>
-                        </ColScore>
-                        <ColIssues>
-                          {doc.health.issues.slice(0, 2).map((issue) => (
-                            <IssueTag key={`issue-${doc._id}-${issue}`}>• {issue}</IssueTag>
-                          ))}
-                          {doc.health.issues.length > 2 && (
-                            <MoreIssuesWrapper
-                              // eslint-disable-next-line react/jsx-no-bind
-                              onMouseEnter={function (e) {
-                                handleMouseEnterIssues(
-                                  e.currentTarget as HTMLDivElement,
-                                  doc.health.issues.slice(2),
-                                )
-                              }}
-                              onMouseLeave={handleMouseLeave}
-                            >
-                              <MoreIssues>+{doc.health.issues.length - 2} more issues</MoreIssues>
-                            </MoreIssuesWrapper>
+                            </>
                           )}
-                        </ColIssues>
-                      </TableRow>
-                    )
-                  })}
-                </>
-              ))}
-          </TableCard>
-          {/* Single shared popover rendered outside the table */}
-          {activePopover && (
-            <IssuesPopover
-              style={{
-                top: activePopover.top,
-                left: activePopover.left,
-                transform: 'translateY(calc(-100% - 10px))',
-              }}
-            >
-              {activePopover.issues.map((issue) => (
-                <PopoverIssueItem key={issue}>⚠️ {issue}</PopoverIssueItem>
-              ))}
-            </IssuesPopover>
-          )}{' '}
-        </>
-      )}{' '}
+                          {showDocumentId && <DocId>{doc._id}</DocId>}
+                          {resolvedDocBadge && (
+                            <DocBadgeRenderer
+                              doc={doc as DocumentWithSeoHealth & Record<string, unknown>}
+                              docBadge={resolvedDocBadge}
+                            />
+                          )}
+                        </TitleCell>
+                      </TitleWrapper>
+                    </ColTitle>
+                    {showTypeColumn && (
+                      <ColType>
+                        {typeColumnMode === 'text' ? (
+                          <TypeText>{resolveTypeLabel(doc._type, resolvedTypeLabels)}</TypeText>
+                        ) : (
+                          (() => {
+                            const typeColor = getTypeColor(doc._type)
+                            return (
+                              <TypeBadge $bgColor={typeColor.bg} $textColor={typeColor.text}>
+                                {resolveTypeLabel(doc._type, resolvedTypeLabels)}
+                              </TypeBadge>
+                            )
+                          })()
+                        )}
+                      </ColType>
+                    )}
+                    <ColScore>
+                      <ScoreBadge $score={doc.health.score}>{doc.health.score}%</ScoreBadge>
+                    </ColScore>
+                    <ColIssues>
+                      {doc.health.issues.slice(0, 2).map((issue) => (
+                        <IssueTag key={`issue-${doc._id}-${issue}`}>• {issue}</IssueTag>
+                      ))}
+                      {doc.health.issues.length > 2 && (
+                        <MoreIssuesWrapper
+                          // eslint-disable-next-line react/jsx-no-bind
+                          onMouseEnter={function (e) {
+                            handleMouseEnterIssues(
+                              e.currentTarget as HTMLDivElement,
+                              doc.health.issues.slice(2),
+                            )
+                          }}
+                          onMouseLeave={handleMouseLeave}
+                        >
+                          <MoreIssues>+{doc.health.issues.length - 2} more issues</MoreIssues>
+                        </MoreIssuesWrapper>
+                      )}
+                    </ColIssues>
+                  </TableRow>
+                )
+              })}
+              <PaginationBar>
+                <span>
+                  Showing {Math.min((currentPage - 1) * pageSize + 1, filteredAndSortedDocs.length)}
+                  –{Math.min(currentPage * pageSize, filteredAndSortedDocs.length)} of{' '}
+                  {filteredAndSortedDocs.length} documents
+                </span>
+                <PaginationCenter>
+                  <PaginationButton
+                    disabled={currentPage === 1}
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    title="Previous page"
+                  >
+                    ‹
+                  </PaginationButton>
+                  <span>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <PaginationButton
+                    disabled={currentPage >= totalPages}
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    title="Next page"
+                  >
+                    ›
+                  </PaginationButton>
+                </PaginationCenter>
+                <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                  <span>Per page:</span>
+                  <StyledSelect
+                    value={pageSize}
+                    style={{height: 30, fontSize: 12, padding: '0 28px 0 8px'}}
+                    // eslint-disable-next-line react/jsx-no-bind
+                    onChange={(e) => {
+                      const size = Number(e.currentTarget.value)
+                      setPageSize(size)
+                      try {
+                        localStorage.setItem('seo-dashboard-page-size', String(size))
+                      } catch {
+                        // ignore
+                      }
+                      setCurrentPage(1)
+                    }}
+                  >
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                    <option value={200}>200</option>
+                  </StyledSelect>
+                </div>
+              </PaginationBar>
+            </>
+          ))}
+      </TableCard>
+      {/* Single shared popover rendered outside the table */}
+      {activePopover && (
+        <IssuesPopover
+          style={{
+            top: activePopover.top,
+            left: activePopover.left,
+            transform: 'translateY(calc(-100% - 10px))',
+          }}
+        >
+          {activePopover.issues.map((issue) => (
+            <PopoverIssueItem key={issue}>⚠️ {issue}</PopoverIssueItem>
+          ))}
+        </IssuesPopover>
+      )}
+    </>
+  )
+
+  return (
+    <DashboardContainer style={currentVars as React.CSSProperties}>
+      {licenseStatus === 'loading' && <RenderLicenseLoading text={loadingLicense} />}
+      {licenseStatus === 'invalid' && (
+        <RenderLicenseInvalid licenseKey={licenseKey} validateLicense={validateLicense} />
+      )}
+      {licenseStatus === 'valid' && renderDashboardContent()}
     </DashboardContainer>
   )
 }

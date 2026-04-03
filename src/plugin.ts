@@ -281,6 +281,18 @@ export interface SeoFieldsPluginConfig {
          * previewMode: true
          */
         previewMode?: boolean
+        /**
+         * Export options for the SEO Health Dashboard.
+         * Set to `true` (default) to enable both CSV and JSON export,
+         * or configure per-format.
+         */
+        export?: boolean | {enabled?: boolean; formats?: Array<'csv' | 'json'>}
+        /**
+         * Show compact inline stat pills in the header row instead of the
+         * full 6-card stats grid. Useful for saving vertical space.
+         * Defaults to `false`.
+         */
+        compactStats?: boolean
       }
 }
 
@@ -314,6 +326,9 @@ interface ResolvedDashboardConfig {
   noDocuments: string | undefined
   previewMode: boolean | undefined
   structureTool: string | undefined
+  exportEnabled: boolean
+  exportFormats: Array<'csv' | 'json'>
+  compactStats: boolean
   /** @internal — deprecated keys detected at config-resolution time, forwarded to the UI banner */
   deprecationWarnings: DeprecationWarning[]
 }
@@ -416,6 +431,18 @@ const resolveDashboardConfig = (
     noDocuments: cfg?.content?.noDocuments,
     previewMode: cfg?.previewMode,
     structureTool: cfg?.structureTool,
+    exportEnabled: (() => {
+      const exportCfg = cfg?.export
+      if (exportCfg === false) return false
+      if (typeof exportCfg === 'object') return exportCfg.enabled ?? true
+      return true
+    })(),
+    exportFormats: (() => {
+      const exportCfg = cfg?.export
+      if (typeof exportCfg === 'object' && exportCfg.formats) return exportCfg.formats
+      return ['csv', 'json'] as Array<'csv' | 'json'>
+    })(),
+    compactStats: cfg?.compactStats ?? false,
     deprecationWarnings,
   }
 }
@@ -450,6 +477,9 @@ const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
         noDocuments: dash.noDocuments,
         previewMode: dash.previewMode,
         structureTool: dash.structureTool,
+        exportEnabled: dash.exportEnabled,
+        exportFormats: dash.exportFormats,
+        compactStats: dash.compactStats,
         _deprecationWarnings: dash.deprecationWarnings,
       }),
     )
