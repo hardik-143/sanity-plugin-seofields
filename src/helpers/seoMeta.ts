@@ -7,7 +7,7 @@
  * - Nuxt / Remix / any SSR → <SeoMetaTags> inside your <head> slot
  */
 
-import type {SanityImage, SanityImageWithAlt, SeoFields} from '../types'
+import type {SanityImage, SanityImageWithAlt} from '../types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -186,6 +186,55 @@ export function sanitizeTwitterCard(value?: string): TwitterCard {
   return 'summary_large_image'
 }
 
+/**
+ * Resolve OG image URL from SEO fields or defaults.
+ */
+function resolveOgImage(
+  seo: SeoFieldsInput | null | undefined,
+  defaults: SeoMetaDefaults,
+  imageUrlResolver?: (image: SanityImage | SanityImageWithAlt) => string | null | undefined,
+): string {
+  if (seo?.openGraph?.imageType === 'url' && seo.openGraph.imageUrl) {
+    return seo.openGraph.imageUrl
+  }
+  if (seo?.openGraph?.image && imageUrlResolver) {
+    return imageUrlResolver(seo.openGraph.image as SanityImage) || defaults.ogImage || ''
+  }
+  return defaults.ogImage || ''
+}
+
+/**
+ * Resolve Twitter image URL from SEO fields, falling back to OG image.
+ */
+function resolveTwitterImage(
+  seo: SeoFieldsInput | null | undefined,
+  ogImageURL: string,
+  imageUrlResolver?: (image: SanityImage | SanityImageWithAlt) => string | null | undefined,
+): string {
+  if (seo?.twitter?.imageType === 'url' && seo.twitter.imageUrl) {
+    return seo.twitter.imageUrl
+  }
+  if (seo?.twitter?.image && imageUrlResolver) {
+    return imageUrlResolver(seo.twitter.image as SanityImage) || ogImageURL
+  }
+  return ogImageURL
+}
+
+/**
+ * Build custom meta attributes map from SEO fields.
+ */
+function buildCustomMetaMap(seo: SeoFieldsInput | null | undefined): Record<string, string> {
+  const other: Record<string, string> = {}
+  if (Array.isArray(seo?.metaAttributes)) {
+    for (const attr of seo!.metaAttributes!) {
+      if (attr.key && attr.value) {
+        other[attr.key] = attr.value
+      }
+    }
+  }
+  return other
+}
+
 // ─── Core builder ─────────────────────────────────────────────────────────────
 
 /**
@@ -219,31 +268,9 @@ export function buildSeoMeta(options: BuildSeoMetaOptions): SeoMetadata {
 
   const fullUrl = [normalizedBase, normalizedPath].filter(Boolean).join('/')
 
-  // ── OG image resolution ──
-  let ogImageURL: string = defaults.ogImage || ''
-  if (seo?.openGraph?.imageType === 'url' && seo.openGraph.imageUrl) {
-    ogImageURL = seo.openGraph.imageUrl
-  } else if (seo?.openGraph?.image && imageUrlResolver) {
-    ogImageURL = imageUrlResolver(seo.openGraph.image as SanityImage) || ogImageURL
-  }
-
-  // ── Twitter image resolution ──
-  let twitterImageURL: string = ogImageURL // reuse OG image as fallback
-  if (seo?.twitter?.imageType === 'url' && seo.twitter.imageUrl) {
-    twitterImageURL = seo.twitter.imageUrl
-  } else if (seo?.twitter?.image && imageUrlResolver) {
-    twitterImageURL = imageUrlResolver(seo.twitter.image as SanityImage) || twitterImageURL
-  }
-
-  // ── Custom meta attributes → `other` map ──
-  const other: Record<string, string> = {}
-  if (Array.isArray(seo?.metaAttributes)) {
-    for (const attr of seo!.metaAttributes!) {
-      if (attr.key && attr.value) {
-        other[attr.key] = attr.value
-      }
-    }
-  }
+  const ogImageURL = resolveOgImage(seo, defaults, imageUrlResolver)
+  const twitterImageURL = resolveTwitterImage(seo, ogImageURL, imageUrlResolver)
+  const other = buildCustomMetaMap(seo)
 
   const ogUrl = seo?.openGraph?.url || fullUrl
 

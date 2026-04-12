@@ -3,1192 +3,204 @@
 [![npm version](https://img.shields.io/npm/v/sanity-plugin-seofields.svg?color=brightgreen&label=npm)](https://www.npmjs.com/package/sanity-plugin-seofields)
 [![npm downloads](https://img.shields.io/npm/dm/sanity-plugin-seofields.svg?color=blue)](https://www.npmjs.com/package/sanity-plugin-seofields)
 [![license](https://img.shields.io/npm/l/sanity-plugin-seofields.svg?color=yellow)](./LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/hardik-143/sanity-plugin-seofields?color=orange)](https://github.com/hardik-143/sanity-plugin-seofields/issues)
 [![GitHub stars](https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social)](https://github.com/hardik-143/sanity-plugin-seofields)
 
-A comprehensive Sanity Studio (v3/v4/v5) plugin to manage SEO fields like meta titles, descriptions, Open Graph tags, and X (Formerly Twitter) Cards for structured, search-optimized content.
+A Sanity Studio (v3/v4/v5) plugin to manage SEO fields — meta tags, Open Graph, Twitter Cards, robots directives, and structured data.
 
-## ✨ Features
+📖 **[Full Documentation →](https://sanity-plugin-seofields.thehardik.in/docs)**
 
-- 🎯 **Meta Tags**: Title, description, keywords, and canonical URLs
-- 📱 **Open Graph**: Complete social media sharing optimization
-- 🐦 **X (Formerly Twitter) Cards**: X-specific meta tags with image support
-- 🤖 **Robots Control**: Index/follow settings for search engines
-- 🖼️ **Image Management**: Optimized image handling for social sharing
-- 📋 **Live Preview**: Real-time SEO preview as you edit
-- 🔧 **TypeScript Support**: Full type definitions included
-- 📊 **Custom Attributes**: Flexible meta attribute system
-- ✅ **Validation**: Built-in character limits and best practices
-- 🎛️ **Field Visibility**: Hide sitewide fields on specific content types
-- 📊 **SEO Health Dashboard**: Studio-wide overview of SEO completeness with scores, issue highlights, and direct document links
-- 🗂️ **Desk Structure Pane**: Embed the dashboard inside the Structure tool with `createSeoHealthPane` — supports split-pane document editing
+---
 
-## 📦 Installation
+## Installation
 
 ```bash
 npm install sanity-plugin-seofields
 ```
 
-or
+## Quick Start
 
-```bash
-yarn add sanity-plugin-seofields
-```
+### 1. Register the plugin
 
-## 🚀 Quick Start
-
-### 1. Add the Plugin
-
-Add the plugin to your `sanity.config.ts` (or `.js`) file:
-
-```typescript
+```ts
+// sanity.config.ts
 import {defineConfig} from 'sanity'
 import seofields from 'sanity-plugin-seofields'
 
 export default defineConfig({
-  name: 'your-project',
-  title: 'Your Project',
-  projectId: 'your-project-id',
-  dataset: 'production',
-
-  plugins: [
-    seofields(), // Add the SEO fields plugin
-    // ... other plugins
-  ],
-
-  schema: {
-    types: [
-      // ... your schema types
-    ],
-  },
+  plugins: [seofields()],
 })
 ```
 
-### 2. Add SEO Fields to Your Documents
+### 2. Add SEO fields to a document
 
-Add the SEO fields to any document type in your schema:
-
-```typescript
+```ts
 import {defineField, defineType} from 'sanity'
 
 export default defineType({
   name: 'page',
-  title: 'Page',
   type: 'document',
   fields: [
-    defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
-    }),
-    defineField({
-      name: 'content',
-      title: 'Content',
-      type: 'text',
-    }),
-    // Add SEO fields
-    defineField({
-      name: 'seo',
-      title: 'SEO',
-      type: 'seoFields',
-    }),
+    defineField({name: 'title', type: 'string'}),
+    defineField({name: 'seo', type: 'seoFields'}),
   ],
 })
 ```
 
-### 3. Using Individual SEO Components
+That's it. The `seoFields` type is automatically registered by the plugin.
 
-You can also use individual components:
+---
 
-```typescript
-import {defineField, defineType} from 'sanity'
+## Available Schema Types
 
-export default defineType({
-  name: 'article',
-  title: 'Article',
-  type: 'document',
-  fields: [
-    // ... other fields
+| Type            | Description                          |
+| --------------- | ------------------------------------ |
+| `seoFields`     | Complete SEO bundle (recommended)    |
+| `openGraph`     | Open Graph tags for social sharing   |
+| `twitter`       | X (Twitter) Card settings            |
+| `metaTag`       | Container for custom meta attributes |
+| `metaAttribute` | Single key/value meta attribute      |
+| `robots`        | noindex / nofollow directives        |
 
-    // Individual SEO components
-    defineField({
-      name: 'openGraph',
-      title: 'Open Graph',
-      type: 'openGraph',
-    }),
-    defineField({
-      name: 'twitterCard',
-      title: 'X (Formerly Twitter) Card',
-      type: 'twitter',
-    }),
-    defineField({
-      name: 'metaAttributes',
-      title: 'Custom Meta Tags',
-      type: 'metaTag',
-    }),
-  ],
-})
-```
+---
 
-## 🎨 Available Schema Types
+## Configuration
 
-| Type            | Description                        | Use Case                         |
-| --------------- | ---------------------------------- | -------------------------------- |
-| `seoFields`     | Complete SEO package               | Main SEO fields for any document |
-| `openGraph`     | Open Graph meta tags               | Social media sharing             |
-| `twitter`       | X (Formerly Twitter) Card settings | X-specific optimization          |
-| `metaTag`       | Custom meta attributes             | Advanced meta tag management     |
-| `metaAttribute` | Individual meta attribute          | Building custom meta tags        |
-| `robots`        | Search engine directives           | Control indexing and crawling    |
-
-## 🔧 Configuration Options
-
-### Basic Configuration
-
-```typescript
-import seofields from 'sanity-plugin-seofields'
-
-export default defineConfig({
-  plugins: [
-    seofields(), // Use default configuration
-  ],
-})
-```
-
-### Advanced Configuration
-
-You can customize field titles and descriptions, control SEO preview functionality, and manage field visibility:
-
-```typescript
-import seofields, {SeoFieldsPluginConfig} from 'sanity-plugin-seofields'
-
-export default defineConfig({
-  plugins: [
-    seofields({
-      seoPreview: true, // Enable/disable SEO preview (default: true)
-      fieldOverrides: {
-        title: {
-          title: 'Page Title',
-          description: 'The main title that appears in search results',
-        },
-        description: {
-          title: 'Meta Description',
-          description: 'A brief description of the page content for search engines',
-        },
-        canonicalUrl: {
-          title: 'Canonical URL',
-          description: 'The preferred URL for this page to avoid duplicate content issues',
-        },
-        metaImage: {
-          title: 'Social Media Image',
-          description: 'Image used when sharing this page on social media',
-        },
-        keywords: {
-          title: 'SEO Keywords',
-          description: 'Keywords that describe the content of this page',
-        },
-      },
-      // Hide sitewide fields on specific content types
-      fieldVisibility: {
-        page: {
-          hiddenFields: ['openGraphSiteName', 'twitterSite'],
-        },
-        post: {
-          hiddenFields: ['openGraphSiteName', 'twitterSite'],
-        },
-      },
-      // Or hide fields globally
-      defaultHiddenFields: ['openGraphSiteName', 'twitterSite'],
-    } satisfies SeoFieldsPluginConfig),
-  ],
-})
-```
-
-### Configuration Options
-
-| Option                | Type      | Default | Description                                 |
-| --------------------- | --------- | ------- | ------------------------------------------- |
-| `seoPreview`          | `boolean` | `true`  | Enable/disable the live SEO preview feature |
-| `fieldOverrides`      | `object`  | `{}`    | Customize field titles and descriptions     |
-| `fieldVisibility`     | `object`  | `{}`    | Hide sitewide fields on specific post types |
-| `defaultHiddenFields` | `array`   | `[]`    | Hide sitewide fields globally               |
-
-#### Field Configuration
-
-Each field in the `fieldOverrides` object can have:
-
-- `title` - Custom title for the field
-- `description` - Custom description/help text for the field
-
-**Available field keys:**
-
-- `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`, `metaAttributes`, `robots`
-- `openGraphUrl`, `openGraphTitle`, `openGraphDescription`, `openGraphSiteName`, `openGraphType`, `openGraphImage`
-- `twitterCard`, `twitterSite`, `twitterCreator`, `twitterTitle`, `twitterDescription`, `twitterImage`
-
-#### Field Visibility Configuration
-
-Control which fields are visible on different content types. You can hide any SEO field on any post type:
-
-**Available field keys:**
-
-- `title`, `description`, `canonicalUrl`, `metaImage`, `keywords`, `metaAttributes`, `robots`
-- `openGraphUrl`, `openGraphTitle`, `openGraphDescription`, `openGraphSiteName`, `openGraphType`, `openGraphImage`
-- `twitterCard`, `twitterSite`, `twitterCreator`, `twitterTitle`, `twitterDescription`, `twitterImage`
-
-> ℹ️ Hiding `openGraphImage` or `twitterImage` also hides their URL and type variants to keep the editor experience consistent.
-
-**Example configurations:**
-
-```typescript
-// Hide fields globally
+```ts
 seofields({
-  defaultHiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords'],
-})
-
-// Hide fields on specific content types
-seofields({
+  seoPreview: true,
+  fieldOverrides: {
+    title: {title: 'Page Title'},
+  },
+  defaultHiddenFields: ['openGraphSiteName', 'twitterSite'],
   fieldVisibility: {
-    page: {
-      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords'],
-    },
-    post: {
-      hiddenFields: ['openGraphSiteName', 'metaAttributes'],
-    },
-    product: {
-      hiddenFields: ['canonicalUrl', 'robots'],
-    },
+    post: {hiddenFields: ['twitterSite']},
   },
 })
 ```
 
-This is particularly useful when you want to:
+| Option                | Type      | Default | Description                             |
+| --------------------- | --------- | ------- | --------------------------------------- |
+| `seoPreview`          | `boolean` | `true`  | Enable/disable live SEO preview         |
+| `fieldOverrides`      | `object`  | `{}`    | Customize field titles and descriptions |
+| `defaultHiddenFields` | `array`   | `[]`    | Hide sitewide fields globally           |
+| `fieldVisibility`     | `object`  | `{}`    | Hide fields per document type           |
 
-- Manage sitewide settings (like site name and X handle) in a dedicated Site Settings document
-- Simplify the editing experience by hiding fields that aren't relevant for certain content types
-- Create different SEO workflows for different content types
+→ [Full configuration reference](https://sanity-plugin-seofields.thehardik.in/docs/configuration)
 
-### Field Specifications
+---
 
-#### Meta Title
+## SEO Health Dashboard
 
-- **Max Length**: 70 characters (warning at 60)
-- **Purpose**: Search engine result headlines
-- **Best Practice**: Include primary keywords, keep under 60 chars
+An optional Studio tool that scores SEO completeness across all documents, highlights missing fields, and links directly to documents.
 
-#### Meta Description
+Requires a free license key — [get yours here](https://sanity-plugin-seofields.thehardik.in/get-license).
 
-- **Max Length**: 160 characters (warning at 150)
-- **Purpose**: Search result descriptions
-- **Best Practice**: Compelling summary with keywords
-
-#### Canonical URL
-
-- **Format**: Must include protocol (https://)
-- **Purpose**: Signals the preferred URL when duplicate or paginated content exists
-- **Best Practice**: Mirror the resolved frontend route exactly to avoid mismatched indexing
-
-#### Meta Image
-
-- **Recommended Size**: 1200x630px minimum 600x315px
-- **Purpose**: Default share image when Open Graph/Twitter images are absent
-- **Best Practice**: Provide descriptive alt text and keep file size under 5MB
-
-#### Meta Attributes
-
-- **Structure**: Key/value pairs or key/image pairs
-- **Purpose**: Add bespoke `<meta>` tags (for example `theme-color`, `author`, verification tokens)
-- **Best Practice**: Avoid duplicating tags already generated elsewhere to limit head bloat
-
-#### Keywords
-
-- **Type**: Array of short strings
-- **Purpose**: Editorial helper; not surfaced automatically to search engines
-- **Best Practice**: Keep entries concise (1-3 words) and limit to high-intent topics
-
-#### Open Graph Image
-
-- **Recommended Size**: 1200x630px
-- **Minimum Size**: 600x315px
-- **Aspect Ratio**: 1.91:1
-- **Formats**: JPG, PNG, WebP
-
-#### Open Graph URL
-
-- **Purpose**: Canonical URL for social media sharing
-- **Format**: Full URL with protocol (https://)
-- **Best Practice**: Use the preferred URL for the page to avoid duplicate content issues
-- **Required**: Should match the actual page URL for consistency
-
-#### Open Graph Site Name
-
-- **Purpose**: Displays publisher name on share previews
-- **Best Practice**: Keep consistent with brand name used across marketing channels
-
-#### Open Graph Type
-
-- **Options**: `website`, `article`, `profile`, `book`, `music`, `video`, `product`
-- **Best Practice**: Pick the narrowest type applicable to unlock platform-specific rendering
-
-#### X (Formerly Twitter) Card Image
-
-- **Summary Card**: Minimum 120x120px
-- **Large Image**: Minimum 280x150px
-- **Required**: Alt text for accessibility
-
-#### X (Formerly Twitter) Card Creator
-
-- **Purpose**: Attribution to content creator on X (formerly Twitter)
-- **Format**: X handle with @ symbol (e.g., @creator)
-- **Usage**: Identifies the individual author of the content
-- **Best Practice**: Use actual X handles for proper attribution
-
-#### X (Formerly Twitter) Card Type
-
-- **Options**: `summary`, `summary_large_image`, `app`, `player`
-- **Best Practice**: Use `summary_large_image` for rich media, fall back to `summary` when imagery is square or minimal
-
-#### X (Formerly Twitter) Site Handle
-
-- **Purpose**: Publisher attribution when multiple authors contribute
-- **Format**: X handle with @ symbol (e.g., @brand)
-- **Best Practice**: Configure once in site settings and hide on document types that inherit it
-
-#### Robots Settings
-
-- **Options**: `noIndex`, `noFollow`
-- **Purpose**: Control whether pages are indexed or links followed by crawlers
-- **Best Practice**: Only enable when intentionally blocking content (for example gated pages or previews)
-
-## 🎛️ Field Visibility Feature
-
-The field visibility feature allows you to hide any SEO field on specific content types. This is perfect for managing sitewide settings in a dedicated Site Settings document or creating customized editing experiences for different content types.
-
-### Quick Example
-
-```typescript
-// Hide specific fields on different content types
+```ts
 seofields({
-  fieldVisibility: {
-    page: {
-      hiddenFields: ['openGraphSiteName', 'twitterSite', 'keywords'],
-    },
-    post: {
-      hiddenFields: ['openGraphSiteName', 'metaAttributes'],
-    },
-    product: {
-      hiddenFields: ['canonicalUrl', 'robots'],
-    },
+  dashboard: {
+    enabled: true,
+    licenseKey: process.env.SANITY_STUDIO_SEO_LICENSE_KEY,
   },
 })
 ```
 
-### Site Settings Integration
+→ [Dashboard docs](https://sanity-plugin-seofields.thehardik.in/docs/dashboard)
 
-Create a Site Settings document to manage sitewide fields:
+---
 
-```typescript
-// schemas/siteSettings.ts
-export default defineType({
-  name: 'siteSettings',
-  title: 'Site Settings',
-  type: 'document',
-  fields: [
-    defineField({
-      name: 'openGraphSiteName',
-      title: 'Open Graph Site Name',
-      type: 'string',
-    }),
-    defineField({
-      name: 'twitterSite',
-      title: 'X (Formerly Twitter) Site Handle',
-      type: 'string',
-    }),
-  ],
-})
-```
+## Schema.org / JSON-LD
 
-### Complete SEO Setup
+The plugin ships 24 Schema.org types as Sanity schema definitions + React components that render `<script type="application/ld+json">` tags.
 
-```typescript
-// In your schema
-defineField({
-  name: 'seo',
-  title: 'SEO & Social Media',
-  type: 'seoFields',
-  group: 'seo', // Optional: group in a tab
-})
-```
+### 1. Register schema types in Studio
 
-### Custom Meta Tags
-
-```typescript
-// For advanced users who need custom meta tags
-defineField({
-  name: 'customMeta',
-  title: 'Custom Meta Tags',
-  type: 'metaTag',
-  description: 'Add custom meta attributes for specific needs',
-})
-```
-
-### Open Graph Only
-
-```typescript
-// If you only need Open Graph
-defineField({
-  name: 'socialSharing',
-  title: 'Social Media Sharing',
-  type: 'openGraph',
-})
-```
-
-## 📊 SEO Health Dashboard
-
-The plugin includes a built-in **SEO Health Dashboard** tool accessible directly from Sanity Studio. It scans all documents that contain an `seo` field and gives you an at-a-glance picture of your site's SEO completeness.
-
-### 🔑 License Key Required
-
-The SEO Health Dashboard requires a valid license key to use. **Good news**: it's completely free during the current period (2–3 months). When we transition to a paid model, your existing key will remain valid for a one-time $10 fee.
-
-[Get your free license key →](https://sanity-plugin-seofields.thehardik.in/get-license)
-
-### Configuration
-
-```typescript
-// Minimal — just add your license key
-seofields({
-  healthDashboard: {
-    licenseKey: 'YOUR_LICENSE_KEY',
-  },
-})
-
-// Full options — all nested under healthDashboard
-seofields({
-  healthDashboard: {
-    // Required
-    licenseKey: 'YOUR_LICENSE_KEY',
-
-    // Studio nav tab
-    tool: {
-      title: 'SEO Audit', // tab label in Studio sidebar (default: 'SEO Health')
-      name: 'seo-health-dashboard', // internal tool slug
-    },
-
-    // Dashboard page content
-    content: {
-      icon: '🔍', // emoji before the page heading
-      title: 'SEO Audit', // page heading (default: tool.title)
-      description: 'Track SEO quality across all published content.',
-    },
-
-    // Table columns (flat keys — replaces the deprecated display.* object)
-    showTypeColumn: true, // show document type column (default: true)
-    showDocumentId: false, // show document _id under titles (default: true)
-
-    // Document query
-    query: {
-      types: ['post', 'page'], // limit to specific document types
-      requireSeo: true, // only include docs with seo != null (default: true)
-      // groq: '*[seo != null] { _id, _type, title, seo, _updatedAt }',
-      // ^ custom GROQ takes precedence over types + requireSeo
-    },
-
-    // Human-readable labels for document type names
-    typeDisplayLabels: {productDrug: 'Products', landingPage: 'Landing Page'},
-
-    // Custom badge next to the document title
-    getDocumentBadge: (doc) => {
-      if (doc.status === 'draft') return {label: 'Draft', bgColor: '#f3f4f6', textColor: '#6b7280'}
-    },
-
-    apiVersion: '2023-01-01', // Sanity API version (default: '2023-01-01')
-  },
-})
-
-// Or disable the dashboard entirely
-seofields({
-  healthDashboard: false,
-})
-```
-
-### Deprecated keys (v1.3.2)
-
-The following keys were renamed in **v1.3.2** for clarity. The old keys still work but will print a console warning and show an amber banner inside the dashboard. They will be removed in a future major release.
-
-| Deprecated (old)                     | Replacement (new)                   |
-| ------------------------------------ | ----------------------------------- |
-| `healthDashboard.display.typeColumn` | `healthDashboard.showTypeColumn`    |
-| `healthDashboard.display.documentId` | `healthDashboard.showDocumentId`    |
-| `healthDashboard.typeLabels`         | `healthDashboard.typeDisplayLabels` |
-| `healthDashboard.docBadge`           | `healthDashboard.getDocumentBadge`  |
-
-The same renames apply to `SeoHealthDashboardProps` when using `createSeoHealthPane` directly.
-
-See the [v1.3.2 changelog](./CHANGELOG.md#132--2026-03-23) for the full migration diff.
-
-### What it shows
-
-| Feature                  | Details                                                                          |
-| ------------------------ | -------------------------------------------------------------------------------- |
-| **Summary stats**        | Total documents, average score, and count per health tier                        |
-| **Per-document score**   | 0–95 score based on which SEO fields are filled in                               |
-| **Color-coded badges**   | 🟢 Excellent (≥ 80) · 🟡 Good (≥ 60) · 🟠 Fair (≥ 40) · 🔴 Poor / Missing (< 40) |
-| **Inline issues**        | Top 2 issues per document shown inline; overflow count displayed                 |
-| **Direct document link** | Click the document title to open it in the desk (new tab)                        |
-| **Search & filter**      | Filter by health status, sort by score or title, and full-text search            |
-
-### Scoring breakdown
-
-| Field               | Max Points |
-| ------------------- | ---------- |
-| Meta Title          | 25         |
-| Meta Description    | 20         |
-| OG Title            | 15         |
-| OG Description      | 10         |
-| Twitter Title       | 10         |
-| Twitter Description | 10         |
-| Robots / No-Index   | 5          |
-| **Total**           | **95**     |
-
-> **Scoring logic:** each field earns its full points when a non-empty value is present, zero when missing. `query.groq` lets you control exactly which documents are included in the audit.
-
-## 🗂️ Desk Structure Pane
-
-Embed the SEO Health Dashboard **directly inside the Structure tool** as a pane with split-pane document editing — clicking any row opens the document editor to the right.
-
-### Import
-
-```typescript
-import {createSeoHealthPane} from 'sanity-plugin-seofields'
-```
-
-### Usage
-
-`createSeoHealthPane(S, options)` requires both arguments: Sanity's structure builder `S` and an options object with a required `licenseKey`. It returns a **`ComponentBuilder`** — use it **directly** as the `.child()` value.
-
-> ⚠️ **Do NOT wrap in `S.component()`.** The function already calls `S.component()` internally. Wrapping it again causes: _"component is required for component structure item"_.
-
-```typescript
+```ts
 // sanity.config.ts
-import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure'
-import seofields, {createSeoHealthPane} from 'sanity-plugin-seofields'
+import {schemaOrg} from 'sanity-plugin-seofields/schema'
 
 export default defineConfig({
-  plugins: [
-    seofields({healthDashboard: false}), // optional: hide the top-level tool tab
-    structureTool({
-      structure: (S) =>
-        S.list()
-          .title('Content')
-          .items([
-            S.documentTypeListItem('post').title('Posts'),
-            S.divider(),
-            S.listItem()
-              .title('SEO Health')
-              .child(
-                createSeoHealthPane(S, {
-                  licenseKey: 'SEOF-XXXX-XXXX-XXXX',
-                  query: `*[_type == "post" && defined(seo)]{
-                    _id, _type, title, slug, seo, _updatedAt
-                  }`,
-                  title: 'Posts SEO Health',
-                }),
-              ),
-          ]),
-    }),
-  ],
+  plugins: [seofields(), schemaOrg()],  // all 24 types at once
 })
 ```
 
-### `createSeoHealthPane` options
+Or register only what you need:
 
-| Option       | Type      | Default        | Description                                                            |
-| ------------ | --------- | -------------- | ---------------------------------------------------------------------- |
-| `licenseKey` | `string`  | **required**   | License key (format `SEOF-XXXX-XXXX-XXXX`).                            |
-| `query`      | `string`  | —              | GROQ query. Must return `_id`, `_type`, `title`, `seo`, `_updatedAt`.  |
-| `title`      | `string`  | `'SEO Health'` | Pane title shown in breadcrumb                                         |
-| `openInPane` | `boolean` | `true`         | Enable row links that open the document editor as a pane to the right. |
-| `...rest`    | —         | —              | All other `SeoHealthDashboardProps`                                    |
-
-## 🌐 Frontend Integration
-
-### Next.js Example
-
-```tsx
-import Head from 'next/head'
-
-export function SEOHead({seo}) {
-  if (!seo) return null
-
-  return (
-    <Head>
-      {seo.title && <title>{seo.title}</title>}
-      {seo.description && <meta name="description" content={seo.description} />}
-
-      {/* Open Graph */}
-      {seo.openGraph?.title && <meta property="og:title" content={seo.openGraph.title} />}
-      {seo.openGraph?.description && (
-        <meta property="og:description" content={seo.openGraph.description} />
-      )}
-      {seo.openGraph?.url && <meta property="og:url" content={seo.openGraph.url} />}
-
-      {/* Twitter */}
-      {seo.twitter?.card && <meta name="twitter:card" content={seo.twitter.card} />}
-      {seo.twitter?.site && <meta name="twitter:site" content={seo.twitter.site} />}
-      {seo.twitter?.creator && <meta name="twitter:creator" content={seo.twitter.creator} />}
-
-      {/* Robots */}
-      {seo.robots?.noIndex && <meta name="robots" content="noindex" />}
-      {seo.robots?.noFollow && <meta name="robots" content="nofollow" />}
-
-      {/* Canonical URL */}
-      {seo.canonicalUrl && <link rel="canonical" href={seo.canonicalUrl} />}
-    </Head>
-  )
-}
-```
-
-### React/Gatsby Example
-
-```tsx
-import {Helmet} from 'react-helmet'
-
-export function SEO({seo}) {
-  return (
-    <Helmet>
-      <title>{seo?.title}</title>
-      <meta name="description" content={seo?.description} />
-
-      {/* Keywords */}
-      {seo?.keywords && <meta name="keywords" content={seo.keywords.join(', ')} />}
-
-      {/* Open Graph */}
-      <meta property="og:title" content={seo?.openGraph?.title} />
-      <meta property="og:description" content={seo?.openGraph?.description} />
-      <meta property="og:url" content={seo?.openGraph?.url} />
-      <meta property="og:type" content={seo?.openGraph?.type || 'website'} />
-
-      {/* Twitter */}
-      {seo?.twitter?.card && <meta name="twitter:card" content={seo.twitter.card} />}
-      {seo?.twitter?.site && <meta name="twitter:site" content={seo.twitter.site} />}
-      {seo?.twitter?.creator && <meta name="twitter:creator" content={seo.twitter.creator} />}
-    </Helmet>
-  )
-}
-```
-
-## 🎯 Framework Integration Examples
-
-### Remix (Loader + Action Approach)
-
-Handle SEO metadata in Remix loaders for server-side rendering with JSON responses:
-
-```typescript
-// routes/posts.$slug.tsx
-import {json, type LoaderFunction} from '@remix-run/node'
-import {useLoaderData} from '@remix-run/react'
-import {buildSeoMeta} from 'sanity-plugin-seofields/utils'
-
-export const loader: LoaderFunction = async ({params}) => {
-  // Fetch post with SEO fields from Sanity
-  const post = await sanityClient.fetch(
-    `*[_type == "post" && slug.current == $slug][0]{
-      title, content, seo, slug
-    }`,
-    {slug: params.slug},
-  )
-
-  // Use buildSeoMeta to generate meta tags
-  const seoMeta = buildSeoMeta(post.seo, {
-    defaultTitle: 'Blog',
-    siteUrl: 'https://example.com',
-  })
-
-  return json({post, seoMeta})
-}
-
-export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return data?.seoMeta || []
-}
-
-export default function PostRoute() {
-  const {post} = useLoaderData<typeof loader>()
-  return <article>{post.title}</article>
-}
-```
-
-### Nuxt 3 (Composable Approach)
-
-Create a composable for SSR-friendly SEO management:
-
-```typescript
-// composables/useSanityMeta.ts
-import {buildSeoMeta} from 'sanity-plugin-seofields/utils'
-
-export const useSanityMeta = (seo: SEOFields, options = {}) => {
-  const {
-    defaultTitle = 'My Site',
-    siteUrl = 'https://example.com',
-  } = options
-
-  const meta = buildSeoMeta(seo, {defaultTitle, siteUrl})
-
-  // useHead() handles SSR + client-side rendering
-  useHead({
-    title: seo?.title || defaultTitle,
-    meta: meta.map(m => ({
-      name: m.name || m.property,
-      content: m.content,
-    })),
-    link: seo?.canonicalUrl
-      ? [{rel: 'canonical', href: seo.canonicalUrl}]
-      : [],
-  })
-}
-
-// pages/blog/[slug].vue
-<script setup lang="ts">
-const route = useRoute()
-const {data: post} = await useFetch(`/api/posts/${route.params.slug}`)
-
-useSanityMeta(post.value?.seo, {
-  siteUrl: 'https://example.com',
-})
-</script>
-
-<template>
-  <article v-if="post">
-    <h1>{{ post.title }}</h1>
-  </article>
-</template>
-```
-
-### Astro (Server-Side Rendering)
-
-Leverage Astro's component-level SEO with static generation:
-
-```typescript
-// src/pages/blog/[slug].astro
----
-import {buildSeoMeta} from 'sanity-plugin-seofields/utils'
-import Layout from '../../layouts/Layout.astro'
-
-// Fetch from Sanity at build time
-const {slug} = Astro.params
-const post = await sanityClient.fetch(
-  `*[_type == "post" && slug.current == $slug][0]{
-    title, content, seo, slug
-  }`,
-  {slug},
-)
-
-// Generate meta tags for static HTML
-const seoMeta = buildSeoMeta(post.seo, {
-  defaultTitle: 'Blog',
-  siteUrl: Astro.site,
-})
----
-
-<Layout
-  title={post.seo?.title}
-  meta={seoMeta}
-  canonicalUrl={post.seo?.canonicalUrl}
->
-  <article>
-    <h1>{post.title}</h1>
-  </article>
-</Layout>
-
-<!-- Astro layouts handle meta tag rendering -->
-```
-
-### React SPA (Client-Side with Helmet)
-
-For client-rendered React apps without SSR:
-
-```typescript
-// components/PostHead.tsx
-import {Helmet} from 'react-helmet-async'
-import type {SEOFields} from 'sanity-plugin-seofields'
-
-interface PostHeadProps {
-  seo?: SEOFields
-  fallbackTitle: string
-}
-
-export function PostHead({seo, fallbackTitle}: PostHeadProps) {
-  return (
-    <Helmet>
-      {/* Basic Meta */}
-      <title>{seo?.title || fallbackTitle}</title>
-      <meta name="description" content={seo?.description || ''} />
-
-      {/* Open Graph - critical for social shares */}
-      <meta property="og:title" content={seo?.openGraph?.title} />
-      <meta property="og:description" content={seo?.openGraph?.description} />
-      {seo?.openGraph?.image?.url && (
-        <meta property="og:image" content={seo.openGraph.image.url} />
-      )}
-
-      {/* Robots */}
-      {seo?.robots?.noIndex && <meta name="robots" content="noindex" />}
-
-      {/* Canonical (limit crawl budget) */}
-      {seo?.canonicalUrl && (
-        <link rel="canonical" href={seo.canonicalUrl} />
-      )}
-    </Helmet>
-  )
-}
-
-// Usage in page component
-// Note: Client-side rendering cannot inject meta tags pre-page-load.
-// For public pages, use SSR or static generation instead.
-```
-
----
-
-## 🚀 Migrating from Other SEO Plugins
-
-Coming from **Yoast**, **All in One SEO**, or **RankMath**?
-
-| Feature                    | Yoast      | All in One SEO | RankMath | sanity-plugin-seofields  |
-| -------------------------- | ---------- | -------------- | -------- | ------------------------ |
-| **Meta Title/Description** | ✅         | ✅             | ✅       | ✅                       |
-| **Open Graph Tags**        | ✅         | ✅             | ✅       | ✅                       |
-| **Twitter Cards**          | ⚠️ Limited | ✅             | ✅       | ✅                       |
-| **Readability Analysis**   | ✅         | ✅             | ✅       | ❌ (Sanity-native focus) |
-| **Keyword Density**        | ✅         | ✅             | ✅       | ❌ (External tools)      |
-| **Custom Meta Attributes** | ⚠️ Limited | ✅             | ✅       | ✅                       |
-| **Robots/Canonical**       | ✅         | ✅             | ✅       | ✅                       |
-| **Headless-First**         | ❌         | ❌             | ❌       | ✅ Framework-agnostic    |
-| **SSR-Ready**              | N/A        | N/A            | N/A      | ✅ All frameworks        |
-
-### Migration Path
-
-1. **Export existing metadata** from your old plugin (title, description, OG tags)
-2. **Create a Sanity schema** matching your current fields — map to `seoFields` type
-3. **Bulk import** using Sanity's API or migration scripts
-4. **Update your frontend** to use `buildSeoMeta` utilities instead of plugin hooks
-5. **Test meta rendering** in browsers DevTools and social preview tools
-
-For detailed migration guides, see [Migration Guides](#) in our documentation.
-
----
-
-## 📚 API Reference
-
-### Main Export
-
-```typescript
-import seofields from 'sanity-plugin-seofields'
-```
-
-### Schema Types
-
-- `seoFields` - Complete SEO fields object
-- `openGraph` - Open Graph meta tags
-- `twitter` - Twitter Card settings
-- `metaTag` - Custom meta tag collection
-- `metaAttribute` - Individual meta attribute
-- `robots` - Search engine robots settings
-
-## 🔧 Troubleshooting
-
-### TypeScript auto-import not working
-
-**Problem:** `buildSeoMeta` doesn't appear in IDE autocomplete
-
-**Solution:**
-
-1. Check your `package.json` exports field has a `"types"` condition:
-
-```json
-{
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./next": {
-      "types": "./dist/next.d.ts",
-      "default": "./dist/next.js"
-    }
-  }
-}
-```
-
-2. Verify your `tsconfig.json` has the correct `moduleResolution`:
-
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true
-  }
-}
-```
-
----
-
-### "Cannot find module 'sanity-plugin-seofields/next'"
-
-**Problem:** Runtime import error when trying to use Next.js utilities
-
-**Solution:**
-
-1. Ensure built files exist in `dist/next.js`:
-
-```bash
-npm run build
-```
-
-2. Clear and reinstall node_modules:
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-3. Verify `package.json` exports includes the next export:
-
-```json
-{
-  "exports": {
-    "./next": {
-      "types": "./dist/next.d.ts",
-      "default": "./dist/next.js"
-    }
-  }
-}
-```
-
----
-
-### Type inference in generateMetadata()
-
-**Problem:** `buildSeoMeta()` return type is not recognized as Next.js `Metadata`
-
-**Solution:** Explicitly type the return value:
-
-```tsx
-import type {Metadata} from 'next'
-import {buildSeoMeta} from 'sanity-plugin-seofields/next'
-
-export async function generateMetadata(): Promise<Metadata> {
-  const seoData = await fetchSeoData()
-  const metadata = buildSeoMeta(seoData)
-
-  return {
-    title: metadata.title,
-    description: metadata.description,
-    openGraph: {
-      title: metadata.openGraph?.title,
-      description: metadata.openGraph?.description,
-      url: metadata.openGraph?.url,
-    },
-    twitter: {
-      card: metadata.twitter?.card as any,
-      site: metadata.twitter?.site,
-      creator: metadata.twitter?.creator,
-    },
-  }
-}
-```
-
----
-
-### Dashboard not showing in Sanity Studio
-
-**Problem:** SEO Health tool doesn't appear in the studio
-
-**Solution:**
-
-1. Ensure the plugin is added to `sanity.config.ts`:
-
-```typescript
-import seofields from 'sanity-plugin-seofields'
+```ts
+import {schemaOrgArticlePlugin, schemaOrgOrganizationPlugin} from 'sanity-plugin-seofields/schema'
 
 export default defineConfig({
-  // ... other config
-  plugins: [
-    seofields({
-      documentTypes: ['post', 'page', 'product'],
-      // other options
-    }),
-  ],
+  plugins: [seofields(), schemaOrgArticlePlugin(), schemaOrgOrganizationPlugin()],
 })
 ```
 
-2. Check that `documentTypes` array includes your document types:
+### 2. Add to a document schema
 
-```typescript
-seofields({
-  documentTypes: ['post', 'page'], // Add your document types here
-})
+```ts
+defineField({name: 'schemaOrg', type: 'schemaOrg'})   // combined array field
+// or individual types:
+defineField({name: 'article', type: 'schemaOrgArticle'})
 ```
 
-3. Verify plugin config fieldVisibility is not hiding SEO fields:
+### 3. Render in Next.js
 
-```typescript
-seofields({
-  documentTypes: ['post'],
-  fieldVisibility: {
-    // Make sure SEO fields aren't set to hidden
-  },
-})
+```tsx
+// Combined renderer
+import {SchemaOrgScripts} from 'sanity-plugin-seofields/schema/next'
+
+export default function Layout({data}) {
+  return <SchemaOrgScripts items={data.schemaOrg} />
+}
+
+// Or individual components
+import {ArticleSchema, OrganizationSchema} from 'sanity-plugin-seofields/schema/next'
+
+export default function Page({data}) {
+  return (
+    <>
+      <ArticleSchema data={data.article} />
+      <OrganizationSchema data={data.org} />
+    </>
+  )
+}
 ```
+
+**Available types:** `Article`, `BlogPosting`, `BreadcrumbList`, `Course`, `Event`, `FAQPage`, `HowTo`, `ImageObject`, `LocalBusiness`, `Offer`, `Organization`, `Person`, `Place`, `Product`, `Review`, `SoftwareApplication`, `VideoObject`, `WebApplication`, `WebPage`, `Website`, and more.
+
+→ [Schema.org docs](https://sanity-plugin-seofields.thehardik.in/docs/schema-org)
 
 ---
 
-### Image URLs not resolving
+## Next.js Integration
 
-**Problem:** OG/Twitter images show as `undefined` in meta tags
-
-**Solution:** Provide an `imageUrlResolver` function:
-
-```tsx
-import imageUrlBuilder from '@sanity/image-url'
-import {client} from './sanity.client'
-
-const imageBuilder = imageUrlBuilder(client)
-
-export function buildImageUrl(source) {
-  if (!source) return undefined
-  return imageBuilder.image(source).url()
-}
-
-// In your buildSeoMeta call:
-const metadata = buildSeoMeta({
-  ...seoData,
-  imageUrlResolver: buildImageUrl,
-})
+```ts
+import {buildSeoMeta, SeoMetaTags} from 'sanity-plugin-seofields/next'
 ```
 
-Or use it in your Next.js layout:
-
-```tsx
-import {buildSeoMeta} from 'sanity-plugin-seofields/next'
-import imageUrlBuilder from '@sanity/image-url'
-
-const imageBuilder = imageUrlBuilder(client)
-
-export async function generateMetadata(): Promise<Metadata> {
-  const seoData = await sanityFetch(SeoQuery)
-
-  const metadata = buildSeoMeta({
-    ...seoData,
-    imageUrlResolver: (image) => imageBuilder.image(image).url(),
-  })
-
-  return metadata
-}
-```
+→ [Next.js integration guide](https://sanity-plugin-seofields.thehardik.in/docs/nextjs)
 
 ---
 
-### generateMetadata() not finding Sanity data
-
-**Problem:** Data is `undefined` when trying to fetch from Sanity in Next.js
-
-**Solution:**
-
-1. Ensure `sanityFetch` is properly awaited:
-
-```tsx
-import {sanityFetch} from '@/lib/sanity.client'
-
-export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const seoData = await sanityFetch(SeoQuery) // Don't forget await!
-    return buildSeoMeta(seoData)
-  } catch (error) {
-    console.error('Failed to fetch SEO data:', error)
-    return {title: 'Default Title'}
-  }
-}
-```
-
-2. Verify environment variables are set:
+## CLI
 
 ```bash
-# .env.local
-NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
-NEXT_PUBLIC_SANITY_DATASET=production
-SANITY_API_TOKEN=your_token (if using authenticated fetches)
+npx seofields
 ```
 
-3. Complete example with proper error handling:
-
-```tsx
-import type {Metadata} from 'next'
-import {buildSeoMeta} from 'sanity-plugin-seofields/next'
-import {sanityFetch} from '@/lib/sanity.client'
-
-const SeoQuery = `*[_type == "post" && slug.current == $slug][0] {
-  title,
-  seo {
-    title,
-    description,
-    openGraph {
-      title,
-      description,
-      image,
-    },
-    twitter {
-      card,
-      site,
-      creator,
-    },
-  },
-}`
-
-export async function generateMetadata({params}: {params: {slug: string}}): Promise<Metadata> {
-  try {
-    const doc = await sanityFetch(SeoQuery, {slug: params.slug})
-
-    if (!doc) {
-      return {title: 'Post not found'}
-    }
-
-    return buildSeoMeta(doc.seo || {})
-  } catch (error) {
-    console.error('SEO metadata error:', error)
-    return {title: 'Error loading page'}
-  }
-}
-```
+→ [CLI docs](https://sanity-plugin-seofields.thehardik.in/docs/cli)
 
 ---
 
-**Still stuck?** Check our:
+## Links
 
-- 📖 [Full Documentation](./TYPES_SCHEMA_DOCS.md)
-- 🐛 [GitHub Issues](https://github.com/hardik-143/sanity-plugin-seofields/issues)
-- 📧 [Email Support](mailto:dhardik1430@gmail.com)
+- 📖 [Documentation](https://sanity-plugin-seofields.thehardik.in/docs)
+- 🐛 [Issues](https://github.com/hardik-143/sanity-plugin-seofields/issues)
+- 📦 [npm](https://www.npmjs.com/package/sanity-plugin-seofields)
+- 📝 [Changelog](./CHANGELOG.md)
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+PRs and issues are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## License
 
-## 📄 License
-
-[MIT](LICENSE) © [Desai Hardik](https://github.com/hardik-143)
-
-## 🆘 Support
-
-- 📧 Email: dhardik1430@gmail.com
-- 🐛 Issues: [GitHub Issues](https://github.com/hardik-143/sanity-plugin-seofields/issues)
-- 📖 Documentation: [Types & Schema Docs](./TYPES_SCHEMA_DOCS.md)
-
----
-
-Made with ❤️ for the Sanity community
+[MIT](./LICENSE)

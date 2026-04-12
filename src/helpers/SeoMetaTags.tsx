@@ -89,7 +89,13 @@ export interface SeoMetaTagsProps {
  * - Twitter Card meta tags (`twitter:*`)
  * - Any custom `seo.metaAttributes` as `<meta name="..." content="...">`
  */
-export function SeoMetaTags({data, baseUrl, path, defaults, imageUrlResolver}: SeoMetaTagsProps) {
+export function SeoMetaTags({
+  data,
+  baseUrl,
+  path,
+  defaults,
+  imageUrlResolver,
+}: SeoMetaTagsProps): React.JSX.Element {
   const meta = buildSeoMeta({seo: data, baseUrl, path, defaults, imageUrlResolver})
 
   const robotsContent = [

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.3] — 2026-04-13
+
+### 🔄 Changed
+
+- **`buildSeoMeta` refactor** — Extracted three private helper functions from `buildSeoMeta` in `seoMeta.ts`: `resolveOgImage`, `resolveTwitterImage`, and `buildCustomMetaMap`. Logic is unchanged; separation improves readability and testability.
+- **`SeoMetaTags` return type** — Added explicit `React.JSX.Element` return type annotation to `SeoMetaTags` in `SeoMetaTags.tsx`.
+
+### 🧹 Internal
+
+- Removed unused `SeoFields` type import from `seoMeta.ts`.
+
+---
+
 ## [1.5.2] — 2026-04-03
 
 ### ✨ Added

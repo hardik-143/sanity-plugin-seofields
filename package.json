@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
   "keywords": [
     "sanity",
@@ -148,5 +148,22 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "homepage": "https://sanity-plugin-seofields.thehardik.in",
+  "bugs": {
+    "url": "https://github.com/hardik-143/sanity-plugin-seofields/issues"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/hardik-143"
+    },
+    {
+      "type": "buymeacoffee",
+      "url": "https://buymeacoffee.com/thehardik"
+    }
+  ],
+  "sanity": {
+    "plugin": true
   }
 }
