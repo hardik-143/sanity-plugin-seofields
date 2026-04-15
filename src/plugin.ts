@@ -41,6 +41,43 @@ export type twitterFieldKeys =
 
 export type AllFieldKeys = SeoFieldKeys | openGraphFieldKeys | twitterFieldKeys
 
+/**
+ * Names of top-level fields inside the `seoFields` object type.
+ * Use these when assigning fields to groups in `fieldGroups`.
+ */
+export type SeoObjectFieldName =
+  | 'robots'
+  | 'preview'
+  | 'title'
+  | 'description'
+  | 'metaImage'
+  | 'metaAttributes'
+  | 'keywords'
+  | 'canonicalUrl'
+  | 'openGraph'
+  | 'twitter'
+
+/**
+ * Defines a single tab/group within the `seoFields` object.
+ */
+export interface SeoFieldGroup {
+  /** Unique key for this group (used internally by Sanity). */
+  name: string
+  /** Human-readable label shown as the tab title. */
+  title: string
+  /** Whether this tab is selected by default. Only one group should be `true`. */
+  default?: boolean
+  /**
+   * Field names to include in this group.
+   * Use the top-level seoFields field names: `'title'`, `'description'`, `'metaImage'`,
+   * `'keywords'`, `'canonicalUrl'`, `'metaAttributes'`, `'robots'`, `'preview'`,
+   * `'openGraph'`, `'twitter'`.
+   */
+  fields: SeoObjectFieldName[]
+  /** Optional icon displayed next to the tab title. Must be a React component. */
+  icon?: React.ComponentType
+}
+
 export type ValidHiddenFieldKeys = Exclude<
   AllFieldKeys,
   'openGraphImageUrl' | 'twitterImageUrl' | 'openGraphImageType' | 'twitterImageType'
@@ -86,6 +123,21 @@ export interface SeoFieldsPluginConfig {
    * This can be overridden by specific document type settings in `fieldVisibility`.
    */
   defaultHiddenFields?: ValidHiddenFieldKeys[]
+
+  /**
+   * Group the SEO fields into tabbed sections inside the `seoFields` object.
+   * When configured, the Studio shows tabs (Sanity groups) so editors can
+   * switch between e.g. "Meta", "Open Graph", and "Twitter Card" panels.
+   *
+   * @example
+   * fieldGroups: [
+   *   { name: 'meta',      title: 'Meta',         default: true,
+   *     fields: ['title', 'description', 'metaImage', 'keywords', 'canonicalUrl', 'metaAttributes', 'robots', 'preview'] },
+   *   { name: 'openGraph', title: 'Open Graph',   fields: ['openGraph'] },
+   *   { name: 'twitter',   title: 'Twitter Card', fields: ['twitter'] },
+   * ]
+   */
+  fieldGroups?: SeoFieldGroup[]
   /**
    * The base URL of your website, used for generating full URLs in the SEO preview.
    * Defaults to 'https://www.example.com' if not provided.

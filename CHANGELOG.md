@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.5] — 2026-04-15
+
+### ✨ Added
+
+- **`fieldGroups` config option** — New top-level plugin option that groups SEO fields into tabbed sections (Sanity groups) inside the `seoFields` object. Editors can switch between tabs like "Meta", "Open Graph", and "Twitter Card" for a cleaner editing experience. Applies universally to every document using `type: 'seoFields'`.
+  ```ts
+  seofields({
+    fieldGroups: [
+      { name: 'meta', title: 'Meta', default: true,
+        fields: ['title', 'description', 'metaImage', 'keywords', 'canonicalUrl', 'metaAttributes', 'robots'] },
+      { name: 'openGraph', title: 'Open Graph', fields: ['openGraph'] },
+      { name: 'twitter', title: 'Twitter Card', fields: ['twitter'] },
+    ],
+  })
+  ```
+- **`SeoFieldGroup` type export** — New TypeScript interface for defining field groups, exported from the package entry point.
+- **`SeoObjectFieldName` type export** — Union type of all top-level field names in the `seoFields` object (`'title' | 'description' | 'metaImage' | …`), exported for type-safe group configuration.
+
 ## [1.5.4] — 2026-04-15
 
 ### ✨ Added

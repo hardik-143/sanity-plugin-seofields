@@ -3,6 +3,7 @@ import {
   defineField,
   defineType,
   FieldDefinition,
+  FieldGroupDefinition,
   SchemaTypeDefinition,
   StringInputProps,
 } from 'sanity'
@@ -10,7 +11,7 @@ import {
 import MetaDescription from '../components/meta/MetaDescription'
 import MetaImage from '../components/meta/MetaImage'
 import MetaTitle from '../components/meta/MetaTitle'
-import {SeoFieldsPluginConfig} from '../plugin'
+import type {SeoFieldGroup, SeoFieldsPluginConfig, SeoObjectFieldName} from '../plugin'
 import {getFieldHiddenFunction, getFieldInfo} from '../utils/fieldsUtils'
 import {isEmpty} from '../utils/utils'
 import openGraph from './types/openGraph'
@@ -21,116 +22,178 @@ const LazySeoPreview = React.lazy(() => import('../components/SeoPreview'))
 const SeoPreviewWrapper = (props: StringInputProps) =>
   React.createElement(React.Suspense, {fallback: null}, React.createElement(LazySeoPreview, props))
 
+/**
+ * Build a field-name → group-name(s) lookup from the plugin config.
+ * A field can appear in multiple groups (Sanity supports `group: string[]`).
+ */
+function buildFieldGroupMap(groups: SeoFieldGroup[]): Map<SeoObjectFieldName, string[]> {
+  const map = new Map<SeoObjectFieldName, string[]>()
+  for (const g of groups) {
+    for (const fieldName of g.fields) {
+      const existing = map.get(fieldName)
+      if (existing) {
+        existing.push(g.name)
+      } else {
+        map.set(fieldName, [g.name])
+      }
+    }
+  }
+  return map
+}
+
+/**
+ * Convert plugin `SeoFieldGroup[]` into Sanity `FieldGroupDefinition[]`.
+ */
+function toSanityGroups(groups: SeoFieldGroup[]): FieldGroupDefinition[] {
+  return groups.map((g) => {
+    const def: FieldGroupDefinition = {
+      name: g.name,
+      title: g.title,
+      default: g.default,
+    }
+    if (g.icon && typeof g.icon !== 'string') {
+      def.icon = g.icon
+    }
+    return def
+  })
+}
+
+/**
+ * Attach the `group` property to a field definition when groups are configured.
+ */
+function withGroup(
+  field: FieldDefinition,
+  fieldGroupMap: Map<SeoObjectFieldName, string[]> | undefined,
+): FieldDefinition {
+  if (!fieldGroupMap) return field
+  const groups = fieldGroupMap.get(field.name as SeoObjectFieldName)
+  if (!groups || groups.length === 0) return field
+  return {...field, group: groups.length === 1 ? groups[0] : groups} as FieldDefinition
+}
+
 export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
+  const groupsCfg = config.fieldGroups
+  const fieldGroupMap = groupsCfg?.length ? buildFieldGroupMap(groupsCfg) : undefined
+  const sanityGroups = groupsCfg?.length ? toSanityGroups(groupsCfg) : undefined
+
   return defineType({
     name: 'seoFields',
     title: 'SEO Fields',
     type: 'object',
+    ...(sanityGroups ? {groups: sanityGroups} : {}),
     fields: [
-      defineField({
-        name: 'robots',
-        title: 'Robots Settings',
-        type: 'robots', // Use the separate robots type here
-        hidden: getFieldHiddenFunction('robots', config),
-      }),
+      withGroup(
+        defineField({
+          name: 'robots',
+          title: 'Robots Settings',
+          type: 'robots',
+          hidden: getFieldHiddenFunction('robots', config),
+        }),
+        fieldGroupMap,
+      ),
       // 👇 conditionally spread preview field
       ...((typeof config.seoPreview === 'boolean' && config.seoPreview) ||
       (typeof config.seoPreview === 'object' && !isEmpty(config.seoPreview))
         ? [
-            defineField({
-              name: 'preview',
-              title: 'SEO Preview',
-              type: 'string',
-              components: {input: SeoPreviewWrapper},
-              options: {
-                baseUrl: config.baseUrl || 'https://www.example.com',
-                ...(typeof config.seoPreview === 'object' &&
-                config.seoPreview &&
-                config.seoPreview.prefix
-                  ? {prefix: config.seoPreview.prefix}
-                  : {}),
-              } as Record<string, unknown>,
-              // Use a readOnly field to prevent editing
-              // This field is just for preview purposes
-              initialValue: '' as string, // Set an initial value
-              readOnly: true,
-            }),
+            withGroup(
+              defineField({
+                name: 'preview',
+                title: 'SEO Preview',
+                type: 'string',
+                components: {input: SeoPreviewWrapper},
+                options: {
+                  baseUrl: config.baseUrl || 'https://www.example.com',
+                  ...(typeof config.seoPreview === 'object' &&
+                  config.seoPreview &&
+                  config.seoPreview.prefix
+                    ? {prefix: config.seoPreview.prefix}
+                    : {}),
+                } as Record<string, unknown>,
+                initialValue: '' as string,
+                readOnly: true,
+              }),
+              fieldGroupMap,
+            ),
           ]
         : []),
 
-      defineField({
-        name: 'title',
-        ...getFieldInfo('title', config.fieldOverrides),
-        // title: 'Meta Title',
-        type: 'string',
-        // description:
-        // 'The meta title is displayed in search engine results as the clickable headline for a given result. It should be concise and accurately reflect the content of the page.',
-        components: {
-          input: MetaTitle,
-        },
-        // validation: (Rule) => Rule.max(60).warning('Meta title should be under 60 characters.'),
-        hidden: getFieldHiddenFunction('title', config),
-      }),
-      defineField({
-        name: 'description',
-        ...getFieldInfo('description', config.fieldOverrides),
-        // title: 'Meta Description',
-        // description:
-        //   'Provide a concise summary of the page content. This description may be used by search engines in search results.',
-        type: 'text',
-        rows: 3,
-        components: {
-          input: MetaDescription,
-        },
-        // validation: (Rule) => Rule.max(160).warning('Meta description should be under 160 characters.'),
-        hidden: getFieldHiddenFunction('description', config),
-      }),
-      defineField({
-        name: 'metaImage',
-        ...getFieldInfo('metaImage', config.fieldOverrides),
-        // title: 'Meta Image',
-        // description:
-        // 'Upload an image that represents the content of the page. This image may be used in social media previews and search engine results.',
-        type: 'image',
-        options: {
-          hotspot: true,
-        },
-        components: {
-          input: MetaImage,
-        },
-        hidden: getFieldHiddenFunction('metaImage', config),
-      }),
-      defineField({
-        name: 'metaAttributes',
-        // title: 'Additional Meta Attributes',
-        ...getFieldInfo('metaAttributes', config.fieldOverrides),
-        type: 'array',
-        of: [{type: 'metaAttribute'}],
-        // description:
-        //   'Add custom meta attributes to the head of the document for additional SEO and social media integration.',
-        hidden: getFieldHiddenFunction('metaAttributes', config),
-      }),
-      defineField({
-        name: 'keywords',
-        ...getFieldInfo('keywords', config.fieldOverrides),
-        title: 'Keywords',
-        type: 'array',
-        of: [{type: 'string'}],
-        description:
-          'Add relevant keywords for this page. These keywords will be used for SEO purposes.',
-        hidden: getFieldHiddenFunction('keywords', config),
-      }),
-      defineField({
-        name: 'canonicalUrl',
-        ...getFieldInfo('canonicalUrl', config.fieldOverrides),
-        title: 'Canonical URL',
-        type: 'url',
-        description:
-          'Specify the canonical URL for this page. This helps prevent duplicate content issues by indicating the preferred version of a page.',
-        hidden: getFieldHiddenFunction('canonicalUrl', config),
-      }),
-      openGraph(config) as unknown as FieldDefinition,
-      twitter(config) as unknown as FieldDefinition,
+      withGroup(
+        defineField({
+          name: 'title',
+          ...getFieldInfo('title', config.fieldOverrides),
+          type: 'string',
+          components: {
+            input: MetaTitle,
+          },
+          hidden: getFieldHiddenFunction('title', config),
+        }),
+        fieldGroupMap,
+      ),
+      withGroup(
+        defineField({
+          name: 'description',
+          ...getFieldInfo('description', config.fieldOverrides),
+          type: 'text',
+          rows: 3,
+          components: {
+            input: MetaDescription,
+          },
+          hidden: getFieldHiddenFunction('description', config),
+        }),
+        fieldGroupMap,
+      ),
+      withGroup(
+        defineField({
+          name: 'metaImage',
+          ...getFieldInfo('metaImage', config.fieldOverrides),
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+          components: {
+            input: MetaImage,
+          },
+          hidden: getFieldHiddenFunction('metaImage', config),
+        }),
+        fieldGroupMap,
+      ),
+      withGroup(
+        defineField({
+          name: 'metaAttributes',
+          ...getFieldInfo('metaAttributes', config.fieldOverrides),
+          type: 'array',
+          of: [{type: 'metaAttribute'}],
+          hidden: getFieldHiddenFunction('metaAttributes', config),
+        }),
+        fieldGroupMap,
+      ),
+      withGroup(
+        defineField({
+          name: 'keywords',
+          ...getFieldInfo('keywords', config.fieldOverrides),
+          title: 'Keywords',
+          type: 'array',
+          of: [{type: 'string'}],
+          description:
+            'Add relevant keywords for this page. These keywords will be used for SEO purposes.',
+          hidden: getFieldHiddenFunction('keywords', config),
+        }),
+        fieldGroupMap,
+      ),
+      withGroup(
+        defineField({
+          name: 'canonicalUrl',
+          ...getFieldInfo('canonicalUrl', config.fieldOverrides),
+          title: 'Canonical URL',
+          type: 'url',
+          description:
+            'Specify the canonical URL for this page. This helps prevent duplicate content issues by indicating the preferred version of a page.',
+          hidden: getFieldHiddenFunction('canonicalUrl', config),
+        }),
+        fieldGroupMap,
+      ),
+      withGroup(openGraph(config) as unknown as FieldDefinition, fieldGroupMap),
+      withGroup(twitter(config) as unknown as FieldDefinition, fieldGroupMap),
     ],
   })
 }
