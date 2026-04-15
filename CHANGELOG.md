@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.4] — 2026-04-15
+
+### ✨ Added
+
+- **`baseMeta` schema type** — New `baseMeta` object type that groups the core meta fields (`title`, `description`, `metaImage`, `keywords`, `canonicalUrl`, `metaAttributes`) into a single reusable Sanity object, following the same pattern as the existing `openGraph` and `twitter` types. This allows using basic meta fields independently outside of the top-level `seoFields` object.
+- **`baseMetaSchema` export** — The new `baseMeta` type is exported from the package entry point as `baseMetaSchema` for standalone use:
+  ```ts
+  import { baseMetaSchema } from 'sanity-plugin-seofields'
+  ```
+
+---
+
 ## [1.5.3] — 2026-04-13
 
 ### 🔄 Changed
