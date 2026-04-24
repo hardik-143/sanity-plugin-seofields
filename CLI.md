@@ -104,8 +104,8 @@ npx seofields init [options]
 
 **Options**
 
-| Flag | Description |
-|------|-------------|
+| Flag           | Description                                              |
+| -------------- | -------------------------------------------------------- |
 | `--schema-org` | Also inject `schemaOrg()` from `sanity-plugin-seofields` |
 
 **Behavior**
@@ -137,32 +137,32 @@ npx seofields config [--option=value ...]
 
 **Top-level options**
 
-| Flag | Description |
-|------|-------------|
-| `--baseUrl=<url>` | Base URL of your site |
+| Flag                     | Description                                            |
+| ------------------------ | ------------------------------------------------------ |
+| `--baseUrl=<url>`        | Base URL of your site                                  |
 | `--titleSeparator=<sep>` | Character between title and site name (e.g. `\|`, `–`) |
-| `--siteName=<name>` | Default site name |
+| `--siteName=<name>`      | Default site name                                      |
 
 **Health Dashboard options**
 
-| Flag | Description |
-|------|-------------|
-| `--healthDashboard.licenseKey=SEOF-…` | License key to unlock premium features |
-| `--healthDashboard.toolTitle=<title>` | Studio nav tab label |
-| `--healthDashboard.showTypeColumn=true\|false` | Show document type in dashboard |
-| `--healthDashboard.showDocumentId=true\|false` | Show document ID in dashboard |
-| `--healthDashboard.previewMode=true\|false` | Show demo data (no real content needed) |
-| `--healthDashboard.apiVersion=2024-01-01` | Sanity API version for dashboard queries |
-| `--healthDashboard.typeColumnMode=badge\|text` | Render doc type as badge or plain text |
-| `--healthDashboard.structureTool=<name>` | Name of the structure tool (default: `"desk"`) |
+| Flag                                           | Description                                    |
+| ---------------------------------------------- | ---------------------------------------------- |
+| `--healthDashboard.licenseKey=SEOF-…`          | License key to unlock premium features         |
+| `--healthDashboard.toolTitle=<title>`          | Studio nav tab label                           |
+| `--healthDashboard.showTypeColumn=true\|false` | Show document type in dashboard                |
+| `--healthDashboard.showDocumentId=true\|false` | Show document ID in dashboard                  |
+| `--healthDashboard.previewMode=true\|false`    | Show demo data (no real content needed)        |
+| `--healthDashboard.apiVersion=2024-01-01`      | Sanity API version for dashboard queries       |
+| `--healthDashboard.typeColumnMode=badge\|text` | Render doc type as badge or plain text         |
+| `--healthDashboard.structureTool=<name>`       | Name of the structure tool (default: `"desk"`) |
 
 **Query options**
 
-| Flag | Description |
-|------|-------------|
-| `--healthDashboard.query.types=post,page` | Limit dashboard to these document types |
+| Flag                                             | Description                                  |
+| ------------------------------------------------ | -------------------------------------------- |
+| `--healthDashboard.query.types=post,page`        | Limit dashboard to these document types      |
 | `--healthDashboard.query.requireSeo=true\|false` | Only show documents that have an `seo` field |
-| `--healthDashboard.query.groq=<query>` | Custom GROQ query for the dashboard |
+| `--healthDashboard.query.groq=<query>`           | Custom GROQ query for the dashboard          |
 
 **Examples**
 
@@ -216,13 +216,13 @@ npx seofields report [options]
 
 **Options**
 
-| Flag | Description |
-|------|-------------|
-| `-p, --project-id <id>` | Sanity project ID |
-| `-d, --dataset <name>` | Dataset name (default: `production`) |
-| `-t, --token <token>` | Sanity API token |
-| `--types <types>` | Comma-separated document types to include |
-| `--format <format>` | Output format: `table` or `summary` (default: `table`) |
+| Flag                    | Description                                            |
+| ----------------------- | ------------------------------------------------------ |
+| `-p, --project-id <id>` | Sanity project ID                                      |
+| `-d, --dataset <name>`  | Dataset name (default: `production`)                   |
+| `-t, --token <token>`   | Sanity API token                                       |
+| `--types <types>`       | Comma-separated document types to include              |
+| `--format <format>`     | Output format: `table` or `summary` (default: `table`) |
 
 **Formats**
 
@@ -231,12 +231,12 @@ npx seofields report [options]
 
 **Score thresholds**
 
-| Score | Status | Description |
-|-------|--------|-------------|
+| Score  | Status    | Description                |
+| ------ | --------- | -------------------------- |
 | 90–100 | Excellent | All key SEO fields present |
-| 70–89 | Good | Minor fields missing |
-| 50–69 | Fair | Several issues detected |
-| 0–49 | Poor | Critical SEO fields absent |
+| 70–89  | Good      | Minor fields missing       |
+| 50–69  | Fair      | Several issues detected    |
+| 0–49   | Poor      | Critical SEO fields absent |
 
 **Examples**
 
@@ -273,14 +273,14 @@ npx seofields export [options]
 
 **Options**
 
-| Flag | Description |
-|------|-------------|
-| `-p, --project-id <id>` | Sanity project ID |
-| `-d, --dataset <name>` | Dataset name |
-| `-t, --token <token>` | Sanity API token |
-| `--types <types>` | Comma-separated document types to include |
-| `--format <format>` | Output format: `json` or `csv` (default: `json`) |
-| `-o, --output <path>` | Save output to file (if omitted, prints to stdout) |
+| Flag                    | Description                                        |
+| ----------------------- | -------------------------------------------------- |
+| `-p, --project-id <id>` | Sanity project ID                                  |
+| `-d, --dataset <name>`  | Dataset name                                       |
+| `-t, --token <token>`   | Sanity API token                                   |
+| `--types <types>`       | Comma-separated document types to include          |
+| `--format <format>`     | Output format: `json` or `csv` (default: `json`)   |
+| `-o, --output <path>`   | Save output to file (if omitted, prints to stdout) |
 
 **Exported fields**
 
@@ -325,13 +325,13 @@ No options required. The doctor command is purely local — it does not connect 
 
 The CLI reads the following environment variables (in addition to your CLI config file):
 
-| Variable | Description |
-|----------|-------------|
-| `SANITY_PROJECT_ID` | Sanity project ID |
-| `SANITY_DATASET` | Dataset name |
-| `SANITY_TOKEN` | API token |
+| Variable                        | Description              |
+| ------------------------------- | ------------------------ |
+| `SANITY_PROJECT_ID`             | Sanity project ID        |
+| `SANITY_DATASET`                | Dataset name             |
+| `SANITY_TOKEN`                  | API token                |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | Next.js-style project ID |
-| `NEXT_PUBLIC_SANITY_DATASET` | Next.js-style dataset |
+| `NEXT_PUBLIC_SANITY_DATASET`    | Next.js-style dataset    |
 
 These are automatically loaded from `.env`, `.env.local`, and `.env.development.local` in your project root.
 

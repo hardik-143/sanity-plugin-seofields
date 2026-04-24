@@ -1,69 +1,38 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {
+  descriptionField,
+  inLanguageField,
+  licenseUrlField,
+  nameField,
+  polymorphicPublisher,
+  urlField,
+} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgWebPageConfig} from './types'
+import type {SchemaOrgWebPageConfig, SchemaOrgWebPageData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const webPageFields: SchemaFieldDef[] = [
-  {
-    name: 'name',
+  nameField({
     title: 'Page Name',
-    type: 'string',
     description: 'The title of the page.',
     required: {key: 'nameRequired', message: 'Page name is required for Schema.org.'},
-  },
-  {
-    name: 'url',
+  }),
+  urlField({
     title: 'Page URL',
-    type: 'url',
     description: 'The full URL of the page.',
     required: {key: 'urlRequired', message: 'Page URL is required for Schema.org.'},
-  },
-  {
-    name: 'description',
-    title: 'Description',
-    type: 'text',
-    rows: 3,
+  }),
+  descriptionField({
     description: 'A short description of the page.',
-  },
-  {
-    name: 'inLanguage',
-    title: 'Language',
-    type: 'string',
-    description: 'The language of the page content, e.g. "en".',
-    initialValue: 'en',
-    options: [
-      {title: 'English', value: 'en'},
-      {title: 'Spanish', value: 'es'},
-      {title: 'French', value: 'fr'},
-      {title: 'German', value: 'de'},
-      {title: 'Portuguese', value: 'pt'},
-      {title: 'Italian', value: 'it'},
-      {title: 'Dutch', value: 'nl'},
-      {title: 'Japanese', value: 'ja'},
-      {title: 'Chinese', value: 'zh'},
-      {title: 'Korean', value: 'ko'},
-      {title: 'Hindi', value: 'hi'},
-      {title: 'Arabic', value: 'ar'},
-    ],
-  },
-  {
-    name: 'isPartOf',
-    title: 'Part Of (Website)',
-    type: 'object',
-    description: 'The website this page belongs to.',
-    jsonLdType: 'WebSite',
-    fields: [
-      {
-        name: 'url',
-        title: 'Website URL',
-        type: 'url',
-        description: 'URL of the parent website.',
-      },
-    ],
-  },
+  }),
+  inLanguageField({description: 'The language of the page content, e.g. "en".'}),
+  polymorphicPublisher({description: 'The organization or person that published this page.'}),
+  licenseUrlField({
+    description: 'The URL of the license for this page, if applicable.',
+  }),
 ]
 
 // ─── Schema Factory ───────────────────────────────────────────────────────────
@@ -90,9 +59,14 @@ export default function schemaOrgWebPage(
   return generateSchemaType(
     {
       name: 'schemaOrgWebPage',
-      title: 'Schema.org — WebPage',
+      title: 'WebPage',
       icon: SchemaOrgIcons.webPage,
       fields: webPageFields,
+      customPrepareSubtitle: (document: SchemaOrgWebPageData) => {
+        const name = document.name || 'Untitled page'
+        const type = document.pageType ? ` · ${document.pageType}` : ''
+        return `${name}${type}`
+      },
     },
     config as SchemaOrgConfig,
   )

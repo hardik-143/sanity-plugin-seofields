@@ -6,6 +6,16 @@ export interface PersonWorksFor {
   name?: string
 }
 
+/** Postal address of the person */
+export interface PersonAddress {
+  /** Street address */
+  streetAddress?: string
+  /** City */
+  addressLocality?: string
+  /** Country code, e.g. "US" */
+  addressCountry?: string
+}
+
 /** Schema.org Person — data shape returned from a Sanity GROQ query */
 export interface SchemaOrgPersonData {
   _type?: 'schemaOrgPerson'
@@ -18,9 +28,21 @@ export interface SchemaOrgPersonData {
   /** URL to a photo/image of this person (mapped to "image" in JSON-LD) */
   imageUrl?: string
   /** Social media and external profile URLs */
-  sameAs?: string[]
+  sameAs?: string
   /** The organization this person works for */
   worksFor?: PersonWorksFor
+  /** Email address of the person */
+  email?: string
+  /** Phone number of the person */
+  telephone?: string
+  /** A short bio or description of the person */
+  description?: string
+  /** Gender of the person */
+  gender?: string
+  /** Date of birth */
+  birthDate?: string
+  /** The postal address of the person */
+  address?: PersonAddress
 }
 
 // ─── Plugin Configuration Types ───────────────────────────────────────────────

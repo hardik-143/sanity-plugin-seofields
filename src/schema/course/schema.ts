@@ -1,44 +1,53 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {descriptionField, nameField, polymorphicOwner} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgCourseConfig} from './types'
+import type {SchemaOrgCourseConfig, SchemaOrgCourseData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const courseFields: SchemaFieldDef[] = [
-  {
-    name: 'name',
+  nameField({
     title: 'Course Name',
-    type: 'string',
     description: 'The name of the course.',
     required: {key: 'nameRequired', message: 'Course name is required for Schema.org.'},
-  },
+  }),
   {
-    name: 'description',
-    title: 'Description',
-    type: 'text',
-    rows: 3,
-    description: 'A short description of the course.',
+    name: 'courseCode',
+    title: 'Course Code',
+    type: 'string',
+    description: 'An alphanumeric code that uniquely identifies the course.',
   },
+  descriptionField({
+    description: 'A description of the course.',
+    required: {
+      key: 'descriptionRequired',
+      message: 'Course description is required for Schema.org.',
+    },
+  }),
+  polymorphicOwner({
+    description: 'The person or organization that offers the course.',
+    title: 'Owner',
+  }),
   {
     name: 'provider',
     title: 'Provider',
     type: 'object',
-    description: 'The organization that provides this course.',
     jsonLdType: 'Organization',
+    description: 'The organization that offers the course.',
     fields: [
       {
         name: 'name',
-        title: 'Provider Name',
+        title: 'Organization Name',
         type: 'string',
-        description: 'Name of the providing organization.',
+        required: {key: 'providerNameRequired', message: 'Provider name is required.'},
       },
       {
         name: 'sameAs',
-        title: 'Provider URL',
+        title: 'Organization URL',
         type: 'url',
-        description: 'URL of the providing organization.',
+        description: 'URL of the organization.',
       },
     ],
   },
@@ -46,29 +55,14 @@ export const courseFields: SchemaFieldDef[] = [
 
 // ─── Schema Factory ───────────────────────────────────────────────────────────
 
-/**
- * Schema.org Course — Sanity object type.
- *
- * @example
- * ```ts
- * import { schemaOrgCourse } from 'sanity-plugin-seofields/schema/course'
- *
- * // Default
- * schemaOrgCourse()
- *
- * // Custom validation messages
- * schemaOrgCourse({
- *   validation: { nameRequired: 'Please enter the course name.' },
- * })
- * ```
- */
 export default function schemaOrgCourse(config: SchemaOrgCourseConfig = {}): SchemaTypeDefinition {
   return generateSchemaType(
     {
       name: 'schemaOrgCourse',
-      title: 'Schema.org — Course',
+      title: 'Course',
       icon: SchemaOrgIcons.course,
       fields: courseFields,
+      customPrepareSubtitle: (document: SchemaOrgCourseData) => document.name || 'Untitled course',
     },
     config as SchemaOrgConfig,
   )

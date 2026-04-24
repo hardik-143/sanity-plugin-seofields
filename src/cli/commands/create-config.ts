@@ -91,7 +91,7 @@ export async function createConfigCommand(): Promise<void> {
     message: 'Sanity Project ID',
     placeholder: detected.projectId ?? 'abc123xyz',
     initialValue: detected.projectId ?? '',
-    validate: (v) => (v.trim() ? undefined : 'Project ID is required'),
+    validate: (v) => (v?.trim() ? undefined : 'Project ID is required'),
   })
   if (p.isCancel(projectId)) {
     p.cancel('Cancelled.')
@@ -103,7 +103,7 @@ export async function createConfigCommand(): Promise<void> {
     message: 'Dataset name',
     placeholder: detected.dataset ?? 'production',
     initialValue: detected.dataset ?? 'production',
-    validate: (v) => (v.trim() ? undefined : 'Dataset is required'),
+    validate: (v) => (v?.trim() ? undefined : 'Dataset is required'),
   })
   if (p.isCancel(dataset)) {
     p.cancel('Cancelled.')

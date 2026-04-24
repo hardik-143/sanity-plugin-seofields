@@ -1,22 +1,18 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {nameField} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgSoftwareApplicationConfig} from './types'
+import type {SchemaOrgSoftwareApplicationConfig, SchemaOrgSoftwareApplicationData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const softwareApplicationFields: SchemaFieldDef[] = [
-  {
-    name: 'name',
+  nameField({
     title: 'Application Name',
-    type: 'string',
     description: 'The name of the software application.',
-    required: {
-      key: 'nameRequired',
-      message: 'Application name is required for Schema.org.',
-    },
-  },
+    required: {key: 'nameRequired', message: 'Application name is required for Schema.org.'},
+  }),
   {
     name: 'applicationCategory',
     title: 'Application Category',
@@ -69,9 +65,13 @@ export default function schemaOrgSoftwareApplication(
   return generateSchemaType(
     {
       name: 'schemaOrgSoftwareApplication',
-      title: 'Schema.org — SoftwareApplication',
+      title: 'SoftwareApplication',
       icon: SchemaOrgIcons.softwareApplication,
       fields: softwareApplicationFields,
+      customPrepareSubtitle: (document: SchemaOrgSoftwareApplicationData) => {
+        const name = document.name ?? 'Untitled application'
+        return document.applicationCategory ? `${name} · ${document.applicationCategory}` : name
+      },
     },
     config as SchemaOrgConfig,
   )

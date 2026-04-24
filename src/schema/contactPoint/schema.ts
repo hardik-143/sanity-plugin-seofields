@@ -2,7 +2,7 @@ import type {SchemaTypeDefinition} from 'sanity'
 
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgContactPointConfig} from './types'
+import type {SchemaOrgContactPointConfig, SchemaOrgContactPointData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
@@ -29,6 +29,12 @@ export const contactPointFields: SchemaFieldDef[] = [
     description: 'Contact email address.',
   },
   {
+    name: 'faxNumber',
+    title: 'Fax Number',
+    type: 'string',
+    description: 'Contact fax number.',
+  },
+  {
     name: 'telephone',
     title: 'Telephone',
     type: 'string',
@@ -52,9 +58,14 @@ export default function schemaOrgContactPoint(
   return generateSchemaType(
     {
       name: 'schemaOrgContactPoint',
-      title: 'Schema.org — ContactPoint',
+      title: 'ContactPoint',
       icon: SchemaOrgIcons.contactPoint,
       fields: contactPointFields,
+      customPrepareSubtitle: (document: SchemaOrgContactPointData) => {
+        const type = document.contactType ?? 'contact'
+        const handle = document.email ?? document.telephone
+        return handle ? `${type} · ${handle}` : type
+      },
     },
     config as SchemaOrgConfig,
   )

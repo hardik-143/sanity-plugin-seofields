@@ -1354,7 +1354,6 @@ export interface SeoHealthDashboardProps {
   /**
    * Map raw `_type` values to human-readable display labels used in the
    * Type column and the Type filter dropdown.
-   * Replaces the deprecated `typeLabels`.
    * Any type without an entry falls back to the raw `_type` string.
    *
    * @example
@@ -1384,7 +1383,6 @@ export interface SeoHealthDashboardProps {
   titleField?: string | Record<string, string>
   /**
    * Callback function to render a custom badge next to the document title.
-   * Replaces the deprecated `docBadge`.
    * Receives the full document and should return badge data or undefined.
    *
    * @example
@@ -1639,11 +1637,10 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   exportFormats = ['csv', 'json'],
   compactStats = false,
 }) => {
-  // Resolve deprecated prop pairs to their new counterparts, while allowing both to be used simultaneously for backward compatibility.
   const resolvedTypeLabels = typeDisplayLabels
   const resolvedDocBadge = getDocumentBadge
 
-  // Collect all deprecation warnings to display in the UI banner
+  // Deprecation warnings forwarded from the plugin config resolver
   const allDeprecationWarnings = useMemo(() => _deprecationWarnings ?? [], [_deprecationWarnings])
 
   // Group warnings by version so the banner renders one changelog link per release.

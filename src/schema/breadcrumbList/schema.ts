@@ -2,7 +2,7 @@ import type {SchemaTypeDefinition} from 'sanity'
 
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgBreadcrumbListConfig} from './types'
+import type {SchemaOrgBreadcrumbListConfig, SchemaOrgBreadcrumbListData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
@@ -52,9 +52,14 @@ export default function schemaOrgBreadcrumbList(
   return generateSchemaType(
     {
       name: 'schemaOrgBreadcrumbList',
-      title: 'Schema.org — BreadcrumbList',
+      title: 'BreadcrumbList',
       icon: SchemaOrgIcons.breadcrumbList,
       fields: breadcrumbListFields,
+      customPrepareSubtitle: (document: SchemaOrgBreadcrumbListData) => {
+        const items = document.itemListElement ?? []
+        if (!items.length) return 'No breadcrumb items'
+        return `${items.length} item${items.length === 1 ? '' : 's'}`
+      },
     },
     config as SchemaOrgConfig,
   )

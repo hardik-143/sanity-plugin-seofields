@@ -1,73 +1,43 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {
+  datePublishedField,
+  descriptionField,
+  headlineField,
+  polymorphicAuthor,
+  polymorphicImage,
+  polymorphicPublisher,
+} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgArticleConfig} from './types'
+import type {SchemaOrgArticleConfig, SchemaOrgArticleData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const articleFields: SchemaFieldDef[] = [
-  {
-    name: 'headline',
+  headlineField({
     title: 'Headline',
-    type: 'string',
+    description: 'The headline of the article.',
     required: {key: 'headlineRequired', message: 'Headline is required for Schema.org Article.'},
-  },
-  {
-    name: 'description',
+  }),
+  descriptionField({
     title: 'Description',
-    type: 'text',
-    rows: 3,
-  },
+    description: 'A description of the article.',
+    required: {
+      key: 'descriptionRequired',
+      message: 'Description is required for Schema.org Article.',
+    },
+  }),
+  polymorphicImage(),
+  polymorphicAuthor(),
+  polymorphicPublisher(),
+  datePublishedField(),
   {
-    name: 'image',
-    title: 'Image',
-    type: 'url',
-    description: 'URL of the article image.',
-  },
-  {
-    name: 'author',
-    title: 'Author',
-    type: 'object',
-    jsonLdType: 'Person',
-    fields: [
-      {
-        name: 'name',
-        title: 'Author Name',
-        type: 'string',
-      },
-    ],
-  },
-  {
-    name: 'publisher',
-    title: 'Publisher',
-    type: 'object',
-    jsonLdType: 'Organization',
-    fields: [
-      {
-        name: 'name',
-        title: 'Publisher Name',
-        type: 'string',
-      },
-      {
-        name: 'logo',
-        title: 'Publisher Logo',
-        type: 'object',
-        jsonLdType: 'ImageObject',
-        fields: [
-          {
-            name: 'url',
-            title: 'Logo URL',
-            type: 'url',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'datePublished',
-    title: 'Date Published',
-    type: 'date',
+    name: 'articleSection',
+    title: 'Article Section',
+    type: 'string',
+    description:
+      'The section of the publication this article belongs to (e.g. "Sports", "Business").',
   },
 ]
 
@@ -89,9 +59,14 @@ export default function schemaOrgArticle(
   return generateSchemaType(
     {
       name: 'schemaOrgArticle',
-      title: 'Schema.org — Article',
+      title: 'Article',
       icon: SchemaOrgIcons.article,
       fields: articleFields,
+      customPrepareSubtitle: (document: SchemaOrgArticleData) => {
+        const headline = document.headline || 'Untitled article'
+        const section = document.articleSection ? ` · ${document.articleSection}` : ''
+        return `${headline}${section}`
+      },
     },
     config as SchemaOrgConfig,
   )

@@ -1,28 +1,15 @@
 // ─── Website Schema Types ─────────────────────────────────────────────────────
 
-/** Publisher info nested within the WebSite schema */
-export interface WebsitePublisher {
-  /** Publisher organization name */
-  name?: string
-  /** Publisher organization URL */
-  url?: string
-  /** Direct URL to the publisher logo image */
-  logoUrl?: string
-}
+import type {SchemaOrgCreativeWorkData} from '../_types'
 
 /** Schema.org WebSite — data shape returned from a Sanity GROQ query */
-export interface SchemaOrgWebsiteData {
+export interface SchemaOrgWebsiteData extends Pick<
+  SchemaOrgCreativeWorkData,
+  'name' | 'url' | 'description' | 'inLanguage' | 'publisher' | 'potentialAction'
+> {
   _type?: 'schemaOrgWebsite'
-  /** Website name, e.g. "My Website" */
-  name?: string
-  /** Full URL of the website, e.g. "https://www.example.com" */
-  url?: string
-  /** Short description of the website */
-  description?: string
-  /** Language code, e.g. "en" */
-  inLanguage?: string
-  /** The organization that publishes this website */
-  publisher?: WebsitePublisher
+  /** ISSN identifier of the website */
+  issn?: string
 }
 
 // ─── Plugin Configuration Types ───────────────────────────────────────────────

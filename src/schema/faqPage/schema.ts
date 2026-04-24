@@ -2,7 +2,7 @@ import type {SchemaTypeDefinition} from 'sanity'
 
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgFAQPageConfig} from './types'
+import type {SchemaOrgFAQPageConfig, SchemaOrgFAQPageData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
@@ -55,9 +55,14 @@ export default function schemaOrgFAQPage(
   return generateSchemaType(
     {
       name: 'schemaOrgFAQPage',
-      title: 'Schema.org — FAQPage',
+      title: 'FAQPage',
       icon: SchemaOrgIcons.faqPage,
       fields: faqPageFields,
+      customPrepareSubtitle: (document: SchemaOrgFAQPageData) => {
+        const items = document.mainEntity ?? []
+        if (!items.length) return 'No FAQ items'
+        return `${items.length} question${items.length === 1 ? '' : 's'}`
+      },
     },
     config as SchemaOrgConfig,
   )

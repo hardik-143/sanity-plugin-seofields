@@ -1,19 +1,18 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {nameField} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgPersonConfig} from './types'
+import type {SchemaOrgPersonConfig, SchemaOrgPersonData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const personFields: SchemaFieldDef[] = [
-  {
-    name: 'name',
+  nameField({
     title: 'Full Name',
-    type: 'string',
     description: 'The full name of the person.',
     required: {key: 'nameRequired', message: 'Person name is required for Schema.org.'},
-  },
+  }),
   {
     name: 'jobTitle',
     title: 'Job Title',
@@ -35,11 +34,11 @@ export const personFields: SchemaFieldDef[] = [
   },
   {
     name: 'sameAs',
-    title: 'Social / External Profiles',
-    type: 'array',
-    of: [{type: 'url'}],
+    title: 'Same As URL',
+    type: 'url',
     description:
       'URLs of social media profiles and other authoritative pages (LinkedIn, GitHub, etc.).',
+    urlValidation: {schemes: ['http', 'https']},
   },
   {
     name: 'worksFor',
@@ -53,6 +52,69 @@ export const personFields: SchemaFieldDef[] = [
         title: 'Organization Name',
         type: 'string',
         description: 'Name of the organization.',
+      },
+    ],
+  },
+  {
+    name: 'email',
+    title: 'Email',
+    type: 'string',
+    description: 'Email address of the person.',
+  },
+  // fax Number
+  {
+    name: 'faxNumber',
+    title: 'Fax Number',
+    type: 'string',
+    description: 'Fax number of the person.',
+  },
+  {
+    name: 'telephone',
+    title: 'Telephone',
+    type: 'string',
+    description: 'Phone number of the person.',
+  },
+  {
+    name: 'description',
+    title: 'Description',
+    type: 'text',
+    rows: 3,
+    description: 'A short bio or description of the person.',
+  },
+  {
+    name: 'gender',
+    title: 'Gender',
+    type: 'string',
+    description: 'Gender of the person.',
+  },
+  {
+    name: 'birthDate',
+    title: 'Birth Date',
+    type: 'date',
+    description: 'Date of birth.',
+  },
+  {
+    name: 'address',
+    title: 'Address',
+    type: 'object',
+    description: 'The postal address of the person.',
+    jsonLdType: 'PostalAddress',
+    fields: [
+      {
+        name: 'streetAddress',
+        title: 'Street Address',
+        type: 'string',
+      },
+      {
+        name: 'addressLocality',
+        title: 'City',
+        type: 'string',
+      },
+      {
+        name: 'addressCountry',
+        title: 'Country',
+        type: 'string',
+        description: 'Country code, e.g. "US".',
       },
     ],
   },
@@ -80,9 +142,13 @@ export default function schemaOrgPerson(config: SchemaOrgPersonConfig = {}): Sch
   return generateSchemaType(
     {
       name: 'schemaOrgPerson',
-      title: 'Schema.org — Person',
+      title: 'Person',
       icon: SchemaOrgIcons.person,
       fields: personFields,
+      customPrepareSubtitle: (document: SchemaOrgPersonData) => {
+        const name = document.name ?? 'Untitled person'
+        return document.jobTitle ? `${name} · ${document.jobTitle}` : name
+      },
     },
     config as SchemaOrgConfig,
   )

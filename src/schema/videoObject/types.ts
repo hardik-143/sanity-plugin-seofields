@@ -1,16 +1,26 @@
+import type {SchemaOrgCreativeWorkData} from '../_types'
+
+/** SeekToAction nested within the VideoObject schema (potentialAction) */
+export interface VideoObjectSeekAction {
+  /** Video URL with {seek_to_second_number} placeholder */
+  target?: string
+  /** Offset parameter name */
+  startOffsetInput?: string
+}
+
 /** Schema.org VideoObject — data shape from GROQ query */
-export interface SchemaOrgVideoObjectData {
+export interface SchemaOrgVideoObjectData extends SchemaOrgCreativeWorkData {
   _type?: 'schemaOrgVideoObject'
-  /** Name of the video */
-  name?: string
-  /** Description of the video */
-  description?: string
-  /** URL of the video thumbnail image */
-  thumbnailUrl?: string
   /** Date the video was uploaded (ISO 8601) */
   uploadDate?: string
   /** URL to the actual video file */
   contentUrl?: string
+  /** URL for an embeddable player */
+  embedUrl?: string
+  /** Video duration in ISO 8601 format */
+  duration?: string
+  /** Override potentialAction with VideoObject-specific seek action */
+  potentialAction?: VideoObjectSeekAction
 }
 
 /** Configuration for `schemaOrgVideoObject()` */

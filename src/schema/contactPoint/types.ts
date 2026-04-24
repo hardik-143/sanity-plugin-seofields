@@ -5,6 +5,8 @@ export interface SchemaOrgContactPointData {
   contactType?: string
   /** Contact email address */
   email?: string
+  /** Contact fax number */
+  faxNumber?: string
   /** Contact telephone number */
   telephone?: string
   /** Languages supported, e.g. ["English"] */

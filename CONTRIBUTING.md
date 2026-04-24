@@ -44,14 +44,14 @@ pnpm install
 
 Once you're in the `npm/` directory, you can use these commands:
 
-| Script | Description |
-|--------|-------------|
-| `npm run build` | Build the plugin for distribution using `tsup` |
-| `npm run watch` | Watch source files and rebuild on changes |
-| `npm run link-watch` | Link plugin for development with automatic watching |
-| `npm run lint` | Run ESLint to check code quality |
-| `npm run format` | Format code with Prettier (fixes style issues automatically) |
-| `npm run typecheck` | Check TypeScript types without emitting files |
+| Script               | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| `npm run build`      | Build the plugin for distribution using `tsup`               |
+| `npm run watch`      | Watch source files and rebuild on changes                    |
+| `npm run link-watch` | Link plugin for development with automatic watching          |
+| `npm run lint`       | Run ESLint to check code quality                             |
+| `npm run format`     | Format code with Prettier (fixes style issues automatically) |
+| `npm run typecheck`  | Check TypeScript types without emitting files                |
 
 ### Development Workflow
 
@@ -73,7 +73,6 @@ We maintain consistent code style using **ESLint** and **Prettier** to ensure co
 - **ESLint Config**: `.eslintrc`
   - Extends: Sanity's ESLint config with React and TypeScript support
   - Plugins: React, React Hooks, Prettier integration
-  
 - **Prettier Config**: `.prettierrc`
   - Print width: 100 characters
   - Quotes: Single quotes
@@ -178,6 +177,7 @@ git checkout -b fix/your-bug-fix-name
 ```
 
 Use descriptive branch names:
+
 - `feature/add-json-ld-support` ✅
 - `fix/handle-missing-og-image` ✅
 - `docs/improve-readme` ✅
@@ -241,6 +241,7 @@ We follow the **Conventional Commits** specification to keep our commit history 
 ### Examples
 
 **Bug fix commit:**
+
 ```
 fix(validation): prevent empty meta descriptions
 
@@ -251,11 +252,13 @@ Fixes #38
 ```
 
 **Documentation commit:**
+
 ```
 docs: update installation instructions for Sanity v4
 ```
 
 **Chore commit:**
+
 ```
 chore(deps): update TypeScript to 5.9.2
 ```
@@ -265,7 +268,7 @@ chore(deps): update TypeScript to 5.9.2
 - Be specific and descriptive in your subject line (50 characters max)
 - Use imperative mood: "add" not "added" or "adds"
 - Wrap the body at 72 characters
-- Explain *what* and *why*, not just *what*
+- Explain _what_ and _why_, not just _what_
 - Reference issues when applicable
 
 ---

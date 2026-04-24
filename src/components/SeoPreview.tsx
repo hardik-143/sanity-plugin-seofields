@@ -1,4 +1,4 @@
-import {Box, Stack, Text} from '@sanity/ui'
+import {Box} from '@sanity/ui'
 import React from 'react'
 import {StringInputProps, useFormValue} from 'sanity'
 import styled from 'styled-components'

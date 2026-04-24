@@ -32,23 +32,38 @@ import {definePlugin, defineType} from 'sanity'
 import schemaOrgAggregateRatingSchema from './aggregateRating/schema'
 import schemaOrgArticleSchema from './article/schema'
 import schemaOrgBlogPostingSchema from './blogPosting/schema'
+import schemaOrgBookSchema from './book/schema'
 import schemaOrgBrandSchema from './brand/schema'
 import schemaOrgBreadcrumbListSchema from './breadcrumbList/schema'
+import TypePickerInput from './components/TypePickerInput'
 import schemaOrgContactPointSchema from './contactPoint/schema'
+import schemaOrgCountrySchema from './country/schema'
 import schemaOrgCourseSchema from './course/schema'
 import schemaOrgEventSchema from './event/schema'
 import schemaOrgFAQPageSchema from './faqPage/schema'
 import type {SchemaOrgConfig} from './generator'
 import schemaOrgHowToSchema from './howTo/schema'
 import schemaOrgImageObjectSchema from './imageObject/schema'
+import schemaOrgItemListSchema from './itemList/schema'
+import schemaOrgJobPostingSchema from './jobPosting/schema'
+import schemaOrgLegalServiceSchema from './legalService/schema'
 import schemaOrgLocalBusinessSchema from './localBusiness/schema'
+import schemaOrgMovieSchema from './movie/schema'
+import schemaOrgMusicAlbumSchema from './musicAlbum/schema'
+import schemaOrgMusicRecordingSchema from './musicRecording/schema'
+import schemaOrgNewsArticleSchema from './newsArticle/schema'
 import schemaOrgOfferSchema from './offer/schema'
 import schemaOrgOrganizationSchema from './organization/schema'
 import schemaOrgPersonSchema from './person/schema'
 import schemaOrgPlaceSchema from './place/schema'
 import schemaOrgPostalAddressSchema from './postalAddress/schema'
 import schemaOrgProductSchema from './product/schema'
+import schemaOrgProfilePageSchema from './profilePage/schema'
+import schemaOrgRecipeSchema from './recipe/schema'
+import schemaOrgRestaurantSchema from './restaurant/schema'
 import schemaOrgReviewSchema from './review/schema'
+import schemaOrgServiceSchema from './service/schema'
+import schemaOrgSocialMediaPostingSchema from './socialMediaPosting/schema'
 import schemaOrgSoftwareApplicationSchema from './softwareApplication/schema'
 import schemaOrgVideoObjectSchema from './videoObject/schema'
 import schemaOrgWebApplicationSchema from './webApplication/schema'
@@ -83,6 +98,20 @@ export interface SchemaOrgCombinedConfig {
   place?: SchemaOrgConfig
   videoObject?: SchemaOrgConfig
   course?: SchemaOrgConfig
+  recipe?: SchemaOrgConfig
+  service?: SchemaOrgConfig
+  socialMediaPosting?: SchemaOrgConfig
+  legalService?: SchemaOrgConfig
+  country?: SchemaOrgConfig
+  jobPosting?: SchemaOrgConfig
+  restaurant?: SchemaOrgConfig
+  movie?: SchemaOrgConfig
+  book?: SchemaOrgConfig
+  newsArticle?: SchemaOrgConfig
+  itemList?: SchemaOrgConfig
+  profilePage?: SchemaOrgConfig
+  musicRecording?: SchemaOrgConfig
+  musicAlbum?: SchemaOrgConfig
 }
 
 // ─── Array type member list ───────────────────────────────────────────────────
@@ -112,6 +141,20 @@ const ALL_SCHEMA_ORG_TYPES = [
   'schemaOrgImageObject',
   'schemaOrgPostalAddress',
   'schemaOrgContactPoint',
+  'schemaOrgRecipe',
+  'schemaOrgService',
+  'schemaOrgSocialMediaPosting',
+  'schemaOrgLegalService',
+  'schemaOrgCountry',
+  'schemaOrgJobPosting',
+  'schemaOrgRestaurant',
+  'schemaOrgMovie',
+  'schemaOrgBook',
+  'schemaOrgNewsArticle',
+  'schemaOrgItemList',
+  'schemaOrgProfilePage',
+  'schemaOrgMusicRecording',
+  'schemaOrgMusicAlbum',
 ] as const
 
 // ─── Individual Plugins ───────────────────────────────────────────────────────
@@ -244,6 +287,80 @@ export const schemaOrgCoursePlugin = definePlugin<SchemaOrgConfig | void>((confi
   schema: {types: [schemaOrgCourseSchema(config as SchemaOrgConfig)]},
 }))
 
+export const schemaOrgRecipePlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-recipe',
+  schema: {types: [schemaOrgRecipeSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgServicePlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-service',
+  schema: {types: [schemaOrgServiceSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgSocialMediaPostingPlugin = definePlugin<SchemaOrgConfig | void>(
+  (config = {}) => ({
+    name: 'sanity-plugin-seofields/schema-org-socialmediaposting',
+    schema: {types: [schemaOrgSocialMediaPostingSchema(config as SchemaOrgConfig)]},
+  }),
+)
+
+export const schemaOrgLegalServicePlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-legalservice',
+  schema: {types: [schemaOrgLegalServiceSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgCountryPlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-country',
+  schema: {types: [schemaOrgCountrySchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgJobPostingPlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-jobposting',
+  schema: {types: [schemaOrgJobPostingSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgRestaurantPlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-restaurant',
+  schema: {types: [schemaOrgRestaurantSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgMoviePlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-movie',
+  schema: {types: [schemaOrgMovieSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgBookPlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-book',
+  schema: {types: [schemaOrgBookSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgNewsArticlePlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-newsarticle',
+  schema: {types: [schemaOrgNewsArticleSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgItemListPlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-itemlist',
+  schema: {types: [schemaOrgItemListSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgProfilePagePlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-profilepage',
+  schema: {types: [schemaOrgProfilePageSchema(config as SchemaOrgConfig)]},
+}))
+
+export const schemaOrgMusicRecordingPlugin = definePlugin<SchemaOrgConfig | void>(
+  (config = {}) => ({
+    name: 'sanity-plugin-seofields/schema-org-musicrecording',
+    schema: {types: [schemaOrgMusicRecordingSchema(config as SchemaOrgConfig)]},
+  }),
+)
+
+export const schemaOrgMusicAlbumPlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-seofields/schema-org-musicalbum',
+  schema: {types: [schemaOrgMusicAlbumSchema(config as SchemaOrgConfig)]},
+}))
+
 // ─── Combined Plugin ──────────────────────────────────────────────────────────
 
 /**
@@ -289,20 +406,28 @@ export const schemaOrg = definePlugin<SchemaOrgCombinedConfig | void>((config = 
         schemaOrgPlaceSchema(c.place),
         schemaOrgVideoObjectSchema(c.videoObject),
         schemaOrgCourseSchema(c.course),
+        schemaOrgRecipeSchema(c.recipe),
+        schemaOrgServiceSchema(c.service),
+        schemaOrgSocialMediaPostingSchema(c.socialMediaPosting),
+        schemaOrgLegalServiceSchema(c.legalService),
+        schemaOrgCountrySchema(c.country),
+        schemaOrgJobPostingSchema(c.jobPosting),
+        schemaOrgRestaurantSchema(c.restaurant),
+        schemaOrgMovieSchema(c.movie),
+        schemaOrgBookSchema(c.book),
+        schemaOrgNewsArticleSchema(c.newsArticle),
+        schemaOrgItemListSchema(c.itemList),
+        schemaOrgProfilePageSchema(c.profilePage),
+        schemaOrgMusicRecordingSchema(c.musicRecording),
+        schemaOrgMusicAlbumSchema(c.musicAlbum),
         // Combined array type — lets editors add multiple schemas
         defineType({
           name: 'schemaOrg',
           title: 'Schema.org Structured Data',
           type: 'array',
           of: ALL_SCHEMA_ORG_TYPES.map((type) => ({type})),
-          options: {
-            insertMenu: {
-              views: [
-                {
-                  name: 'grid',
-                },
-              ],
-            },
+          components: {
+            input: TypePickerInput,
           },
         }),
       ],

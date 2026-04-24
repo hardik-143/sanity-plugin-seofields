@@ -13,7 +13,7 @@
 import {JSX} from 'react'
 
 import type {SanityImage} from '../../types'
-import {escapeJsonForScript} from '../utils'
+import {SchemaOrgScript} from '../SchemaOrgScript'
 import type {SchemaOrgOrganizationData} from './types'
 
 export interface OrganizationSchemaProps {
@@ -53,7 +53,7 @@ export function buildOrganizationJsonLd(
 
   if (data.description) jsonLd.description = data.description
 
-  if (data.sameAs?.length) jsonLd.sameAs = data.sameAs
+  if (data.sameAs) jsonLd.sameAs = data.sameAs
 
   if (data.contactPoint?.contactType) {
     const cp: Record<string, unknown> = {
@@ -78,16 +78,7 @@ export function OrganizationSchema({
   data,
   imageUrlResolver,
 }: OrganizationSchemaProps): JSX.Element | null {
-  const jsonLd = buildOrganizationJsonLd(data, imageUrlResolver)
-  if (!jsonLd) return null
-
-  return (
-    <script
-      type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{__html: escapeJsonForScript(JSON.stringify(jsonLd))}}
-    />
-  )
+  return <SchemaOrgScript jsonLd={buildOrganizationJsonLd(data, imageUrlResolver)} />
 }
 
 export default OrganizationSchema

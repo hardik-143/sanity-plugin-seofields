@@ -1,19 +1,18 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {nameField} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgOrganizationConfig} from './types'
+import type {SchemaOrgOrganizationConfig, SchemaOrgOrganizationData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const organizationFields: SchemaFieldDef[] = [
-  {
-    name: 'name',
+  nameField({
     title: 'Organization Name',
-    type: 'string',
     description: 'The official name of the organization.',
     required: {key: 'nameRequired', message: 'Organization name is required for Schema.org.'},
-  },
+  }),
   {
     name: 'url',
     title: 'Organization URL',
@@ -36,12 +35,18 @@ export const organizationFields: SchemaFieldDef[] = [
     description: 'A short description of the organization.',
   },
   {
+    name: 'alternateName',
+    title: 'Alternate Name',
+    type: 'string',
+    description: 'An alias or alternate name for the organization.',
+  },
+  {
     name: 'sameAs',
-    title: 'Social / External Profiles',
-    type: 'array',
-    of: [{type: 'url'}],
+    title: 'Same As URL',
+    type: 'url',
     description:
       'URLs of social media profiles and other authoritative pages (Twitter, LinkedIn, GitHub, etc.).',
+    urlValidation: {schemes: ['http', 'https']},
   },
   {
     name: 'contactPoint',
@@ -79,6 +84,30 @@ export const organizationFields: SchemaFieldDef[] = [
       },
     ],
   },
+  {
+    name: 'department',
+    title: 'Departments',
+    type: 'array',
+    description: 'Departments within the organization.',
+    jsonLdType: 'Organization',
+    fields: [
+      {
+        name: 'name',
+        title: 'Department Name',
+        type: 'string',
+      },
+      {
+        name: 'url',
+        title: 'Department URL',
+        type: 'url',
+      },
+      {
+        name: 'telephone',
+        title: 'Department Phone',
+        type: 'string',
+      },
+    ],
+  },
 ]
 
 // ─── Schema Factory ───────────────────────────────────────────────────────────
@@ -105,9 +134,13 @@ export default function schemaOrgOrganization(
   return generateSchemaType(
     {
       name: 'schemaOrgOrganization',
-      title: 'Schema.org — Organization',
+      title: 'Organization',
       icon: SchemaOrgIcons.organization,
       fields: organizationFields,
+      customPrepareSubtitle: (document: SchemaOrgOrganizationData) =>
+        document.name
+          ? `${document.name}${document.url ? ` · ${document.url}` : ''}`
+          : 'Untitled organization',
     },
     config as SchemaOrgConfig,
   )

@@ -2,7 +2,7 @@ import type {SchemaTypeDefinition} from 'sanity'
 
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgOfferConfig} from './types'
+import type {SchemaOrgOfferConfig, SchemaOrgOfferData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
@@ -50,9 +50,13 @@ export default function schemaOrgOffer(config: SchemaOrgOfferConfig = {}): Schem
   return generateSchemaType(
     {
       name: 'schemaOrgOffer',
-      title: 'Schema.org — Offer',
+      title: 'Offer',
       icon: SchemaOrgIcons.offer,
       fields: offerFields,
+      customPrepareSubtitle: (document: SchemaOrgOfferData) => {
+        if (!document.price) return 'No price set'
+        return `${document.price} ${document.priceCurrency ?? ''}`.trim()
+      },
     },
     config as SchemaOrgConfig,
   )

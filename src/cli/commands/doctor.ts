@@ -35,21 +35,24 @@ async function performChecks(cwd: string): Promise<CheckResult[]> {
     message: foundConfig ? `Found ${foundConfig}` : `No sanity.config.ts/js found in ${cwd}`,
   })
 
-  // 2. Check package.json exists
+  // 2. Check package.json exists and is valid JSON
   const pkgPath = path.join(cwd, 'package.json')
   let pkg: Record<string, unknown> | null = null
   if (fs.existsSync(pkgPath)) {
     try {
       pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+      results.push({name: 'package.json', ok: true, message: 'Found package.json'})
     } catch {
-      /* ignore */
+      results.push({
+        name: 'package.json',
+        ok: false,
+        message: 'package.json exists but contains invalid JSON — fix syntax and retry',
+      })
+      return results
     }
+  } else {
+    results.push({name: 'package.json', ok: false, message: 'No package.json found'})
   }
-  results.push({
-    name: 'package.json',
-    ok: !!pkg,
-    message: pkg ? 'Found package.json' : 'No package.json found',
-  })
 
   // 3. Check sanity-plugin-seofields installed
   const allDeps = {

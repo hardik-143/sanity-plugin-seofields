@@ -12,7 +12,8 @@
  */
 import {JSX} from 'react'
 
-import {escapeJsonForScript} from '../utils'
+import {resolvePolymorphicPersonOrOrg} from '../_shared'
+import {SchemaOrgScript} from '../SchemaOrgScript'
 import type {SchemaOrgWebsiteData} from './types'
 
 export interface WebsiteSchemaProps {
@@ -39,20 +40,8 @@ export function buildWebsiteJsonLd(
   if (data.description) jsonLd.description = data.description
   if (data.inLanguage) jsonLd.inLanguage = data.inLanguage
 
-  if (data.publisher?.name) {
-    const publisher: Record<string, unknown> = {
-      '@type': 'Organization',
-      name: data.publisher.name,
-    }
-    if (data.publisher.url) publisher.url = data.publisher.url
-    if (data.publisher.logoUrl) {
-      publisher.logo = {
-        '@type': 'ImageObject',
-        url: data.publisher.logoUrl,
-      }
-    }
-    jsonLd.publisher = publisher
-  }
+  const publisher = resolvePolymorphicPersonOrOrg(data.publisher)
+  if (publisher) jsonLd.publisher = publisher
 
   return jsonLd
 }
@@ -62,16 +51,7 @@ export function buildWebsiteJsonLd(
  * Renders nothing if required fields are missing.
  */
 export function WebsiteSchema({data}: WebsiteSchemaProps): JSX.Element | null {
-  const jsonLd = buildWebsiteJsonLd(data)
-  if (!jsonLd) return null
-
-  return (
-    <script
-      type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{__html: escapeJsonForScript(JSON.stringify(jsonLd))}}
-    />
-  )
+  return <SchemaOrgScript jsonLd={buildWebsiteJsonLd(data)} />
 }
 
 export default WebsiteSchema

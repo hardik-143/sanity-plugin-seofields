@@ -1,45 +1,37 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {
+  datePublishedField,
+  descriptionField,
+  headlineField,
+  polymorphicAuthor,
+  polymorphicImage,
+  polymorphicPublisher,
+} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgBlogPostingConfig} from './types'
+import type {SchemaOrgBlogPostingConfig, SchemaOrgBlogPostingData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const blogPostingFields: SchemaFieldDef[] = [
-  {
-    name: 'headline',
-    title: 'Headline',
-    type: 'string',
+  headlineField({
     required: {
       key: 'headlineRequired',
       message: 'Headline is required for Schema.org BlogPosting.',
     },
-  },
-  {
-    name: 'description',
-    title: 'Description',
-    type: 'text',
-    rows: 3,
-  },
-  {
-    name: 'author',
-    title: 'Author',
-    type: 'object',
-    jsonLdType: 'Person',
-    fields: [
-      {
-        name: 'name',
-        title: 'Author Name',
-        type: 'string',
-      },
-    ],
-  },
-  {
-    name: 'datePublished',
-    title: 'Date Published',
-    type: 'date',
-  },
+  }),
+  descriptionField({
+    description: 'A description of the blog post.',
+    required: {
+      key: 'descriptionRequired',
+      message: 'Description is required for Schema.org BlogPosting.',
+    },
+  }),
+  polymorphicImage(),
+  polymorphicAuthor(),
+  polymorphicPublisher(),
+  datePublishedField(),
   {
     name: 'mainEntityOfPage',
     title: 'Main Entity of Page',
@@ -60,13 +52,6 @@ export const blogPostingFields: SchemaFieldDef[] = [
 
 /**
  * Schema.org BlogPosting — Sanity object type.
- *
- * @example
- * ```ts
- * import { schemaOrgBlogPosting } from 'sanity-plugin-seofields/schema/blogPosting'
- *
- * schemaOrgBlogPosting()
- * ```
  */
 export default function schemaOrgBlogPosting(
   config: SchemaOrgBlogPostingConfig = {},
@@ -74,9 +59,11 @@ export default function schemaOrgBlogPosting(
   return generateSchemaType(
     {
       name: 'schemaOrgBlogPosting',
-      title: 'Schema.org — BlogPosting',
+      title: 'BlogPosting',
       icon: SchemaOrgIcons.blogPosting,
       fields: blogPostingFields,
+      customPrepareSubtitle: (document: SchemaOrgBlogPostingData) =>
+        document.headline || 'Untitled blog post',
     },
     config as SchemaOrgConfig,
   )

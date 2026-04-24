@@ -2,7 +2,7 @@ import type {SchemaTypeDefinition} from 'sanity'
 
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgPostalAddressConfig} from './types'
+import type {SchemaOrgPostalAddressConfig, SchemaOrgPostalAddressData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
@@ -41,9 +41,13 @@ export default function schemaOrgPostalAddress(
   return generateSchemaType(
     {
       name: 'schemaOrgPostalAddress',
-      title: 'Schema.org — PostalAddress',
+      title: 'PostalAddress',
       icon: SchemaOrgIcons.postalAddress,
       fields: postalAddressFields,
+      customPrepareSubtitle: (document: SchemaOrgPostalAddressData) =>
+        [document.streetAddress, document.addressLocality, document.addressCountry]
+          .filter(Boolean)
+          .join(', ') || 'No address set',
     },
     config as SchemaOrgConfig,
   )

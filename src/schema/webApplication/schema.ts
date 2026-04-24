@@ -2,7 +2,7 @@ import type {SchemaTypeDefinition} from 'sanity'
 
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgWebApplicationConfig} from './types'
+import type {SchemaOrgWebApplicationConfig, SchemaOrgWebApplicationData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
@@ -71,9 +71,13 @@ export default function schemaOrgWebApplication(
   return generateSchemaType(
     {
       name: 'schemaOrgWebApplication',
-      title: 'Schema.org — WebApplication',
+      title: 'WebApplication',
       icon: SchemaOrgIcons.webApplication,
       fields: webApplicationFields,
+      customPrepareSubtitle: (document: SchemaOrgWebApplicationData) => {
+        const name = document.name ?? 'Untitled web app'
+        return document.url ? `${name} · ${document.url}` : name
+      },
     },
     config as SchemaOrgConfig,
   )

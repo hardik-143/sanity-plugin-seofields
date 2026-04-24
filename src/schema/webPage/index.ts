@@ -27,4 +27,4 @@ export type {WebPageSchemaProps} from './component'
 export {buildWebPageJsonLd, WebPageSchema} from './component'
 
 // Types
-export type {SchemaOrgWebPageConfig, SchemaOrgWebPageData, WebPageWebSite} from './types'
+export type {SchemaOrgWebPageConfig, SchemaOrgWebPageData} from './types'
