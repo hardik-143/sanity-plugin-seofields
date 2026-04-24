@@ -110,7 +110,7 @@ seofields({
 
 ## Schema.org / JSON-LD
 
-The plugin ships 24 Schema.org types as Sanity schema definitions + React components that render `<script type="application/ld+json">` tags.
+The plugin ships 38 Schema.org types as Sanity schema definitions + React components that render `<script type="application/ld+json">` tags.
 
 ### 1. Register schema types in Studio
 
@@ -119,7 +119,7 @@ The plugin ships 24 Schema.org types as Sanity schema definitions + React compon
 import {schemaOrg} from 'sanity-plugin-seofields/schema'
 
 export default defineConfig({
-  plugins: [seofields(), schemaOrg()],  // all 24 types at once
+  plugins: [seofields(), schemaOrg()], // all 38 types at once
 })
 ```
 
@@ -136,7 +136,7 @@ export default defineConfig({
 ### 2. Add to a document schema
 
 ```ts
-defineField({name: 'schemaOrg', type: 'schemaOrg'})   // combined array field
+defineField({name: 'schemaOrg', type: 'schemaOrg'}) // combined array field
 // or individual types:
 defineField({name: 'article', type: 'schemaOrgArticle'})
 ```
@@ -164,7 +164,7 @@ export default function Page({data}) {
 }
 ```
 
-**Available types:** `Article`, `BlogPosting`, `BreadcrumbList`, `Course`, `Event`, `FAQPage`, `HowTo`, `ImageObject`, `LocalBusiness`, `Offer`, `Organization`, `Person`, `Place`, `Product`, `Review`, `SoftwareApplication`, `VideoObject`, `WebApplication`, `WebPage`, `Website`, and more.
+**All 38 available types:** `AggregateRating`, `Article`, `BlogPosting`, `Book`, `Brand`, `BreadcrumbList`, `ContactPoint`, `Country`, `Course`, `Event`, `FAQPage`, `HowTo`, `ImageObject`, `ItemList`, `JobPosting`, `LegalService`, `LocalBusiness`, `Movie`, `MusicAlbum`, `MusicRecording`, `NewsArticle`, `Offer`, `Organization`, `Person`, `Place`, `PostalAddress`, `Product`, `ProfilePage`, `Recipe`, `Restaurant`, `Review`, `Service`, `SocialMediaPosting`, `SoftwareApplication`, `VideoObject`, `WebApplication`, `WebPage`, `Website`.
 
 → [Schema.org docs](https://sanity-plugin-seofields.thehardik.in/docs/schema-org)
 

@@ -7,7 +7,9 @@ import {
   BarChartIcon,
   BookIcon,
   CalendarIcon,
+  ClipboardIcon,
   CodeBlockIcon,
+  CommentIcon,
   ComponentIcon,
   DesktopIcon,
   DocumentTextIcon,
@@ -19,7 +21,10 @@ import {
   LinkIcon,
   ListIcon,
   MarkerIcon,
+  MasterDetailIcon,
   PackageIcon,
+  PlayIcon,
+  RobotIcon,
   SparkleIcon,
   TagIcon,
   UserIcon,
@@ -52,12 +57,15 @@ export const SchemaOrgIcons = {
   blogPosting: BookIcon,
   faqPage: HelpCircleIcon,
   howTo: ListIcon,
+  recipe: BookIcon,
+  socialMediaPosting: CommentIcon,
 
   // Commerce
   product: PackageIcon,
   offer: TagIcon,
   aggregateRating: BarChartIcon,
   review: HeartFilledIcon,
+  service: RobotIcon,
 
   // Location
   postalAddress: MarkerIcon,
@@ -73,4 +81,19 @@ export const SchemaOrgIcons = {
 
   // Education
   course: BookIcon,
+
+  // Legal & geographic
+  legalService: MasterDetailIcon,
+  country: EarthGlobeIcon,
+
+  // New types
+  jobPosting: ClipboardIcon,
+  restaurant: HomeIcon,
+  movie: PlayIcon,
+  book: BookIcon,
+  newsArticle: DocumentTextIcon,
+  itemList: ListIcon,
+  profilePage: UserIcon,
+  musicRecording: PlayIcon,
+  musicAlbum: PackageIcon,
 } as const

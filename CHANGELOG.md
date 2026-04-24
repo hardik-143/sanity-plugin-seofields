@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] — 2026-04-22
+
+### ✨ Added
+
+- **14 new Schema.org types** — The combined `schemaOrg` array now registers **38** types (up from 24). New additions: `LegalService`, `Country`, `JobPosting`, `Restaurant`, `Movie`, `Book`, `NewsArticle`, `ItemList`, `ProfilePage`, `MusicRecording`, `MusicAlbum`, plus `Recipe`, `Service`, and `SocialMediaPosting` (previously individual-only) are now first-class combined-array members. Each type ships with a Sanity schema, Next.js JSON-LD component, `buildXxxJsonLd()` helper, category metadata, and icon.
+- **Individual plugin exports** for each new type (`schemaOrgLegalServicePlugin`, `schemaOrgCountryPlugin`, `schemaOrgJobPostingPlugin`, etc.) alongside the default `default schemaOrgXxx` factory re-exports from `sanity-plugin-seofields/schema`.
+
+---
+
 ## [1.5.5] — 2026-04-15
 
 ### ✨ Added
@@ -15,10 +24,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```ts
   seofields({
     fieldGroups: [
-      { name: 'meta', title: 'Meta', default: true,
-        fields: ['title', 'description', 'metaImage', 'keywords', 'canonicalUrl', 'metaAttributes', 'robots'] },
-      { name: 'openGraph', title: 'Open Graph', fields: ['openGraph'] },
-      { name: 'twitter', title: 'Twitter Card', fields: ['twitter'] },
+      {
+        name: 'meta',
+        title: 'Meta',
+        default: true,
+        fields: [
+          'title',
+          'description',
+          'metaImage',
+          'keywords',
+          'canonicalUrl',
+          'metaAttributes',
+          'robots',
+        ],
+      },
+      {name: 'openGraph', title: 'Open Graph', fields: ['openGraph']},
+      {name: 'twitter', title: 'Twitter Card', fields: ['twitter']},
     ],
   })
   ```
@@ -32,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`baseMeta` schema type** — New `baseMeta` object type that groups the core meta fields (`title`, `description`, `metaImage`, `keywords`, `canonicalUrl`, `metaAttributes`) into a single reusable Sanity object, following the same pattern as the existing `openGraph` and `twitter` types. This allows using basic meta fields independently outside of the top-level `seoFields` object.
 - **`baseMetaSchema` export** — The new `baseMeta` type is exported from the package entry point as `baseMetaSchema` for standalone use:
   ```ts
-  import { baseMetaSchema } from 'sanity-plugin-seofields'
+  import {baseMetaSchema} from 'sanity-plugin-seofields'
   ```
 
 ---

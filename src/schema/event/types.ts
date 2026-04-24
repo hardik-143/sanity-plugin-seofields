@@ -1,5 +1,7 @@
 // ─── Event Schema Types ───────────────────────────────────────────────────────
 
+import type {SchemaOrgPersonOrOrganization} from '../_types'
+
 /** Schema.org Event — data shape returned from a Sanity GROQ query */
 export interface SchemaOrgEventData {
   _type?: 'schemaOrgEvent'
@@ -7,6 +9,8 @@ export interface SchemaOrgEventData {
   name?: string
   /** Start date of the event (ISO 8601) */
   startDate?: string
+  /** A person or organization that sponsors the event */
+  sponsor?: SchemaOrgPersonOrOrganization
   /** Location of the event */
   location?: {name?: string; address?: string}
 }

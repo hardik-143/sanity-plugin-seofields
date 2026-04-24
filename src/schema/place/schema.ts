@@ -2,7 +2,7 @@ import type {SchemaTypeDefinition} from 'sanity'
 
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgPlaceConfig} from './types'
+import type {SchemaOrgPlaceConfig, SchemaOrgPlaceData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
@@ -43,9 +43,14 @@ export default function schemaOrgPlace(config: SchemaOrgPlaceConfig = {}): Schem
   return generateSchemaType(
     {
       name: 'schemaOrgPlace',
-      title: 'Schema.org — Place',
+      title: 'Place',
       icon: SchemaOrgIcons.place,
       fields: placeFields,
+      customPrepareSubtitle: (document: SchemaOrgPlaceData) => {
+        const name = document.name ?? 'Untitled place'
+        const city = document.address?.addressLocality
+        return city ? `${name} · ${city}` : name
+      },
     },
     config as SchemaOrgConfig,
   )

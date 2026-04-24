@@ -12,6 +12,16 @@ export interface OrganizationContactPoint {
   availableLanguage?: string[]
 }
 
+/** Department nested within the Organization schema */
+export interface OrganizationDepartment {
+  /** Department name */
+  name?: string
+  /** Department URL */
+  url?: string
+  /** Department phone number */
+  telephone?: string
+}
+
 /** Schema.org Organization — data shape returned from a Sanity GROQ query */
 export interface SchemaOrgOrganizationData {
   _type?: 'schemaOrgOrganization'
@@ -25,10 +35,14 @@ export interface SchemaOrgOrganizationData {
   logo?: SanityImage
   /** Short description of the organization */
   description?: string
+  /** An alias or alternate name for the organization */
+  alternateName?: string
   /** Social media and external profile URLs */
-  sameAs?: string[]
+  sameAs?: string
   /** Primary contact information */
   contactPoint?: OrganizationContactPoint
+  /** Departments within the organization */
+  department?: OrganizationDepartment[]
 }
 
 // ─── Plugin Configuration Types ───────────────────────────────────────────────

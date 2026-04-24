@@ -191,24 +191,12 @@ export interface SeoFieldsPluginConfig {
           noDocuments?: string
         }
         /**
-         * @deprecated Use `showTypeColumn` instead. Will be removed in a future major version.
-         * @see https://github.com/hardik-143/sanity-plugin-seofields/blob/main/CHANGELOG.md#132--2026-03-23
-         */
-        display?: {
-          /** @deprecated Use top-level `showTypeColumn` instead. */
-          typeColumn?: boolean
-          /** @deprecated Use top-level `showDocumentId` instead. */
-          documentId?: boolean
-        }
-        /**
          * Show or hide the document type column in the results table.
-         * Replaces the deprecated `display.typeColumn`.
          * Defaults to `true`.
          */
         showTypeColumn?: boolean
         /**
          * Show or hide the Sanity document `_id` under each title.
-         * Replaces the deprecated `display.documentId`.
          * Defaults to `true`.
          */
         showDocumentId?: boolean
@@ -245,19 +233,6 @@ export interface SeoFieldsPluginConfig {
          * Used in both the Type column and the Type filter dropdown.
          * Any type without an entry falls back to the raw `_type` string.
          *
-         * @deprecated Use `typeDisplayLabels` instead. Will be removed in a future major version.
-         * @see https://github.com/hardik-143/sanity-plugin-seofields/blob/main/CHANGELOG.md#132--2026-03-23
-         *
-         * @example
-         * typeLabels: { productDrug: 'Products', singleCondition: 'Condition' }
-         */
-        typeLabels?: Record<string, string>
-        /**
-         * Map raw `_type` values to human-readable display labels.
-         * Replaces the deprecated `typeLabels`.
-         * Used in both the Type column and the Type filter dropdown.
-         * Any type without an entry falls back to the raw `_type` string.
-         *
          * @example
          * typeDisplayLabels: { productDrug: 'Products', singleCondition: 'Condition' }
          */
@@ -283,23 +258,6 @@ export interface SeoFieldsPluginConfig {
         titleField?: string | Record<string, string>
         /**
          * Callback function to render a custom badge next to the document title.
-         * Receives the full document and should return badge data or undefined.
-         *
-         * @deprecated Use `getDocumentBadge` instead. Will be removed in a future major version.
-         * @see https://github.com/hardik-143/sanity-plugin-seofields/blob/main/CHANGELOG.md#132--2026-03-23
-         *
-         * @example
-         * docBadge: (doc) => {
-         *   if (doc.services === 'NHS')
-         *     return { label: 'NHS', bgColor: '#e0f2fe', textColor: '#0369a1' }
-         * }
-         */
-        docBadge?: (
-          doc: DocumentWithSeoHealth & Record<string, unknown>,
-        ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
-        /**
-         * Callback function to render a custom badge next to the document title.
-         * Replaces the deprecated `docBadge`.
          * Receives the full document and should return badge data or undefined.
          *
          * @example
@@ -348,9 +306,6 @@ export interface SeoFieldsPluginConfig {
       }
 }
 
-const V132 = 'v1.3.2'
-const CHANGELOG_V132 = `https://github.com/hardik-143/sanity-plugin-seofields/blob/main/CHANGELOG.md#132--2026-03-23`
-
 interface ResolvedDashboardConfig {
   enabled: boolean
   toolTitle: string
@@ -381,81 +336,24 @@ interface ResolvedDashboardConfig {
   exportEnabled: boolean
   exportFormats: Array<'csv' | 'json'>
   compactStats: boolean
-  /** @internal — deprecated keys detected at config-resolution time, forwarded to the UI banner */
+  /** @internal — forwarded to the UI banner when deprecated config keys are detected */
   deprecationWarnings: DeprecationWarning[]
 }
+
+// const V132 = 'v1.3.2'
+// const CHANGELOG_V132 = `https://github.com/hardik-143/sanity-plugin-seofields/blob/main/CHANGELOG.md#132--2026-03-23`
 
 const resolveDashboardConfig = (
   healthDashboard: SeoFieldsPluginConfig['healthDashboard'],
 ): ResolvedDashboardConfig => {
   const cfg = typeof healthDashboard === 'object' ? healthDashboard : undefined
-  // Detect deprecated plugin-level keys and emit console warnings with guidance on updating to the new config structure. Warnings are collected in an array and also passed to the dashboard component for display in a banner.
-  const deprecationWarnings: DeprecationWarning[] = []
 
-  if (cfg?.display?.typeColumn !== undefined) {
-    deprecationWarnings.push({
-      key: 'display.typeColumn → showTypeColumn',
-      version: V132,
-      changelogUrl: CHANGELOG_V132,
-    })
-    if (cfg.showTypeColumn) {
-      console.warn(
-        `[sanity-plugin-seofields] Both "healthDashboard.display.typeColumn" and "healthDashboard.showTypeColumn" are set. "showTypeColumn" will take precedence. Please remove "healthDashboard.display.typeColumn". See ${CHANGELOG_V132}`,
-      )
-    } else {
-      console.warn(
-        `[sanity-plugin-seofields] "healthDashboard.display.typeColumn" is deprecated. Use "healthDashboard.showTypeColumn" instead. See ${CHANGELOG_V132}`,
-      )
-    }
-  }
-  if (cfg?.display?.documentId !== undefined) {
-    deprecationWarnings.push({
-      key: 'display.documentId → showDocumentId',
-      version: V132,
-      changelogUrl: CHANGELOG_V132,
-    })
-    if (cfg.showDocumentId) {
-      console.warn(
-        `[sanity-plugin-seofields] Both "healthDashboard.display.documentId" and "healthDashboard.showDocumentId" are set. "showDocumentId" will take precedence. Please remove "healthDashboard.display.documentId". See ${CHANGELOG_V132}`,
-      )
-    } else {
-      console.warn(
-        `[sanity-plugin-seofields] "healthDashboard.display.documentId" is deprecated. Use "healthDashboard.showDocumentId" instead. See ${CHANGELOG_V132}`,
-      )
-    }
-  }
-  if (cfg?.typeLabels) {
-    deprecationWarnings.push({
-      key: 'typeLabels → typeDisplayLabels',
-      version: V132,
-      changelogUrl: CHANGELOG_V132,
-    })
-    if (cfg.typeDisplayLabels) {
-      console.warn(
-        `[sanity-plugin-seofields] Both "healthDashboard.typeLabels" and "healthDashboard.typeDisplayLabels" are set. "typeDisplayLabels" will take precedence. Please remove "typeLabels". See ${CHANGELOG_V132}`,
-      )
-    } else {
-      console.warn(
-        `[sanity-plugin-seofields] "healthDashboard.typeLabels" is deprecated. Use "healthDashboard.typeDisplayLabels" instead. See ${CHANGELOG_V132}`,
-      )
-    }
-  }
-  if (cfg?.docBadge) {
-    deprecationWarnings.push({
-      key: 'docBadge → getDocumentBadge',
-      version: V132,
-      changelogUrl: CHANGELOG_V132,
-    })
-    if (cfg?.getDocumentBadge) {
-      console.warn(
-        `[sanity-plugin-seofields] Both "healthDashboard.docBadge" and "healthDashboard.getDocumentBadge" are set. "getDocumentBadge" will take precedence. Please remove "docBadge". See ${CHANGELOG_V132}`,
-      )
-    } else {
-      console.warn(
-        `[sanity-plugin-seofields] "healthDashboard.docBadge" is deprecated. Use "healthDashboard.getDocumentBadge" instead. See ${CHANGELOG_V132}`,
-      )
-    }
-  }
+  // Future deprecation warnings go here:
+  // const deprecationWarnings: DeprecationWarning[] = []
+  // if (cfg?.someOldKey !== undefined) {
+  //   deprecationWarnings.push({ key: 'someOldKey → newKey', version: 'vX.Y.Z', changelogUrl: '...' })
+  //   console.warn('[sanity-plugin-seofields] "someOldKey" is deprecated. Use "newKey" instead.')
+  // }
 
   return {
     enabled: healthDashboard !== false,
@@ -464,20 +362,17 @@ const resolveDashboardConfig = (
     icon: cfg?.content?.icon,
     title: cfg?.content?.title,
     description: cfg?.content?.description,
-    // New flat keys take precedence; fall back to deprecated display.* for backwards compat
-    showTypeColumn: cfg?.showTypeColumn ?? cfg?.display?.typeColumn,
-    showDocumentId: cfg?.showDocumentId ?? cfg?.display?.documentId,
+    showTypeColumn: cfg?.showTypeColumn,
+    showDocumentId: cfg?.showDocumentId,
     queryTypes: cfg?.query?.types,
     queryRequireSeo: cfg?.query?.requireSeo,
     queryGroq: cfg?.query?.groq,
     apiVersion: cfg?.apiVersion,
     licenseKey: cfg?.licenseKey,
-    // New key takes precedence; fall back to deprecated key for backwards compat
-    typeDisplayLabels: cfg?.typeDisplayLabels ?? cfg?.typeLabels,
+    typeDisplayLabels: cfg?.typeDisplayLabels,
     typeColumnMode: cfg?.typeColumnMode,
     titleField: cfg?.titleField,
-    // New key takes precedence; fall back to deprecated key for backwards compat
-    getDocumentBadge: cfg?.getDocumentBadge ?? cfg?.docBadge,
+    getDocumentBadge: cfg?.getDocumentBadge,
     loadingLicense: cfg?.content?.loadingLicense,
     loadingDocuments: cfg?.content?.loadingDocuments,
     noDocuments: cfg?.content?.noDocuments,
@@ -495,7 +390,7 @@ const resolveDashboardConfig = (
       return ['csv', 'json'] as Array<'csv' | 'json'>
     })(),
     compactStats: cfg?.compactStats ?? false,
-    deprecationWarnings,
+    deprecationWarnings: [],
   }
 }
 

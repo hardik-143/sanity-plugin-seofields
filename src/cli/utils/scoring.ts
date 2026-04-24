@@ -96,13 +96,22 @@ const scoreTwitterCard = (twitter?: Record<string, unknown>): {score: number; is
   return {score, issues}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const calculateHealthScore = (doc: any): SeoHealthMetrics => {
+interface SeoDocument {
+  seo?: Record<string, unknown>
+}
+
+export const calculateHealthScore = (doc: SeoDocument): SeoHealthMetrics => {
   if (!doc.seo) {
     return {score: 0, status: 'missing', issues: ['SEO fields not configured']}
   }
 
-  const {title, description, keywords, robots, openGraph, twitter} = doc.seo
+  const seo = doc.seo
+  const title = seo.title as string | undefined
+  const description = seo.description as string | undefined
+  const keywords = seo.keywords as string[] | undefined
+  const robots = seo.robots as {noIndex?: boolean; noFollow?: boolean} | undefined
+  const openGraph = seo.openGraph as Record<string, unknown> | undefined
+  const twitter = seo.twitter as Record<string, unknown> | undefined
   let score = 0
   const issues: string[] = []
 
@@ -115,7 +124,7 @@ export const calculateHealthScore = (doc: any): SeoHealthMetrics => {
   issues.push(...descResult.issues)
 
   // Image
-  if (doc.seo.metaImage) score += 10
+  if (seo.metaImage) score += 10
   else issues.push('Missing meta image')
 
   // Keywords
@@ -135,7 +144,7 @@ export const calculateHealthScore = (doc: any): SeoHealthMetrics => {
   issues.push(...twResult.issues)
 
   // Image completeness bonus
-  const hasMetaImage = !!doc.seo.metaImage
+  const hasMetaImage = !!seo.metaImage
   const hasOgImage = !!(openGraph && openGraph.image)
   const hasTwitterImage = !!(twitter && twitter.image)
   if (hasMetaImage && hasOgImage && hasTwitterImage) {

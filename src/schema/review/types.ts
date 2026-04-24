@@ -1,14 +1,24 @@
 // ─── Review Schema Types ──────────────────────────────────────────────────────
 
+import type {SchemaOrgCreativeWorkData} from '../_types'
+
+/** Item reviewed nested within the Review schema */
+export interface ReviewItemReviewed {
+  /** Name of the reviewed item */
+  name?: string
+  /** URL of the reviewed item */
+  url?: string
+}
+
 /** Schema.org Review — data shape returned from a Sanity GROQ query */
-export interface SchemaOrgReviewData {
+export interface SchemaOrgReviewData extends SchemaOrgCreativeWorkData {
   _type?: 'schemaOrgReview'
   /** Rating for the reviewed item */
   reviewRating?: {ratingValue?: string}
-  /** Author of the review */
-  author?: {name?: string}
   /** Full text of the review */
   reviewBody?: string
+  /** The item that is being reviewed */
+  itemReviewed?: ReviewItemReviewed
 }
 
 // ─── Plugin Configuration Types ───────────────────────────────────────────────

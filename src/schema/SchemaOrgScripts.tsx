@@ -16,24 +16,38 @@ import {JSX} from 'react'
 import {aggregateRatingFields} from './aggregateRating/schema'
 import {articleFields} from './article/schema'
 import {blogPostingFields} from './blogPosting/schema'
+import {bookFields} from './book/schema'
 import {brandFields} from './brand/schema'
 import {breadcrumbListFields} from './breadcrumbList/schema'
 import {contactPointFields} from './contactPoint/schema'
+import {countryFields} from './country/schema'
 import {courseFields} from './course/schema'
 import {eventFields} from './event/schema'
 import {faqPageFields} from './faqPage/schema'
 import {buildGenericJsonLd, SchemaFieldDef} from './generator'
 import {howToFields} from './howTo/schema'
 import {imageObjectFields} from './imageObject/schema'
+import {itemListFields} from './itemList/schema'
+import {jobPostingFields} from './jobPosting/schema'
+import {legalServiceFields} from './legalService/schema'
 import {localBusinessFields} from './localBusiness/schema'
+import {movieFields} from './movie/schema'
+import {musicAlbumFields} from './musicAlbum/schema'
+import {musicRecordingFields} from './musicRecording/schema'
+import {newsArticleFields} from './newsArticle/schema'
 import {offerFields} from './offer/schema'
 import {buildOrganizationJsonLd} from './organization/component'
 import {personFields} from './person/schema'
 import {placeFields} from './place/schema'
 import {postalAddressFields} from './postalAddress/schema'
 import {productFields} from './product/schema'
+import {profilePageFields} from './profilePage/schema'
+import {recipeFields} from './recipe/schema'
+import {restaurantFields} from './restaurant/schema'
 import {reviewFields} from './review/schema'
 import {SchemaOrgScript} from './SchemaOrgScript'
+import {serviceFields} from './service/schema'
+import {socialMediaPostingFields} from './socialMediaPosting/schema'
 import {softwareApplicationFields} from './softwareApplication/schema'
 import {videoObjectFields} from './videoObject/schema'
 import {webApplicationFields} from './webApplication/schema'
@@ -111,6 +125,56 @@ const GENERIC_TYPES: Record<string, GenericEntry> = {
     requiredFields: ['name'],
   },
   schemaOrgCourse: {schemaType: 'Course', fields: courseFields, requiredFields: ['name']},
+  schemaOrgLegalService: {
+    schemaType: 'LegalService',
+    fields: legalServiceFields,
+    requiredFields: ['name'],
+  },
+  schemaOrgCountry: {schemaType: 'Country', fields: countryFields, requiredFields: ['name']},
+  schemaOrgBook: {schemaType: 'Book', fields: bookFields, requiredFields: ['name']},
+  schemaOrgItemList: {
+    schemaType: 'ItemList',
+    fields: itemListFields,
+    requiredFields: ['name'],
+  },
+  schemaOrgJobPosting: {
+    schemaType: 'JobPosting',
+    fields: jobPostingFields,
+    requiredFields: ['title'],
+  },
+  schemaOrgMovie: {schemaType: 'Movie', fields: movieFields, requiredFields: ['name']},
+  schemaOrgMusicAlbum: {
+    schemaType: 'MusicAlbum',
+    fields: musicAlbumFields,
+    requiredFields: ['name'],
+  },
+  schemaOrgMusicRecording: {
+    schemaType: 'MusicRecording',
+    fields: musicRecordingFields,
+    requiredFields: ['name'],
+  },
+  schemaOrgNewsArticle: {
+    schemaType: 'NewsArticle',
+    fields: newsArticleFields,
+    requiredFields: ['headline'],
+  },
+  schemaOrgProfilePage: {
+    schemaType: 'ProfilePage',
+    fields: profilePageFields,
+    requiredFields: ['name'],
+  },
+  schemaOrgRecipe: {schemaType: 'Recipe', fields: recipeFields, requiredFields: ['name']},
+  schemaOrgRestaurant: {
+    schemaType: 'Restaurant',
+    fields: restaurantFields,
+    requiredFields: ['name'],
+  },
+  schemaOrgService: {schemaType: 'Service', fields: serviceFields, requiredFields: ['name']},
+  schemaOrgSocialMediaPosting: {
+    schemaType: 'SocialMediaPosting',
+    fields: socialMediaPostingFields,
+    requiredFields: ['headline'],
+  },
 }
 
 function buildJsonLdForItem(item: Record<string, unknown>): Record<string, unknown> | null {

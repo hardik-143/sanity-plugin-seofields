@@ -1,24 +1,14 @@
 // ─── WebPage Schema Types ─────────────────────────────────────────────────────
 
-/** Website info nested within the WebPage schema (isPartOf) */
-export interface WebPageWebSite {
-  /** URL of the parent website */
-  url?: string
-}
+import type {SchemaOrgCreativeWorkData} from '../_types'
 
 /** Schema.org WebPage — data shape returned from a Sanity GROQ query */
-export interface SchemaOrgWebPageData {
+export interface SchemaOrgWebPageData extends SchemaOrgCreativeWorkData {
   _type?: 'schemaOrgWebPage'
-  /** Page title */
-  name?: string
-  /** Full URL of the page */
-  url?: string
-  /** Short description of the page */
-  description?: string
   /** Language code, e.g. "en" */
   inLanguage?: string
-  /** The website this page is part of */
-  isPartOf?: WebPageWebSite
+  /** The specific type of web page (WebPage, AboutPage, ContactPage, etc.) */
+  pageType?: string
 }
 
 // ─── Plugin Configuration Types ───────────────────────────────────────────────

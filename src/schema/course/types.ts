@@ -1,5 +1,7 @@
 // ─── Course Schema Types ──────────────────────────────────────────────────────
 
+import type {SchemaOrgCreativeWorkData} from '../_types'
+
 /** Provider info nested within the Course schema */
 export interface CourseProvider {
   /** Provider organization name */
@@ -9,12 +11,10 @@ export interface CourseProvider {
 }
 
 /** Schema.org Course — data shape returned from a Sanity GROQ query */
-export interface SchemaOrgCourseData {
+export interface SchemaOrgCourseData extends SchemaOrgCreativeWorkData {
   _type?: 'schemaOrgCourse'
-  /** Course name */
-  name?: string
-  /** Short description of the course */
-  description?: string
+  /** An alphanumeric code that uniquely identifies the course */
+  courseCode?: string
   /** The organization that provides this course */
   provider?: CourseProvider
 }

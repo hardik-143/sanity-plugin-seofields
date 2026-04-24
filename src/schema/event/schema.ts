@@ -1,25 +1,28 @@
 import type {SchemaTypeDefinition} from 'sanity'
 
+import {nameField, polymorphicSponsor} from '../_shared'
 import {generateSchemaType, SchemaFieldDef, SchemaOrgConfig} from '../generator'
 import {SchemaOrgIcons} from '../icons'
-import type {SchemaOrgEventConfig} from './types'
+import type {SchemaOrgEventConfig, SchemaOrgEventData} from './types'
 
 // ─── Field Definitions ────────────────────────────────────────────────────────
 
 export const eventFields: SchemaFieldDef[] = [
-  {
-    name: 'name',
+  nameField({
     title: 'Event Name',
-    type: 'string',
     description: 'The name of the event.',
     required: {key: 'nameRequired', message: 'Event name is required for Schema.org.'},
-  },
+  }),
   {
     name: 'startDate',
     title: 'Start Date',
     type: 'date',
     description: 'The start date of the event.',
   },
+  polymorphicSponsor({
+    description: 'The person or organization that sponsors the event.',
+    title: 'Sponsor',
+  }),
   {
     name: 'location',
     title: 'Location',
@@ -49,9 +52,14 @@ export default function schemaOrgEvent(config: SchemaOrgEventConfig = {}): Schem
   return generateSchemaType(
     {
       name: 'schemaOrgEvent',
-      title: 'Schema.org — Event',
+      title: 'Event',
       icon: SchemaOrgIcons.event,
       fields: eventFields,
+      customPrepareSubtitle: (document: SchemaOrgEventData) => {
+        const name = document.name ?? 'Untitled event'
+        const date = document.startDate ? ` · ${document.startDate}` : ''
+        return `${name}${date}`
+      },
     },
     config as SchemaOrgConfig,
   )
