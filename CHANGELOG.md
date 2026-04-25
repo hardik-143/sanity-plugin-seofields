@@ -7,17 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.2] — 2026-05-03
+
+### 🐛 Fixed
+
+- **`titleSuffix` separator convention** — The `|` separator between the meta title and suffix is now always added automatically by the plugin. Users should provide only the bare text (e.g. `'Acme Inc'`, not `'| Acme Inc'`). Providing a leading pipe would have resulted in a double-pipe (`|| Acme Inc`) in the SERP preview.
+- **`titleSuffix` character counter** — The 60-character title limit now correctly accounts for the ` | ` separator (2 extra characters) added by the plugin, so the counter remains accurate when a suffix is configured.
+
+---
+
 ## [1.6.1] — 2026-04-25
 
 ### ✨ Added
 
-- **`seoPreview.titleSuffix`** — Append a static string or dynamic function-based suffix to the meta title in the Live SEO Preview (e.g. `| Acme Inc`). The character counter for the title field automatically subtracts the suffix length so the limit stays accurate. Requested in [#6](https://github.com/hardik-143/sanity-plugin-seofields/issues/6).
+- **`seoPreview.titleSuffix`** — Append a static string or dynamic function-based suffix to the meta title in the Live SEO Preview (e.g. `Acme Inc` — the `|` separator is added automatically by the plugin). The character counter for the title field automatically subtracts the suffix length (plus the `| ` separator) so the limit stays accurate. Requested in [#6](https://github.com/hardik-143/sanity-plugin-seofields/issues/6).
   ```ts
   seofields({
     seoPreview: {
-      titleSuffix: '| Acme Inc',
+      titleSuffix: 'Acme Inc',
       // or function-based:
-      titleSuffix: (doc) => doc?.brandName ? `| ${doc.brandName}` : '',
+      titleSuffix: (doc) => doc?.brandName ?? '',
     },
   })
   ```

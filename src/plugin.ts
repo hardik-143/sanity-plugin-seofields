@@ -93,14 +93,15 @@ export interface SeoFieldsPluginConfig {
    * If set to `true`, the SEO preview will be enabled with default settings.
    * If set to an object, you can provide a custom `prefix` function to modify the URL prefix
    * and/or a `titleSuffix` to append text (e.g. a brand name) after the meta title in the preview.
+   * The plugin automatically adds a `|` separator — only provide the suffix text itself.
    *
    * Example:
    * ```
    * seoPreview: {
    *   prefix: (doc) => `/${doc.slug?.current || 'untitled'}`,
-   *   titleSuffix: ' | Acme Corp',
+   *   titleSuffix: 'Acme Corp',
    *   // or dynamically:
-   *   titleSuffix: (doc) => ` | ${doc.brandName || 'Acme Corp'}`,
+   *   titleSuffix: (doc) => doc.brandName || 'Acme Corp',
    * }
    * ```
    */
@@ -110,11 +111,12 @@ export interface SeoFieldsPluginConfig {
         prefix?: (doc: {_type?: string} & Record<string, unknown>) => string
         /**
          * A static string or function appended to the meta title in the Live Preview.
-         * Useful for showing a brand suffix (e.g. `' | Acme Corp'`) that is added
+         * Useful for showing a brand suffix (e.g. `'Acme Corp'`) that is added
          * via your Next.js title template but not stored in the Sanity field.
-         * The suffix is rendered in a muted style so editors can distinguish it from
-         * the typed title.  The combined length is checked against the 60-character
-         * SERP limit.
+         * The plugin automatically prepends a `|` separator so only provide the
+         * text itself. The suffix is rendered in a muted style so editors can
+         * distinguish it from the typed title. The combined length (including the
+         * separator) is checked against the 60-character SERP limit.
          */
         titleSuffix?: string | ((doc: {_type?: string} & Record<string, unknown>) => string)
         /**

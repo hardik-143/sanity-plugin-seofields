@@ -196,7 +196,7 @@ const SeoPreview = (props: StringInputProps): ReactElement => {
           <SerpTitle>
             {title && title.length > 0 ? (
               <>
-                {truncate(title, Math.max(1, 60 - titleSuffix.length))}
+                {truncate(title, Math.max(1, 60 - (titleSuffix ? titleSuffix.length + 2 : 0)))}
                 {titleSuffix && (
                   <span
                     style={
