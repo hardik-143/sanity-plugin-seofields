@@ -1,4 +1,4 @@
-import React from 'react'
+import {createElement, lazy, Suspense} from 'react'
 import {
   defineField,
   defineType,
@@ -18,9 +18,9 @@ import openGraph from './types/openGraph'
 import twitter from './types/twitter'
 
 // Lazy-load SeoPreview to avoid styled-components breaking `sanity schema extract`
-const LazySeoPreview = React.lazy(() => import('../components/SeoPreview'))
+const LazySeoPreview = lazy(() => import('../components/SeoPreview'))
 const SeoPreviewWrapper = (props: StringInputProps) =>
-  React.createElement(React.Suspense, {fallback: null}, React.createElement(LazySeoPreview, props))
+  createElement(Suspense, {fallback: null}, createElement(LazySeoPreview, props))
 
 /**
  * Build a field-name → group-name(s) lookup from the plugin config.
@@ -103,10 +103,26 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
                 components: {input: SeoPreviewWrapper},
                 options: {
                   baseUrl: config.baseUrl || 'https://www.example.com',
+                  ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
                   ...(typeof config.seoPreview === 'object' &&
                   config.seoPreview &&
                   config.seoPreview.prefix
                     ? {prefix: config.seoPreview.prefix}
+                    : {}),
+                  ...(typeof config.seoPreview === 'object' &&
+                  config.seoPreview &&
+                  config.seoPreview.titleSuffix
+                    ? {titleSuffix: config.seoPreview.titleSuffix}
+                    : {}),
+                  ...(typeof config.seoPreview === 'object' &&
+                  config.seoPreview &&
+                  config.seoPreview.titleSuffixInheritColor
+                    ? {titleSuffixInheritColor: config.seoPreview.titleSuffixInheritColor}
+                    : {}),
+                  ...(typeof config.seoPreview === 'object' &&
+                  config.seoPreview &&
+                  config.seoPreview.titleSuffixQuery
+                    ? {titleSuffixQuery: config.seoPreview.titleSuffixQuery}
                     : {}),
                 } as Record<string, unknown>,
                 initialValue: '' as string,

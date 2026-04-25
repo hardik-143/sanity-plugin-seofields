@@ -9,7 +9,7 @@
  * It also provides a generic JSON-LD builder and React component factory so
  * adding a new Schema.org type requires only a field definition array.
  */
-import React from 'react'
+import type {ComponentType} from 'react'
 import {defineField, defineType, FieldDefinition, SchemaTypeDefinition} from 'sanity'
 
 // ─── Field Definition Types ───────────────────────────────────────────────────
@@ -95,7 +95,7 @@ export interface SchemaTypeDef {
   /** Title shown in Studio, e.g. "Website" */
   title: string
   /** Icon component shown in Studio and the array grid picker */
-  icon?: React.ComponentType
+  icon?: ComponentType
   /** Field definitions */
   fields: SchemaFieldDef[]
   /** Optional custom subtitle generator for the Studio preview */

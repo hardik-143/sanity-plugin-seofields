@@ -1,11 +1,11 @@
 import {Stack, Text} from '@sanity/ui'
-import React, {useMemo} from 'react'
+import {type ReactElement, useMemo} from 'react'
 import {StringInputProps, useFormValue} from 'sanity'
 
 import {FeedbackType} from '../../types'
 import {getMetaDescriptionValidationMessages} from '../../utils/seoUtils'
 
-const MetaDescription = (props: StringInputProps): React.ReactElement => {
+const MetaDescription = (props: StringInputProps): ReactElement => {
   const {value, renderDefault, path} = props
 
   const parent = useFormValue([path[0]]) as {keywords?: string[]; _type?: string}

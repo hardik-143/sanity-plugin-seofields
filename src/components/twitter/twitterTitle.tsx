@@ -1,11 +1,11 @@
 import {Stack, Text} from '@sanity/ui'
-import React, {useMemo} from 'react'
+import {type ReactElement, useMemo} from 'react'
 import {StringInputProps, useFormValue} from 'sanity'
 
 import {FeedbackType} from '../../types'
 import {getTwitterTitleValidation} from '../../utils/seoUtils'
 
-const TwitterTitle = (props: StringInputProps): React.ReactElement => {
+const TwitterTitle = (props: StringInputProps): ReactElement => {
   const {value, renderDefault, path} = props
 
   // Access parent object to get keywords

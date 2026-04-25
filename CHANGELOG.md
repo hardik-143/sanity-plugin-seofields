@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.1] — 2026-04-25
+
+### ✨ Added
+
+- **`seoPreview.titleSuffix`** — Append a static string or dynamic function-based suffix to the meta title in the Live SEO Preview (e.g. `| Acme Inc`). The character counter for the title field automatically subtracts the suffix length so the limit stays accurate. Requested in [#6](https://github.com/hardik-143/sanity-plugin-seofields/issues/6).
+  ```ts
+  seofields({
+    seoPreview: {
+      titleSuffix: '| Acme Inc',
+      // or function-based:
+      titleSuffix: (doc) => doc?.brandName ? `| ${doc.brandName}` : '',
+    },
+  })
+  ```
+- **`seoPreview.titleSuffixQuery`** — Dynamic GROQ-based title suffix fetched at runtime from the dataset (takes priority over `titleSuffix`). Useful when the suffix is stored in a site-settings document.
+  ```ts
+  seofields({
+    seoPreview: {
+      titleSuffixQuery: `*[_id == "siteSettings"][0].titleSuffix`,
+    },
+  })
+  ```
+- **`seoPreview.titleSuffixInheritColor`** — When `true`, the suffix in the SERP preview renders in the same blue as the main title (`#1a0dab`) instead of the default grey (`#70757a`).
+- **Root-level `apiVersion`** — New top-level `apiVersion` option on `SeoFieldsPluginConfig`. Used internally by the Live Preview's GROQ client and by the SEO Health Dashboard, eliminating the need to set it in both places.
+  ```ts
+  seofields({
+    apiVersion: '2024-01-01',
+  })
+  ```
+
+### 🗑️ Deprecated
+
+- **`healthDashboard.apiVersion`** — Move `apiVersion` to the root config instead. The old key still works but logs a console warning and shows an amber banner inside the dashboard UI.
+
+---
+
 ## [1.6.0] — 2026-04-22
 
 ### ✨ Added

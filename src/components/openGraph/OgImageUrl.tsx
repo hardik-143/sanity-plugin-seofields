@@ -1,11 +1,11 @@
 import {Stack, Text} from '@sanity/ui'
-import React, {useMemo} from 'react'
+import {type ReactElement, useMemo} from 'react'
 import {StringInputProps, useFormValue} from 'sanity'
 
 import {FeedbackType} from '../../types'
 import {getOgImageUrlValidation} from '../../utils/seoUtils'
 
-const OgImageUrl = (props: StringInputProps): React.ReactElement => {
+const OgImageUrl = (props: StringInputProps): ReactElement => {
   const {value, renderDefault, path} = props
 
   const seoParent = useFormValue([path[0]]) as Record<string, unknown> | null

@@ -1,11 +1,11 @@
 import {Stack, Text} from '@sanity/ui'
-import React, {useMemo} from 'react'
+import {type ReactNode, useMemo} from 'react'
 import {StringInputProps, useFormValue} from 'sanity'
 
 import {FeedbackType} from '../../types'
 import {getOgTitleValidation} from '../../utils/seoUtils'
 
-const OgTitle: React.FC<StringInputProps> = (props) => {
+const OgTitle = (props: StringInputProps): ReactNode => {
   const {value, renderDefault, path} = props
 
   // Access parent object to get keywords

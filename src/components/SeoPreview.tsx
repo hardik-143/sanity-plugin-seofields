@@ -1,6 +1,6 @@
 import {Box} from '@sanity/ui'
-import React from 'react'
-import {StringInputProps, useFormValue} from 'sanity'
+import {type ReactElement, useEffect, useState} from 'react'
+import {StringInputProps, useClient, useFormValue} from 'sanity'
 import styled from 'styled-components'
 
 import {truncate} from '../utils/seoUtils'
@@ -75,18 +75,40 @@ const LiveIndicator = styled.span`
   border-radius: 4px;
 `
 
-const SeoPreview = (props: StringInputProps): React.ReactElement => {
+const SeoPreview = (props: StringInputProps): ReactElement => {
   const {path, schemaType} = props
   const {options} = schemaType as {
     options?: {
       baseUrl?: string
+      apiVersion?: string
       prefix?: ((doc: {_type?: string} & Record<string, unknown>) => string) | string
+      titleSuffix?: ((doc: {_type?: string} & Record<string, unknown>) => string) | string
+      titleSuffixInheritColor?: boolean
+      titleSuffixQuery?: string
     }
   }
   const baseUrl = options?.baseUrl || 'https://www.example.com'
   const prefixFunction = options?.prefix as
     | ((doc: {_type?: string} & Record<string, unknown>) => string)
     | undefined
+  const titleSuffixOption = options?.titleSuffix
+  const titleSuffixInheritColor = options?.titleSuffixInheritColor ?? false
+  const titleSuffixQuery = options?.titleSuffixQuery
+
+  const client = useClient({apiVersion: options?.apiVersion ?? '2024-01-01'})
+  const [groqTitleSuffix, setGroqTitleSuffix] = useState<string>('')
+
+  useEffect(() => {
+    if (!titleSuffixQuery) return
+    client
+      .fetch<string>(titleSuffixQuery)
+      .then((result) => {
+        setGroqTitleSuffix(result === null || result === undefined ? '' : String(result))
+      })
+      .catch(() => {
+        setGroqTitleSuffix('')
+      })
+  }, [titleSuffixQuery, client])
   const parent = useFormValue([path[0]]) || {
     title: '',
     description: '',
@@ -108,6 +130,16 @@ const SeoPreview = (props: StringInputProps): React.ReactElement => {
     description?: string
     canonicalUrl?: string
   }
+
+  const getTitleSuffix = (): string => {
+    if (titleSuffixQuery) return groqTitleSuffix
+    if (!titleSuffixOption) return ''
+    if (typeof titleSuffixOption === 'function') {
+      return titleSuffixOption(rootDoc as {_type?: string} & Record<string, unknown>)
+    }
+    return titleSuffixOption
+  }
+  const titleSuffix: string = getTitleSuffix()
 
   // Build full URL
   const base = (url || baseUrl)?.replace(/\/+$/, '')
@@ -162,7 +194,22 @@ const SeoPreview = (props: StringInputProps): React.ReactElement => {
         <PreviewBody>
           <SerpUrl>{finalUrl ? urlDisplay : 'example.com › page-url'}</SerpUrl>
           <SerpTitle>
-            {title && title.length > 0 ? truncate(title, 60) : 'Your SEO Title will appear here'}
+            {title && title.length > 0 ? (
+              <>
+                {truncate(title, Math.max(1, 60 - titleSuffix.length))}
+                {titleSuffix && (
+                  <span
+                    style={
+                      titleSuffixInheritColor ? undefined : {color: '#70757a', fontWeight: 400}
+                    }
+                  >
+                    | {titleSuffix}
+                  </span>
+                )}
+              </>
+            ) : (
+              'Your SEO Title will appear here'
+            )}
           </SerpTitle>
           <SerpDescription>
             {description && description.length > 0

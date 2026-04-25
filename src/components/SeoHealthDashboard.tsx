@@ -1,4 +1,13 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import {useClient, useWorkspace} from 'sanity'
 import {useIntentLink} from 'sanity/router'
 import {usePaneRouter} from 'sanity/structure'
@@ -774,7 +783,7 @@ const ThemeButton = styled.button<{$active?: boolean; $theme: 'light' | 'dark' |
   }
 `
 
-const SunIcon: React.FC = () => (
+const SunIcon = () => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -795,7 +804,7 @@ const SunIcon: React.FC = () => (
   </svg>
 )
 
-const MoonIcon: React.FC = () => (
+const MoonIcon = () => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -808,7 +817,7 @@ const MoonIcon: React.FC = () => (
   </svg>
 )
 
-const MonitorIcon: React.FC = () => (
+const MonitorIcon = () => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -824,12 +833,17 @@ const MonitorIcon: React.FC = () => (
 )
 
 // Sub-component so useIntentLink can be called at the top level of a component (not inside .map)
-const DocTitleAnchor: React.FC<{
+const DocTitleAnchor = ({
+  id,
+  type,
+  structureTool,
+  children,
+}: {
   id: string
   type: string
   structureTool?: string
-  children: React.ReactNode
-}> = ({id, type, structureTool, children}) => {
+  children: ReactNode
+}) => {
   const {basePath} = useWorkspace()
   const {onClick: intentOnClick, href: intentHref} = useIntentLink({
     intent: 'edit',
@@ -875,10 +889,14 @@ const PaneLinkWrapper = styled.span`
 // Sub-component for desk-structure split-pane navigation.
 // Uses ChildLink from usePaneRouter to open the document editor to the right
 // while keeping the SEO Health pane visible on the left.
-const DocTitleAnchorPane: React.FC<{id: string; type: string; children: React.ReactNode}> = ({
+const DocTitleAnchorPane = ({
   id,
   type,
   children,
+}: {
+  id: string
+  type: string
+  children: ReactNode
 }) => {
   const {ChildLink} = usePaneRouter()
   return (
@@ -891,12 +909,15 @@ const DocTitleAnchorPane: React.FC<{id: string; type: string; children: React.Re
 }
 
 // Sub-component to safely call docBadge outside a .map expression
-const DocBadgeRenderer: React.FC<{
+const DocBadgeRenderer = ({
+  doc,
+  docBadge,
+}: {
   doc: DocumentWithSeoHealth & Record<string, unknown>
   docBadge: (
-    doc: DocumentWithSeoHealth & Record<string, unknown>,
+    _doc: DocumentWithSeoHealth & Record<string, unknown>,
   ) => {label: string; bgColor?: string; textColor?: string; fontSize?: string} | undefined
-}> = ({doc, docBadge}) => {
+}) => {
   const badge = docBadge(doc)
   if (!badge) return null
   return (
@@ -1095,14 +1116,14 @@ interface RenderLicenseState {
   validateLicense: (forceRefresh?: boolean) => Promise<void>
 }
 
-const RenderLicenseLoading: React.FC<{text?: React.ReactNode}> = ({text}) => (
+const RenderLicenseLoading = ({text}: {text?: ReactNode}) => (
   <LoadingState style={{padding: '80px 24px'}}>
     <Spinner />
     {text ?? 'Verifying license…'}
   </LoadingState>
 )
 
-const RenderLicenseInvalid: React.FC<RenderLicenseState> = ({licenseKey, validateLicense}) => (
+const RenderLicenseInvalid = ({licenseKey, validateLicense}: RenderLicenseState) => (
   <UpgradeContainer>
     <UpgradeBox>
       {licenseKey ? (
@@ -1400,17 +1421,17 @@ export interface SeoHealthDashboardProps {
    * Custom text shown while the license key is being verified.
    * Defaults to `"Verifying license…"`.
    */
-  loadingLicense?: React.ReactNode
+  loadingLicense?: ReactNode
   /**
    * Custom text shown while documents are being fetched.
    * Defaults to `"Loading documents…"`.
    */
-  loadingDocuments?: React.ReactNode
+  loadingDocuments?: ReactNode
   /**
    * Custom text shown when the query returns zero results.
    * Defaults to `"No documents found"`.
    */
-  noDocuments?: React.ReactNode
+  noDocuments?: ReactNode
   /**
    * Enable preview/demo mode to show dummy data.
    * Useful for testing, documentation, or showcasing the dashboard.
@@ -1611,7 +1632,7 @@ const generateDummyData = (): DocumentWithSeoHealth[] => {
 const VALIDATION_ENDPOINT = 'https://sanity-plugin-seofields.thehardik.in/api/validate-license'
 const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
 
-const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
+const SeoHealthDashboard = ({
   icon = '📊',
   title = 'SEO Health Dashboard',
   description = 'Monitor and optimize SEO fields across all your documents',
@@ -1636,7 +1657,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   exportEnabled = true,
   exportFormats = ['csv', 'json'],
   compactStats = false,
-}) => {
+}: SeoHealthDashboardProps): ReactElement => {
   const resolvedTypeLabels = typeDisplayLabels
   const resolvedDocBadge = getDocumentBadge
 
@@ -2214,13 +2235,17 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
             placeholder="Search documents... (press / to focus)"
             value={searchQuery}
             // eslint-disable-next-line react/jsx-no-bind
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
+            onChange={(e: {currentTarget: HTMLInputElement}) =>
+              setSearchQuery(e.currentTarget.value)
+            }
           />
         </SearchWrapper>
         <StyledSelect
           value={filterStatus}
           // eslint-disable-next-line react/jsx-no-bind
-          onChange={(e) => handleFilterStatusChange(e.currentTarget.value)}
+          onChange={(e: {currentTarget: HTMLSelectElement}) =>
+            handleFilterStatusChange(e.currentTarget.value)
+          }
         >
           <option value="all">All Status</option>
           <option value="excellent">Excellent</option>
@@ -2233,7 +2258,9 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
           <StyledSelect
             value={filterType}
             // eslint-disable-next-line react/jsx-no-bind
-            onChange={(e) => handleFilterTypeChange(e.currentTarget.value)}
+            onChange={(e: {currentTarget: HTMLSelectElement}) =>
+              handleFilterTypeChange(e.currentTarget.value)
+            }
           >
             <option value="all">All Types</option>
             {uniqueDocumentTypes.map((type) => (
@@ -2246,7 +2273,9 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
         <StyledSelect
           value={sortBy}
           // eslint-disable-next-line react/jsx-no-bind
-          onChange={(e) => setSortBy(e.currentTarget.value as 'score' | 'title')}
+          onChange={(e: {currentTarget: HTMLSelectElement}) =>
+            setSortBy(e.currentTarget.value as 'score' | 'title')
+          }
         >
           <option value="score">Sort by Score</option>
           <option value="title">Sort by Title</option>
@@ -2348,7 +2377,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
                       {doc.health.issues.length > 2 && (
                         <MoreIssuesWrapper
                           // eslint-disable-next-line react/jsx-no-bind
-                          onMouseEnter={function (e) {
+                          onMouseEnter={function (e: {currentTarget: HTMLDivElement}) {
                             handleMouseEnterIssues(
                               e.currentTarget as HTMLDivElement,
                               doc.health.issues.slice(2),
@@ -2396,7 +2425,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
                     value={pageSize}
                     style={{height: 30, fontSize: 12, padding: '0 28px 0 8px'}}
                     // eslint-disable-next-line react/jsx-no-bind
-                    onChange={(e) => {
+                    onChange={(e: {currentTarget: HTMLSelectElement}) => {
                       const size = Number(e.currentTarget.value)
                       setPageSize(size)
                       try {
@@ -2435,7 +2464,7 @@ const SeoHealthDashboard: React.FC<SeoHealthDashboardProps> = ({
   )
 
   return (
-    <DashboardContainer style={currentVars as React.CSSProperties}>
+    <DashboardContainer style={currentVars as CSSProperties}>
       {licenseStatus === 'loading' && <RenderLicenseLoading text={loadingLicense} />}
       {licenseStatus === 'invalid' && (
         <RenderLicenseInvalid licenseKey={licenseKey} validateLicense={validateLicense} />

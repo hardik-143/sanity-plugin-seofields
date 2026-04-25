@@ -1,11 +1,11 @@
 import {Stack, Text} from '@sanity/ui'
-import React, {useMemo} from 'react'
+import {type ReactElement, useMemo} from 'react'
 import {ObjectInputProps, useFormValue} from 'sanity'
 
 import {FeedbackType} from '../../types'
 import {getTwitterImageValidation} from '../../utils/seoUtils'
 
-const TwitterImage = (props: ObjectInputProps): React.ReactElement => {
+const TwitterImage = (props: ObjectInputProps): ReactElement => {
   const {value, renderDefault, path} = props
 
   const seoParent = useFormValue([path[0]]) as Record<string, unknown> | null

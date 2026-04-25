@@ -7,7 +7,7 @@
  */
 import {AddIcon, SearchIcon} from '@sanity/icons'
 import {Box, Button, Card, Dialog, Flex, Grid, Heading, Stack, Text, TextInput} from '@sanity/ui'
-import React, {JSX, useCallback, useMemo, useState} from 'react'
+import {type ChangeEvent, type ComponentType, JSX, useCallback, useMemo, useState} from 'react'
 import type {ArrayInputFunctionsProps, ArraySchemaType} from 'sanity'
 import type {InputProps} from 'sanity'
 
@@ -52,7 +52,7 @@ function TypeArrayFunctions(props: ArrayInputFunctionsProps<any, ArraySchemaType
     setSearch('')
   }, [])
   const onOpen = useCallback(() => setOpen(true), [])
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.currentTarget.value)
   }, [])
 
@@ -130,7 +130,7 @@ function TypeArrayFunctions(props: ArrayInputFunctionsProps<any, ArraySchemaType
                       <Grid columns={[1, 1, 2]} gap={2}>
                         {types.map((info) => {
                           const schemaItem = schemaType.of.find((t) => t.name === info.type)
-                          const Icon = schemaItem?.icon as React.ComponentType | undefined
+                          const Icon = schemaItem?.icon as ComponentType | undefined
                           return (
                             <Card
                               key={info.type}

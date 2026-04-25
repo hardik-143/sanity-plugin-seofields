@@ -1,5 +1,5 @@
 // plugin.ts
-import React from 'react'
+import {type ComponentType, createElement, lazy, Suspense} from 'react'
 import {definePlugin} from 'sanity'
 
 import types from './schemas/types'
@@ -75,7 +75,7 @@ export interface SeoFieldGroup {
    */
   fields: SeoObjectFieldName[]
   /** Optional icon displayed next to the tab title. Must be a React component. */
-  icon?: React.ComponentType
+  icon?: ComponentType
 }
 
 export type ValidHiddenFieldKeys = Exclude<
@@ -91,12 +91,16 @@ export interface SeoFieldsPluginConfig {
   /**
    * Enable or configure the SEO preview feature.
    * If set to `true`, the SEO preview will be enabled with default settings.
-   * If set to an object, you can provide a custom prefix function to modify the URL prefix in the preview.
-   * The prefix function receives the current document as an argument and should return a string.
+   * If set to an object, you can provide a custom `prefix` function to modify the URL prefix
+   * and/or a `titleSuffix` to append text (e.g. a brand name) after the meta title in the preview.
+   *
    * Example:
    * ```
    * seoPreview: {
-   *   prefix: (doc) => `/${doc.slug?.current || 'untitled'}`
+   *   prefix: (doc) => `/${doc.slug?.current || 'untitled'}`,
+   *   titleSuffix: ' | Acme Corp',
+   *   // or dynamically:
+   *   titleSuffix: (doc) => ` | ${doc.brandName || 'Acme Corp'}`,
    * }
    * ```
    */
@@ -104,6 +108,35 @@ export interface SeoFieldsPluginConfig {
     | boolean
     | {
         prefix?: (doc: {_type?: string} & Record<string, unknown>) => string
+        /**
+         * A static string or function appended to the meta title in the Live Preview.
+         * Useful for showing a brand suffix (e.g. `' | Acme Corp'`) that is added
+         * via your Next.js title template but not stored in the Sanity field.
+         * The suffix is rendered in a muted style so editors can distinguish it from
+         * the typed title.  The combined length is checked against the 60-character
+         * SERP limit.
+         */
+        titleSuffix?: string | ((doc: {_type?: string} & Record<string, unknown>) => string)
+        /**
+         * When `true`, the `titleSuffix` is rendered in the same color and weight
+         * as the main title (`#1a0dab`, `fontWeight: 500`) instead of the default
+         * muted style (`#70757a`, `fontWeight: 400`).
+         *
+         * @default false
+         */
+        titleSuffixInheritColor?: boolean
+        /**
+         * A GROQ query string whose result is used as the title suffix in the Live Preview.
+         * The query runs against your dataset at Studio load time, making it useful for
+         * fetching a dynamic value from another document (e.g. a settings singleton).
+         * Takes priority over `titleSuffix` when both are provided.
+         *
+         * @example
+         * ```ts
+         * titleSuffixQuery: '*[_type == "siteSettings"][0].siteName'
+         * ```
+         */
+        titleSuffixQuery?: string
       }
 
   /**
@@ -143,6 +176,12 @@ export interface SeoFieldsPluginConfig {
    * Defaults to 'https://www.example.com' if not provided.
    */
   baseUrl?: string
+  /**
+   * The Sanity API version to use for all plugin clients (SEO Preview, Health Dashboard).
+   * Defaults to '2024-01-01'.
+   * @example '2024-01-01'
+   */
+  apiVersion?: string
   /**
    * Enable or configure the SEO Health Dashboard tool.
    * If set to `true`, the dashboard is enabled with all defaults.
@@ -221,6 +260,12 @@ export interface SeoFieldsPluginConfig {
         /**
          * The Sanity API version to use for the client (e.g. '2023-01-01').
          * Defaults to '2023-01-01'.
+         * @deprecated Use the root-level `apiVersion` option instead.
+         * @example
+         * // Before (deprecated):
+         * healthDashboard: { apiVersion: '2024-01-01' }
+         * // After:
+         * apiVersion: '2024-01-01'
          */
         apiVersion?: string
         /**
@@ -345,15 +390,21 @@ interface ResolvedDashboardConfig {
 
 const resolveDashboardConfig = (
   healthDashboard: SeoFieldsPluginConfig['healthDashboard'],
+  rootApiVersion?: string,
 ): ResolvedDashboardConfig => {
   const cfg = typeof healthDashboard === 'object' ? healthDashboard : undefined
 
-  // Future deprecation warnings go here:
-  // const deprecationWarnings: DeprecationWarning[] = []
-  // if (cfg?.someOldKey !== undefined) {
-  //   deprecationWarnings.push({ key: 'someOldKey → newKey', version: 'vX.Y.Z', changelogUrl: '...' })
-  //   console.warn('[sanity-plugin-seofields] "someOldKey" is deprecated. Use "newKey" instead.')
-  // }
+  const deprecationWarnings: DeprecationWarning[] = []
+  if (cfg?.apiVersion !== undefined) {
+    deprecationWarnings.push({
+      key: 'healthDashboard.apiVersion → apiVersion',
+      version: 'v1.6.1',
+      changelogUrl: 'https://github.com/hardik-143/sanity-plugin-seofields/blob/main/CHANGELOG.md',
+    })
+    console.warn(
+      '[sanity-plugin-seofields] "healthDashboard.apiVersion" is deprecated. Move it to the root "apiVersion" option instead.',
+    )
+  }
 
   return {
     enabled: healthDashboard !== false,
@@ -367,7 +418,7 @@ const resolveDashboardConfig = (
     queryTypes: cfg?.query?.types,
     queryRequireSeo: cfg?.query?.requireSeo,
     queryGroq: cfg?.query?.groq,
-    apiVersion: cfg?.apiVersion,
+    apiVersion: cfg?.apiVersion ?? rootApiVersion,
     licenseKey: cfg?.licenseKey,
     typeDisplayLabels: cfg?.typeDisplayLabels,
     typeColumnMode: cfg?.typeColumnMode,
@@ -390,21 +441,21 @@ const resolveDashboardConfig = (
       return ['csv', 'json'] as Array<'csv' | 'json'>
     })(),
     compactStats: cfg?.compactStats ?? false,
-    deprecationWarnings: [],
+    deprecationWarnings,
   }
 }
 
 const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
   const {healthDashboard = true} = config as SeoFieldsPluginConfig
-  const dash = resolveDashboardConfig(healthDashboard)
+  const dash = resolveDashboardConfig(healthDashboard, (config as SeoFieldsPluginConfig).apiVersion)
 
-  const LazySeoHealthTool = React.lazy(() => import('./components/SeoHealthTool'))
+  const LazySeoHealthTool = lazy(() => import('./components/SeoHealthTool'))
 
   const BoundSeoHealthTool = () =>
-    React.createElement(
-      React.Suspense,
+    createElement(
+      Suspense,
       {fallback: null},
-      React.createElement(LazySeoHealthTool, {
+      createElement(LazySeoHealthTool, {
         icon: dash.icon,
         title: dash.title,
         description: dash.description,

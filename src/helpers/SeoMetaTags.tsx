@@ -34,7 +34,7 @@
  * </Head>
  * ```
  */
-import React from 'react'
+import {Fragment, type JSX} from 'react'
 
 import type {SanityImage, SanityImageWithAlt, SeoFields} from '../types'
 import {buildSeoMeta, type BuildSeoMetaOptions} from './seoMeta'
@@ -95,7 +95,7 @@ export function SeoMetaTags({
   path,
   defaults,
   imageUrlResolver,
-}: SeoMetaTagsProps): React.JSX.Element {
+}: SeoMetaTagsProps): JSX.Element {
   const meta = buildSeoMeta({seo: data, baseUrl, path, defaults, imageUrlResolver})
 
   const robotsContent = [
@@ -125,12 +125,13 @@ export function SeoMetaTags({
         <meta property="og:site_name" content={meta.openGraph.siteName} />
       )}
       {meta.openGraph?.images?.map((img, i) => (
-        <React.Fragment key={`og-img-${i}`}>
+        // eslint-disable-next-line react/no-array-index-key
+        <Fragment key={`og-img-${i}`}>
           <meta property="og:image" content={img.url} />
           {img.width && <meta property="og:image:width" content={String(img.width)} />}
           {img.height && <meta property="og:image:height" content={String(img.height)} />}
           {img.alt && <meta property="og:image:alt" content={img.alt} />}
-        </React.Fragment>
+        </Fragment>
       ))}
 
       {/* ── Twitter Card ── */}
