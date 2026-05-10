@@ -7,12 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.3] — 2026-05-02
+
+### ✨ Added
+
+- **Legacy user upgrade banner** — Users whose license key is recognised as a "legacy" (free-beta) key now see an amber banner inside the SEO Health Dashboard instead of a hard block. The banner shows the upgrade deadline date (if supplied by the server), a human-readable formatted date, a direct `Upgrade for $10/project →` call-to-action link, and an `Already paid? Click here to verify your license →` action to immediately re-check the license after purchase. The dashboard content remains fully accessible behind the banner so existing users are not disrupted.
+
+### 🔄 Changed
+
+- **Package metadata and peer dependencies** — Added `@sanity/icons` as a peer dependency (`>=2`) and dev dependency, and refreshed the npm package description / keywords to better reflect Sanity v3/v4/v5 support, the built-in audit dashboard, and the plugin's broader SEO + Schema.org feature set.
+
+### 📝 Documentation
+
+- **README overhaul** — Renamed package heading to `sanity-plugin-seofields`, rewrote the tagline to lead with the audit dashboard differentiator, expanded `package.json` keywords (added `sanity-v3/v4/v5`, `twitter-card`, `robots`, `json-ld`, `schema-org`, `structured-data`, `seo-dashboard`, `metadata`, `headless-cms`, `nextjs`), and updated the description to reflect the full feature set.
+- **Docs site review link** — Added a call-to-action in the README asking users to leave a review on the documentation site (`sanity-plugin-seofields.thehardik.in/reviews`) alongside the existing Sanity Plugin Directory and GitHub star links.
+
+---
+
 ## [1.6.2] — 2026-05-03
 
 ### 🐛 Fixed
 
 - **`titleSuffix` separator convention** — The `|` separator between the meta title and suffix is now always added automatically by the plugin. Users should provide only the bare text (e.g. `'Acme Inc'`, not `'| Acme Inc'`). Providing a leading pipe would have resulted in a double-pipe (`|| Acme Inc`) in the SERP preview.
-- **`titleSuffix` character counter** — The 60-character title limit now correctly accounts for the ` | ` separator (2 extra characters) added by the plugin, so the counter remains accurate when a suffix is configured.
+- **`titleSuffix` character counter** — The 60-character title limit now correctly accounts for the `|` separator (2 extra characters) added by the plugin, so the counter remains accurate when a suffix is configured.
 
 ---
 

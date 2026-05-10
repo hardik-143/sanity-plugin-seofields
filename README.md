@@ -1,13 +1,23 @@
-# 🔍 Sanity SEO Fields Plugin
+# sanity-plugin-seofields
 
 [![npm version](https://img.shields.io/npm/v/sanity-plugin-seofields.svg?color=brightgreen&label=npm)](https://www.npmjs.com/package/sanity-plugin-seofields)
 [![npm downloads](https://img.shields.io/npm/dm/sanity-plugin-seofields.svg?color=blue)](https://www.npmjs.com/package/sanity-plugin-seofields)
 [![license](https://img.shields.io/npm/l/sanity-plugin-seofields.svg?color=yellow)](./LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social)](https://github.com/hardik-143/sanity-plugin-seofields)
 
-A Sanity Studio (v3/v4/v5) plugin to manage SEO fields — meta tags, Open Graph, Twitter Cards, robots directives, and structured data.
+**The only Sanity SEO plugin with a built-in audit dashboard.**
+
+Manage meta tags, Open Graph, Twitter Cards, robots directives, and 38 Schema.org/JSON-LD types — all inside Sanity Studio v3/v4/v5.
 
 📖 **[Full Documentation →](https://sanity-plugin-seofields.thehardik.in/docs)**
+
+---
+
+> ⭐ If this plugin saves you time, please [leave a rating on the Sanity Plugin Directory](https://www.sanity.io/plugins/sanity-plugin-seofields), [star it on GitHub](https://github.com/hardik-143/sanity-plugin-seofields), and [leave a review on the docs site](https://sanity-plugin-seofields.thehardik.in/reviews). It helps other developers find it.
+
+<!-- Demo GIF: SEO Health Dashboard in action -->
+<!-- Add a screen recording here showing the SEO Health Dashboard scoring documents, the live SERP preview, and the Schema.org JSON-LD editor -->
+<!-- Recommended tools: LICEcap (Mac/Windows), Kap (Mac), or ScreenToGif (Windows) -->
 
 ---
 
@@ -91,7 +101,9 @@ seofields({
 
 ## SEO Health Dashboard
 
-An optional Studio tool that scores SEO completeness across all documents, highlights missing fields, and links directly to documents.
+> **This is the feature that sets this plugin apart from every other Sanity SEO plugin.**
+
+A built-in Studio tool that audits SEO completeness across all your documents at once — scores each document, highlights missing fields, and links directly to what needs fixing. No external tools. No leaving Studio.
 
 Requires a free license key — [get yours here](https://sanity-plugin-seofields.thehardik.in/get-license).
 

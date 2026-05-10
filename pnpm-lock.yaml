@@ -33,6 +33,9 @@ importers:
       '@sanity/codegen':
         specifier: ^4.9.0
         version: 4.22.0
+      '@sanity/icons':
+        specifier: ^3.7.4
+        version: 3.7.4(react@19.2.4)
       '@sanity/plugin-kit':
         specifier: ^4.0.20
         version: 4.0.20(@types/babel__core@7.20.5)(@types/node@25.6.0)(babel-plugin-react-compiler@1.0.0)(eslint@8.57.1)(typescript@5.9.3)

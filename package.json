@@ -1,16 +1,29 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.6.2",
-  "description": "A Sanity Studio plugin to manage SEO fields like meta titles, descriptions, and Open Graph tags for structured, search-optimized content.",
+  "version": "1.6.3",
+  "description": "The only Sanity Studio SEO plugin with a built-in audit dashboard. Manage meta tags, Open Graph, Twitter Cards, robots directives, JSON-LD structured data, and 38 Schema.org types.",
   "keywords": [
     "sanity",
     "sanity-plugin",
+    "sanity-v3",
+    "sanity-v4",
+    "sanity-v5",
     "seo",
     "meta",
-    "open graph",
+    "open-graph",
+    "twitter-card",
+    "robots",
+    "json-ld",
+    "schema-org",
+    "structured-data",
+    "seo-plugin",
+    "seo-dashboard",
+    "metadata",
+    "headless-cms",
+    "nextjs",
+    "next.js",
     "social media",
     "content management",
-    "structured data",
     "search engine optimization"
   ],
   "license": "MIT",
@@ -110,6 +123,7 @@
   },
   "devDependencies": {
     "@sanity/codegen": "^4.9.0",
+    "@sanity/icons": "^3.7.4",
     "@sanity/plugin-kit": "^4.0.20",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -144,6 +158,7 @@
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
+    "@sanity/icons": ">=2",
     "react": "^18 || ^19",
     "sanity": "^3 || ^4 || ^5"
   },

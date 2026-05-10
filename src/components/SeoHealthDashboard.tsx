@@ -1185,6 +1185,109 @@ const RenderLicenseInvalid = ({licenseKey, validateLicense}: RenderLicenseState)
   </UpgradeContainer>
 )
 
+interface RenderLegacyBannerProps {
+  upgradeUrl?: string
+  cutoffDate?: string | null
+  onVerifyUpgrade?: () => void
+}
+
+interface CachedLicenseState {
+  valid: boolean
+  legacy?: boolean
+  upgradeUrl?: string
+  cutoffDate?: string | null
+  ts: number
+}
+
+const LegacyBannerWrap = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.5;
+`
+
+const LegacyBannerLink = styled.a`
+  display: inline-block;
+  padding: 5px 14px;
+  background: #f59e0b;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  &:hover {
+    background: #d97706;
+  }
+`
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 6px;
+`
+
+const VerifyButton = styled.button`
+  display: inline-block;
+  padding: 5px 14px;
+  background: #10b981;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover {
+    background: #059669;
+  }
+`
+
+const RenderLegacyBanner = ({upgradeUrl, cutoffDate, onVerifyUpgrade}: RenderLegacyBannerProps) => {
+  const deadline = cutoffDate
+    ? new Date(cutoffDate).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : null
+
+  return (
+    <LegacyBannerWrap>
+      <span style={{fontSize: '18px', lineHeight: 1}}>⚠️</span>
+      <div>
+        <strong>Legacy free access — upgrade required</strong>
+        <br />
+        {deadline
+          ? `Your free beta access expires on ${deadline}. After that date, a paid license is required.`
+          : 'Your free beta access will be transitioning to paid. Upgrade now to keep access.'}
+        <br />
+        <ButtonWrapper>
+          <LegacyBannerLink
+            href={upgradeUrl ?? 'https://sanity-plugin-seofields.thehardik.in/get-license'}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Upgrade for $10/project →
+          </LegacyBannerLink>
+          {onVerifyUpgrade && (
+            <VerifyButton onClick={onVerifyUpgrade}>
+              Already paid? Click here to verify your license →
+            </VerifyButton>
+          )}
+        </ButtonWrapper>
+      </div>
+    </LegacyBannerWrap>
+  )
+}
+
 const scoreMetaTitle = (title?: string): {score: number; issues: string[]} => {
   const issues: string[] = []
   let score = 0
@@ -1676,7 +1779,14 @@ const SeoHealthDashboard = ({
     return Array.from(groups.values())
   }, [allDeprecationWarnings])
   const client = useClient({apiVersion})
-  const [licenseStatus, setLicenseStatus] = useState<'loading' | 'valid' | 'invalid'>('loading')
+  const [licenseStatus, setLicenseStatus] = useState<'loading' | 'valid' | 'legacy' | 'invalid'>(
+    'loading',
+  )
+  const [legacyInfo, setLegacyInfo] = useState<{
+    upgradeUrl?: string
+    cutoffDate?: string | null
+  }>({})
+
   const [documents, setDocuments] = useState<DocumentWithSeoHealth[]>([])
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -1778,6 +1888,32 @@ const SeoHealthDashboard = ({
     setCurrentPage(1)
   }, [])
 
+  const applyLicenseState = useCallback(
+    ({valid, legacy = false, upgradeUrl, cutoffDate}: Omit<CachedLicenseState, 'ts'>) => {
+      if (valid && legacy) {
+        setLegacyInfo({upgradeUrl, cutoffDate})
+        setLicenseStatus('legacy')
+        return
+      }
+
+      setLegacyInfo({})
+      setLicenseStatus(valid ? 'valid' : 'invalid')
+    },
+    [],
+  )
+
+  const readCachedLicenseState = useCallback((cacheKey: string) => {
+    try {
+      const cached = sessionStorage.getItem(cacheKey)
+      if (!cached) return null
+
+      const parsed = JSON.parse(cached) as CachedLicenseState
+      return Date.now() - parsed.ts < CACHE_TTL_MS ? parsed : null
+    } catch {
+      return null
+    }
+  }, [])
+
   const validateLicense = useCallback(
     async (forceRefresh = false) => {
       // Preview mode bypasses license validation
@@ -1805,17 +1941,10 @@ const SeoHealthDashboard = ({
 
       // Check sessionStorage cache
       if (!forceRefresh) {
-        try {
-          const cached = sessionStorage.getItem(cacheKey)
-          if (cached) {
-            const {valid, ts} = JSON.parse(cached) as {valid: boolean; ts: number}
-            if (Date.now() - ts < CACHE_TTL_MS) {
-              setLicenseStatus(valid ? 'valid' : 'invalid')
-              return
-            }
-          }
-        } catch {
-          // ignore storage errors
+        const cachedLicenseState = readCachedLicenseState(cacheKey)
+        if (cachedLicenseState) {
+          applyLicenseState(cachedLicenseState)
+          return
         }
       }
 
@@ -1827,10 +1956,28 @@ const SeoHealthDashboard = ({
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({licenseKey, projectId}),
         })
+        const data = (await res.json().catch(() => ({}))) as {
+          valid?: boolean
+          legacy?: boolean
+          upgradeUrl?: string
+          cutoffDate?: string | null
+        }
         const valid = res.ok
-        setLicenseStatus(valid ? 'valid' : 'invalid')
+        const legacy = valid && data.legacy === true
+
+        applyLicenseState({valid, legacy, upgradeUrl: data.upgradeUrl, cutoffDate: data.cutoffDate})
+
         try {
-          sessionStorage.setItem(cacheKey, JSON.stringify({valid, ts: Date.now()}))
+          sessionStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+              valid,
+              legacy,
+              upgradeUrl: data.upgradeUrl,
+              cutoffDate: data.cutoffDate,
+              ts: Date.now(),
+            }),
+          )
         } catch {
           // ignore storage errors
         }
@@ -1840,8 +1987,12 @@ const SeoHealthDashboard = ({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [licenseKey, previewMode],
+    [applyLicenseState, licenseKey, previewMode, readCachedLicenseState],
   )
+
+  const handleVerifyUpgrade = useCallback(() => {
+    validateLicense(true)
+  }, [validateLicense])
 
   useEffect(() => {
     validateLicense()
@@ -2468,6 +2619,16 @@ const SeoHealthDashboard = ({
       {licenseStatus === 'loading' && <RenderLicenseLoading text={loadingLicense} />}
       {licenseStatus === 'invalid' && (
         <RenderLicenseInvalid licenseKey={licenseKey} validateLicense={validateLicense} />
+      )}
+      {licenseStatus === 'legacy' && (
+        <>
+          <RenderLegacyBanner
+            upgradeUrl={legacyInfo.upgradeUrl}
+            cutoffDate={legacyInfo.cutoffDate}
+            onVerifyUpgrade={handleVerifyUpgrade}
+          />
+          {renderDashboardContent()}
+        </>
       )}
       {licenseStatus === 'valid' && renderDashboardContent()}
     </DashboardContainer>
