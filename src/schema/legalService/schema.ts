@@ -35,6 +35,7 @@ export const legalServiceFields: SchemaFieldDef[] = [
     description: 'The firm website URL.',
   },
   polymorphicImage({
+    name: 'logo',
     title: 'Logo',
     description: 'An image that represents the firm, such as a logo.',
   }),

@@ -1,3 +1,5 @@
+import type {SchemaOrgImageInput} from '../_types'
+
 /**
  * Schema.org LegalService — extends LocalBusiness.
  * Spec: https://schema.org/LegalService
@@ -13,14 +15,14 @@ export interface SchemaOrgLegalServiceData {
   name?: string
   /** A short description of the firm. */
   description?: string
-  /** Image URL of the firm. */
-  image?: string
+  /** Image of the firm. */
+  image?: SchemaOrgImageInput
   /** Telephone number. */
   telephone?: string
   /** Website URL. */
   url?: string
-  /** Logo URL. */
-  logoUrl?: string
+  /** Logo of the firm. */
+  logo?: SchemaOrgImageInput
   /** Price range, e.g. "$$" or "$100-$500". */
   priceRange?: string
   /** Postal address. */

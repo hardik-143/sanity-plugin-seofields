@@ -1,3 +1,5 @@
+import type {SchemaOrgImageInput} from '../_types'
+
 // ─── LocalBusiness Schema Types ───────────────────────────────────────────────
 
 /** Geographic coordinates of the business */
@@ -23,16 +25,16 @@ export interface SchemaOrgLocalBusinessData {
   _type?: 'schemaOrgLocalBusiness'
   /** Official name of the business */
   name?: string
-  /** URL to the business image */
-  image?: string
+  /** Image of the business */
+  image?: SchemaOrgImageInput
   /** Telephone number */
   telephone?: string
   /** Physical address of the business */
   address?: {streetAddress?: string; addressLocality?: string; addressCountry?: string}
   /** The website URL of the business */
   url?: string
-  /** URL to the business logo image (mapped to "logo" in JSON-LD) */
-  logoUrl?: string
+  /** Logo of the business */
+  logo?: SchemaOrgImageInput
   /** The price range of the business */
   priceRange?: string
   /** Geographic coordinates of the business */

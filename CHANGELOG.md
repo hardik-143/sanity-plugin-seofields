@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.4] — 2026-05-10
+
+### 🐛 Fixed
+
+- **Combined `schemaOrg()` validation for `LocalBusiness` and `LegalService`** — Fixed a schema validation bug where both types declared two polymorphic image fields with the default `image` name, causing `sanity schema validate` to fail when importing the full combined `schemaOrg` config. The logo field in both schemas now uses the explicit `logo` field name, so `image` and `logo` serialize separately and the combined export validates correctly. 
+Reported in [#8](https://github.com/hardik-143/sanity-plugin-seofields/issues/8). Thanks to [@ahenriksen-inferno](https://github.com/ahenriksen-inferno) for the clear root-cause report.
+
+---
+
 ## [1.6.3] — 2026-05-10
 
 ### ✨ Added

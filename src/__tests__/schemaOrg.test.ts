@@ -1,5 +1,9 @@
 /* eslint-disable no-undef */
 import {buildArticleJsonLd} from '../schema/article/component'
+import {buildLegalServiceJsonLd} from '../schema/legalService/component'
+import {legalServiceFields} from '../schema/legalService/schema'
+import {buildLocalBusinessJsonLd} from '../schema/localBusiness/component'
+import {localBusinessFields} from '../schema/localBusiness/schema'
 import {buildSocialMediaPostingJsonLd} from '../schema/socialMediaPosting/component'
 
 describe('buildSocialMediaPostingJsonLd', () => {
@@ -50,5 +54,36 @@ describe('buildArticleJsonLd (regression)', () => {
     expect(result?.['@type']).toBe('Article')
     expect(result?.['@context']).toBe('https://schema.org')
     expect(result?.headline).toBe('My Article')
+  })
+})
+
+describe('LocalBusiness and LegalService schema regression', () => {
+  it('uses distinct field names for image and logo', () => {
+    expect(localBusinessFields.filter((field) => field.name === 'image')).toHaveLength(1)
+    expect(localBusinessFields.filter((field) => field.name === 'logo')).toHaveLength(1)
+    expect(legalServiceFields.filter((field) => field.name === 'image')).toHaveLength(1)
+    expect(legalServiceFields.filter((field) => field.name === 'logo')).toHaveLength(1)
+  })
+
+  it('emits separate image and logo values for LocalBusiness', () => {
+    const result = buildLocalBusinessJsonLd({
+      name: 'Acme Cafe',
+      image: {variant: 'url', url: 'https://example.com/business.jpg'},
+      logo: {variant: 'url', url: 'https://example.com/logo.png'},
+    })
+
+    expect(result?.image).toBe('https://example.com/business.jpg')
+    expect(result?.logo).toBe('https://example.com/logo.png')
+  })
+
+  it('emits separate image and logo values for LegalService', () => {
+    const result = buildLegalServiceJsonLd({
+      name: 'Acme Law',
+      image: {variant: 'url', url: 'https://example.com/office.jpg'},
+      logo: {variant: 'url', url: 'https://example.com/logo.png'},
+    })
+
+    expect(result?.image).toBe('https://example.com/office.jpg')
+    expect(result?.logo).toBe('https://example.com/logo.png')
   })
 })

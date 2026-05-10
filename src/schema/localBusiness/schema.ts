@@ -56,6 +56,7 @@ export const localBusinessFields: SchemaFieldDef[] = [
     description: 'The website URL of the business.',
   },
   polymorphicImage({
+    name: 'logo',
     title: 'Logo',
     description: 'An image that represents the business, such as a logo.',
   }),
