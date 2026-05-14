@@ -11,8 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Fixed
 
-- **Meta title suffix length feedback and SERP spacing** — Fixed the meta title validator so the SEO feedback now checks the combined title + suffix length, explicitly notes when the suffix value is included in the count, and keeps the live SERP preview aligned with the same ` | ` separator spacing used in the rendered title. Also wired the meta title input to resolve configured `titleSuffix` / `titleSuffixQuery` values directly so the validation message stays accurate when suffixes are enabled.
-Reported in [#9](https://github.com/hardik-143/sanity-plugin-seofields/issues/9). Thanks to [@patricksdev](https://github.com/patricksdev) for the report and follow-up suggestion.
+- **Meta title suffix length feedback and SERP spacing** — Fixed the meta title validator so the SEO feedback now checks the combined title + suffix length, explicitly notes when the suffix value is included in the count, and keeps the live SERP preview aligned with the same ` | ` separator spacing used in the rendered title. Also wired the meta title input to resolve configured `titleSuffix` / `titleSuffixQuery` values directly so the validation message stays accurate when suffixes are enabled. Reported in [#9](https://github.com/hardik-143/sanity-plugin-seofields/issues/9). Thanks to [@patricksdev](https://github.com/patricksdev) for the report and follow-up suggestion.
 
 ---
 
