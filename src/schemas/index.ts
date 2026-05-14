@@ -141,6 +141,19 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           components: {
             input: MetaTitle,
           },
+          options: {
+            ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
+            ...(typeof config.seoPreview === 'object' &&
+            config.seoPreview &&
+            config.seoPreview.titleSuffix
+              ? {titleSuffix: config.seoPreview.titleSuffix}
+              : {}),
+            ...(typeof config.seoPreview === 'object' &&
+            config.seoPreview &&
+            config.seoPreview.titleSuffixQuery
+              ? {titleSuffixQuery: config.seoPreview.titleSuffixQuery}
+              : {}),
+          } as Record<string, unknown>,
           hidden: getFieldHiddenFunction('title', config),
         }),
         fieldGroupMap,

@@ -42,12 +42,15 @@ export const getMetaTitleValidationMessages = (
   title: string,
   keywords: string[],
   isParentseoField: boolean,
+  suffixLength = 0,
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
 
   const minChar = 50
   const maxChar = 60
   const charCount = title?.length || 0
+  const combinedLength = charCount + suffixLength
+  const suffixMessage = suffixLength > 0 ? ` Suffix value is included (${suffixLength} chars).` : ''
 
   // Empty check
   if (!title?.trim()) {
@@ -55,18 +58,22 @@ export const getMetaTitleValidationMessages = (
     return feedback
   }
 
-  // Length check
-  if (charCount < minChar)
+  // Length check (evaluated against combined title + suffix length)
+  if (combinedLength < minChar)
     feedback.push({
-      text: `Title is ${charCount} characters — below recommended ${minChar}.`,
+      text: `Title is ${combinedLength} characters — below recommended ${minChar}.${suffixMessage}`,
       color: 'orange',
     })
-  else if (charCount > maxChar)
+  else if (combinedLength > maxChar)
     feedback.push({
-      text: `Title is ${charCount} characters — exceeds recommended ${maxChar}.`,
+      text: `Title is ${combinedLength} characters — exceeds recommended ${maxChar}.${suffixMessage}`,
       color: 'red',
     })
-  else feedback.push({text: `Title length (${charCount}) looks good for SEO.`, color: 'green'})
+  else
+    feedback.push({
+      text: `Title length (${combinedLength}) looks good for SEO.${suffixMessage}`,
+      color: 'green',
+    })
 
   // Keyword checks
   if (isParentseoField) {

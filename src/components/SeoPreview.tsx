@@ -196,13 +196,14 @@ const SeoPreview = (props: StringInputProps): ReactElement => {
           <SerpTitle>
             {title && title.length > 0 ? (
               <>
-                {truncate(title, Math.max(1, 60 - (titleSuffix ? titleSuffix.length + 2 : 0)))}
+                {truncate(title, Math.max(1, 60 - (titleSuffix ? titleSuffix.length + 3 : 0)))}
                 {titleSuffix && (
                   <span
                     style={
                       titleSuffixInheritColor ? undefined : {color: '#70757a', fontWeight: 400}
                     }
                   >
+                    {' '}
                     | {titleSuffix}
                   </span>
                 )}
