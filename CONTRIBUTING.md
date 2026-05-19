@@ -1,301 +1,289 @@
 # Contributing to sanity-plugin-seofields
 
-Thank you for your interest in contributing to the **sanity-plugin-seofields** project! We welcome contributions from the community and appreciate your help in making this Sanity Studio plugin better.
-
-Whether you're fixing a bug, adding a feature, improving documentation, or suggesting enhancements, we're excited to work with you. This guide will help you get started.
+Thanks for taking the time to contribute! Whether you're fixing a bug, improving docs, suggesting a feature, or reporting an issue — every contribution helps make the plugin better for the whole Sanity community.
 
 ---
 
-## Table of Contents
+## Table of contents
 
-- [Development Setup](#development-setup)
-- [Code Style](#code-style)
-- [Testing Requirements](#testing-requirements)
-- [Git Workflow](#git-workflow)
-- [Commit Message Convention](#commit-message-convention)
+- [Code of conduct](#code-of-conduct)
+- [Ways to contribute](#ways-to-contribute)
+- [Reporting bugs](#reporting-bugs)
+- [Suggesting features](#suggesting-features)
+- [Your first pull request](#your-first-pull-request)
+- [Development setup](#development-setup)
+- [Project structure](#project-structure)
+- [Making changes](#making-changes)
+- [Commit messages](#commit-messages)
+- [Submitting a pull request](#submitting-a-pull-request)
+- [Changelog](#changelog)
 - [License](#license)
 
 ---
 
-## Development Setup
+## Code of conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) Code of Conduct. By participating you agree to uphold it. Please report unacceptable behaviour to [hello@thehardik.in](mailto:hello@thehardik.in).
+
+---
+
+## Ways to contribute
+
+You don't have to write code to contribute:
+
+| What | How |
+|---|---|
+| 🐛 Report a bug | [Open a bug report](https://github.com/hardik-143/sanity-plugin-seofields/issues/new) |
+| 💡 Suggest a feature | [Open a feature request](https://github.com/hardik-143/sanity-plugin-seofields/issues/new) |
+| 📖 Improve docs | Edit a doc page and open a PR |
+| ✅ Fix a bug | Comment on the issue, fork, and open a PR |
+| ⭐ Spread the word | Star the repo, leave a [review](https://sanity-plugin-seofields.thehardik.in/reviews), or share it with your team |
+
+---
+
+## Reporting bugs
+
+Before opening a new issue, please [search existing issues](https://github.com/hardik-143/sanity-plugin-seofields/issues) to avoid duplicates.
+
+When you open a bug report, include:
+
+- **Plugin version** — run `npm list sanity-plugin-seofields` to find it
+- **Sanity Studio version** — v3, v4, or v5
+- **Node.js version** — run `node -v`
+- **Steps to reproduce** — a minimal example is ideal
+- **Expected behaviour** — what you expected to happen
+- **Actual behaviour** — what actually happened
+- **Screenshots or error output** — if relevant
+
+> **Security vulnerabilities** — please do **not** open a public issue. Email [hello@thehardik.in](mailto:hello@thehardik.in) directly. See [SECURITY.md](./SECURITY.md) for the full policy.
+
+---
+
+## Suggesting features
+
+Open a [feature request issue](https://github.com/hardik-143/sanity-plugin-seofields/issues/new?template=feature_request.md) and describe:
+
+- The problem you're trying to solve
+- Your proposed solution
+- Any alternatives you've considered
+- Whether you'd be willing to implement it yourself
+
+Feature requests are discussed openly. If you want to start building before a decision is made, comment on the issue first so work isn't duplicated.
+
+---
+
+## Your first pull request
+
+Never opened a PR on an open-source project before? No worries. Here's a quick primer:
+
+1. Look for issues labelled [`good first issue`](https://github.com/hardik-143/sanity-plugin-seofields/labels/good%20first%20issue) — these are intentionally small and well-scoped.
+2. Comment on the issue saying you'd like to tackle it. The maintainer will assign it to you.
+3. Fork the repo, make your change, and open a PR. The [Development setup](#development-setup) section below walks you through it.
+
+---
+
+## Development setup
 
 ### Prerequisites
 
-- **Node.js** >= 18 (we recommend using [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to manage versions)
-- **npm** or **pnpm** (we use pnpm in this project, but npm works fine too)
-- **Git**
+| Tool | Minimum version |
+|---|---|
+| Node.js | 18.x |
+| npm | 9.x |
+| Sanity Studio | v3, v4, or v5 |
 
-### Clone the Repository
+### Fork and clone
 
 ```bash
-git clone https://github.com/hardik-143/sanity-plugin-seofields.git
-cd sanity-plugin-seofields/npm
+# 1. Fork the repo on GitHub, then clone your fork
+git clone https://github.com/YOUR_USERNAME/sanity-plugin-seofields.git
+cd sanity-plugin-seofields
+
+# 2. Add the upstream remote so you can pull in future changes
+git remote add upstream https://github.com/hardik-143/sanity-plugin-seofields.git
 ```
 
-### Install Dependencies
+### Install dependencies
 
 ```bash
 npm install
-# or
-pnpm install
 ```
 
-### Available npm Scripts
+### Link the plugin into a local Sanity Studio
 
-Once you're in the `npm/` directory, you can use these commands:
+The fastest way to test your changes live is to link the plugin into an existing Sanity Studio project on your machine:
 
-| Script               | Description                                                  |
-| -------------------- | ------------------------------------------------------------ |
-| `npm run build`      | Build the plugin for distribution using `tsup`               |
-| `npm run watch`      | Watch source files and rebuild on changes                    |
-| `npm run link-watch` | Link plugin for development with automatic watching          |
-| `npm run lint`       | Run ESLint to check code quality                             |
-| `npm run format`     | Format code with Prettier (fixes style issues automatically) |
-| `npm run typecheck`  | Check TypeScript types without emitting files                |
+```bash
+# In the plugin root — build and watch for changes
+npm run dev
 
-### Development Workflow
+# In your Sanity Studio project — link the local build
+npm link /path/to/sanity-plugin-seofields
+```
 
-1. **Install dependencies**: `npm install`
-2. **Make your changes** in the `src/` directory
-3. **Watch for changes**: `npm run watch` (in one terminal)
-4. **Lint and format**: `npm run lint && npm run format`
-5. **Typecheck**: `npm run typecheck`
-6. **Build**: `npm run build` (before committing)
+Then start Sanity Studio normally (`npm run dev` / `sanity dev`) and the studio will pick up your local build. Any file change in the plugin that triggers a rebuild will hot-reload in the studio.
+
+### Useful scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Build in watch mode |
+| `npm run build` | Production build |
+| `npm run lint` | Run ESLint |
+| `npm run type-check` | Run TypeScript compiler check |
+| `npm run format` | Run Prettier |
 
 ---
 
-## Code Style
+## Project structure
 
-We maintain consistent code style using **ESLint** and **Prettier** to ensure code quality and readability across the project.
-
-### Configuration Files
-
-- **ESLint Config**: `.eslintrc`
-  - Extends: Sanity's ESLint config with React and TypeScript support
-  - Plugins: React, React Hooks, Prettier integration
-- **Prettier Config**: `.prettierrc`
-  - Print width: 100 characters
-  - Quotes: Single quotes
-  - Semicolons: Disabled
-  - Bracket spacing: Disabled
-
-### Before Committing
-
-Always run these commands to ensure your code passes linting and formatting checks:
-
-```bash
-# Check code style
-npm run lint
-
-# Automatically fix formatting issues
-npm run format
-
-# Verify TypeScript compilation
-npm run typecheck
+```
+sanity-plugin-seofields/
+├── src/
+│   ├── components/       # React components (SERP preview, health dashboard, etc.)
+│   ├── schema/          # Sanity schema type definitions (seoFields, openGraph, twitter, etc.)
+│   ├── schemas/          # 38 Schema.org type definitions and JSON-LD components
+│   ├── cli/              # CLI commands (init, report, doctor, create-config)
+│   ├── helpers/          # buildSeoMeta() and other frontend helpers
+│   ├── types.ts          # Shared TypeScript types
+│   └── index.ts          # Main plugin entry point
+├── CHANGELOG.md          # Keep a Changelog format, updated with every release
+├── CONTRIBUTING.md       # This file
+├── package.json
+└── tsconfig.json
 ```
 
-### Style Tips
+### Adding a new Schema.org type
 
-- Use **TypeScript** for type safety
-- Follow React best practices and hooks conventions
-- Keep components small and focused
-- Use meaningful variable and function names
-- Add comments for complex logic
-- Ensure all imports are used
+Each Schema.org type lives in `src/schema-org/` as a pair of files:
+
+- `{TypeName}.schema.ts` — Sanity schema definition with the correct fields and validation
+- `{TypeName}.component.tsx` — React component that renders the `<script type="application/ld+json">` tag
+
+Follow the pattern of an existing type (e.g. `Article`) as your template. The type must be added to the barrel export in `src/schema-org/index.ts` and to the `schemaOrg()` combined helper.
 
 ---
 
-## Testing Requirements
+## Making changes
 
-This project uses **Jest** for testing. We encourage writing tests for new features and bug fixes.
-
-### Running Tests
-
-Currently, the project is set up with Jest configuration in `tsconfig.json`. To run tests:
+### Always branch from `main`
 
 ```bash
-npm test
-# or
-npm run test
+git checkout main
+git pull upstream main
+git checkout -b fix/your-fix-name   # or feat/your-feature-name
 ```
 
-### Writing Tests
+Branch naming conventions:
 
-- Create test files alongside the code they test (e.g., `MyComponent.test.ts`)
-- Use descriptive test names that explain what is being tested
-- Aim for good coverage of critical functionality
-- Test both happy paths and edge cases
+| Prefix | Use for |
+|---|---|
+| `fix/` | Bug fixes |
+| `feat/` | New features |
+| `docs/` | Documentation only |
+| `chore/` | Build, config, dependency updates |
+| `refactor/` | Code restructuring with no behaviour change |
 
-**Example test structure:**
+### TypeScript
 
-```typescript
-import {renderSeoField} from '../src/seoField'
+- All new code must be written in TypeScript.
+- Export any new public-facing types from the appropriate `types/` file.
+- Run `npm run type-check` before committing — PRs with TypeScript errors will not be merged.
 
-describe('SeoField', () => {
-  it('should render meta title input', () => {
-    const result = renderSeoField()
-    expect(result).toContain('Meta Title')
-  })
+### Code style
 
-  it('should validate character limits', () => {
-    const result = validateMetaTitle('x'.repeat(161))
-    expect(result.valid).toBe(false)
-  })
-})
-```
+- ESLint and Prettier are configured. Run `npm run lint` and `npm run format` before committing.
+- Don't disable lint rules with `// eslint-disable` unless there is no alternative — explain why in a comment if you do.
 
-### Testing Checklist
+### Sanity schema compatibility
 
-- [ ] New features have corresponding tests
-- [ ] Bug fixes include regression tests
-- [ ] All tests pass locally before pushing
-- [ ] Test coverage is reasonable for the changes
+- All schema changes must work in Sanity Studio **v3, v4, and v5**.
+- Do not use any Sanity API that is marked deprecated in v3.
+- Test your changes against at least one Studio version before submitting a PR.
 
 ---
 
-## Git Workflow
+## Commit messages
 
-We follow a standard fork-and-pull-request workflow to manage contributions.
+This project follows [Conventional Commits](https://www.conventionalcommits.org/):
 
-### Step 1: Fork the Repository
+```
+<type>(<scope>): <short description>
 
-Click the **"Fork"** button on [GitHub](https://github.com/hardik-143/sanity-plugin-seofields) to create your own copy of the repository.
+[optional body]
 
-### Step 2: Clone Your Fork
-
-```bash
-git clone https://github.com/YOUR_USERNAME/sanity-plugin-seofields.git
-cd sanity-plugin-seofields/npm
+[optional footer — e.g. Closes #12]
 ```
 
-### Step 3: Create a Feature Branch
+**Types:**
 
-```bash
-git checkout -b feature/your-feature-name
-# or for bug fixes:
-git checkout -b fix/your-bug-fix-name
+| Type | When to use |
+|---|---|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `docs` | Documentation only |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `chore` | Build process, dependency, or config changes |
+| `test` | Adding or updating tests |
+
+**Examples:**
+
+```
+feat(schema-org): add MedicalCondition type
+
+fix(dashboard): correct popover position inside desk panes
+
+Closes #8
 ```
 
-Use descriptive branch names:
-
-- `feature/add-json-ld-support` ✅
-- `fix/handle-missing-og-image` ✅
-- `docs/improve-readme` ✅
-- `feature/123` ❌ (too vague)
-
-### Step 4: Make Your Changes
-
-- Write clean, focused commits
-- Keep changes related to one feature/fix per branch
-- Run `npm run format && npm run lint` frequently
-
-### Step 5: Push Your Branch
-
-```bash
-git push origin feature/your-feature-name
+```
+docs(readme): update v5 compatibility note
 ```
 
-### Step 6: Create a Pull Request
-
-1. Go to the original repository on GitHub
-2. Click **"New Pull Request"**
-3. Select your fork and branch
-4. Fill in the PR title and description
-5. Submit the PR
-
-### PR Guidelines
-
-- **Title**: Use [Conventional Commits](#commit-message-convention) format
-- **Description**: Explain what changes you made and why
-- **Link issues**: Reference related issues with `Fixes #123` or `Related to #456`
-- **Keep it focused**: One feature/fix per PR
-- **Be open to feedback**: We may suggest changes during review
+Commits that do not follow this format may be squashed and reworded by the maintainer when merging.
 
 ---
 
-## Commit Message Convention
+## Submitting a pull request
 
-We follow the **Conventional Commits** specification to keep our commit history organized and enable automated changelog generation.
+1. Make sure `npm run lint` and `npm run type-check` both pass locally.
+2. Push your branch to your fork.
+3. Open a PR against `hardik-143/sanity-plugin-seofields` on the `main` branch.
+4. Fill in the PR template — describe what changed, why, and how to test it.
+5. Link any related issues with `Closes #<issue-number>` in the PR body.
 
-### Format
+**What to expect:**
 
-```
-<type>(<scope>): <subject>
+- PRs are reviewed within a few days. Complex changes may take longer.
+- The maintainer may request changes — please respond to review comments or let us know if you need help.
+- Once approved, the maintainer will squash-merge the PR into `main`.
+- Your contribution will appear in the next [CHANGELOG.md](./CHANGELOG.md) entry and release.
 
-<body>
+### PR checklist
 
-<footer>
-```
+Before marking your PR as ready for review, confirm:
 
-### Types
+- [ ] `npm run lint` passes
+- [ ] `npm run type-check` passes
+- [ ] Changes tested against Sanity Studio locally
+- [ ] New public APIs are exported from the correct entry point
+- [ ] Docs updated if behaviour changed (or a docs follow-up issue opened)
+- [ ] Commit messages follow the Conventional Commits format
 
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation changes
-- **style**: Code style changes (formatting, semicolons, etc.)
-- **refactor**: Code changes that neither fix bugs nor add features
-- **perf**: Performance improvements
-- **test**: Adding or updating tests
-- **chore**: Build, dependencies, or maintenance
+---
 
-### Examples
+## Changelog
 
-**Bug fix commit:**
+This project uses [Keep a Changelog](https://keepachangelog.com/) format and [Semantic Versioning](https://semver.org/).
 
-```
-fix(validation): prevent empty meta descriptions
-
-Previously, the plugin allowed empty meta descriptions.
-This commit adds validation to require at least 1 character.
-
-Fixes #38
-```
-
-**Documentation commit:**
-
-```
-docs: update installation instructions for Sanity v4
-```
-
-**Chore commit:**
-
-```
-chore(deps): update TypeScript to 5.9.2
-```
-
-### Tips
-
-- Be specific and descriptive in your subject line (50 characters max)
-- Use imperative mood: "add" not "added" or "adds"
-- Wrap the body at 72 characters
-- Explain _what_ and _why_, not just _what_
-- Reference issues when applicable
+You do **not** need to update `CHANGELOG.md` in your PR — the maintainer handles this before each release. However, if your change is significant (new feature, breaking change, or important fix), briefly describe it in your PR description so it's easy to write up accurately.
 
 ---
 
 ## License
 
-By contributing to this project, you agree that your contributions will be licensed under the **MIT License**. This ensures that your work can be freely used, modified, and distributed while maintaining attribution.
-
-The MIT License is included in the `LICENSE` file at the root of the repository.
+By contributing to sanity-plugin-seofields, you agree that your contributions will be licensed under the [MIT License](./LICENSE) that covers this project.
 
 ---
 
-## Additional Resources
-
-- **Repository**: [GitHub](https://github.com/hardik-143/sanity-plugin-seofields)
-- **Sanity Documentation**: [sanity.io/docs](https://www.sanity.io/docs)
-- **TypeScript Handbook**: [typescriptlang.org](https://www.typescriptlang.org/docs/)
-- **React Documentation**: [react.dev](https://react.dev)
-
----
-
-## Questions?
-
-If you have questions or need help getting started, feel free to:
-
-- Open a **Discussion** on GitHub
-- Open an **Issue** to report bugs or request features
-- Reach out via email: [dhardik1430@gmail.com](mailto:dhardik1430@gmail.com)
-
-Thank you for contributing! 🎉
+Questions? Open a [GitHub Discussion](https://github.com/hardik-143/sanity-plugin-seofields/discussions) or reach out via the [docs site](https://sanity-plugin-seofields.thehardik.in).
