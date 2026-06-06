@@ -115,7 +115,7 @@ The fastest way to test your changes live is to link the plugin into an existing
 
 ```bash
 # In the plugin root — build and watch for changes
-npm run dev
+npm run watch
 
 # In your Sanity Studio project — link the local build
 npm link /path/to/sanity-plugin-seofields
@@ -127,11 +127,12 @@ Then start Sanity Studio normally (`npm run dev` / `sanity dev`) and the studio 
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Build in watch mode |
-| `npm run build` | Production build |
+| `npm run watch` | Build in watch mode |
+| `npm run build` | Production build (ESM + CJS + CLI via tsup) |
 | `npm run lint` | Run ESLint |
-| `npm run type-check` | Run TypeScript compiler check |
+| `npm run typecheck` | Run `tsc --noEmit` type check |
 | `npm run format` | Run Prettier |
+| `npm test` | Run the Jest test suite |
 
 ---
 
@@ -140,27 +141,34 @@ Then start Sanity Studio normally (`npm run dev` / `sanity dev`) and the studio 
 ```
 sanity-plugin-seofields/
 ├── src/
-│   ├── components/       # React components (SERP preview, health dashboard, etc.)
-│   ├── schema/          # Sanity schema type definitions (seoFields, openGraph, twitter, etc.)
-│   ├── schemas/          # 38 Schema.org type definitions and JSON-LD components
-│   ├── cli/              # CLI commands (init, report, doctor, create-config)
-│   ├── helpers/          # buildSeoMeta() and other frontend helpers
-│   ├── types.ts          # Shared TypeScript types
-│   └── index.ts          # Main plugin entry point
-├── CHANGELOG.md          # Keep a Changelog format, updated with every release
-├── CONTRIBUTING.md       # This file
+│   ├── components/        # React field inputs, SERP preview, health dashboard
+│   ├── schemas/types/     # Base SEO Sanity types (seoFields, openGraph, twitter, robots, metaTag, metaAttribute)
+│   ├── schema/            # Schema.org system — 38 types + JSON-LD components
+│   ├── cli/               # CLI commands (init, doctor, report, export)
+│   ├── helpers/           # buildSeoMeta() and other frontend helpers
+│   ├── utils/             # Shared utilities
+│   ├── index.ts           # Studio plugin entry (plugins: [seofields()])
+│   ├── plugin.ts          # definePlugin implementation
+│   ├── next.ts            # Next.js / React export entry
+│   ├── define-cli.ts      # CLI config helper entry
+│   └── types.ts           # Shared TypeScript types
+├── CHANGELOG.md           # Keep a Changelog format, updated with every release
+├── CONTRIBUTING.md        # This file
 ├── package.json
+├── tsup.config.ts         # Build entry points and externals
 └── tsconfig.json
 ```
 
 ### Adding a new Schema.org type
 
-Each Schema.org type lives in `src/schema-org/` as a pair of files:
+Each Schema.org type lives in its own subdirectory under `src/schema/` (e.g. `src/schema/article/`) as a set of files:
 
-- `{TypeName}.schema.ts` — Sanity schema definition with the correct fields and validation
-- `{TypeName}.component.tsx` — React component that renders the `<script type="application/ld+json">` tag
+- `schema.ts` — Sanity schema definition with the correct fields and validation
+- `component.tsx` — React component that renders the `<script type="application/ld+json">` tag, plus its `buildXxxJsonLd()` helper
+- `types.ts` — TypeScript types for the schema data
+- `index.ts` — barrel export for the type
 
-Follow the pattern of an existing type (e.g. `Article`) as your template. The type must be added to the barrel export in `src/schema-org/index.ts` and to the `schemaOrg()` combined helper.
+Follow the pattern of an existing type (e.g. `article`) as your template. The type must be added to the barrel exports in `src/schema/index.ts` (Sanity plugin) and `src/schema/next.ts` (React component), and to the `schemaOrg()` combined helper.
 
 ---
 
@@ -188,7 +196,7 @@ Branch naming conventions:
 
 - All new code must be written in TypeScript.
 - Export any new public-facing types from the appropriate `types/` file.
-- Run `npm run type-check` before committing — PRs with TypeScript errors will not be merged.
+- Run `npm run typecheck` before committing — PRs with TypeScript errors will not be merged.
 
 ### Code style
 
@@ -229,7 +237,7 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 **Examples:**
 
 ```
-feat(schema-org): add MedicalCondition type
+feat(schema): add MedicalCondition type
 
 fix(dashboard): correct popover position inside desk panes
 
@@ -246,7 +254,7 @@ Commits that do not follow this format may be squashed and reworded by the maint
 
 ## Submitting a pull request
 
-1. Make sure `npm run lint` and `npm run type-check` both pass locally.
+1. Make sure `npm run lint` and `npm run typecheck` both pass locally.
 2. Push your branch to your fork.
 3. Open a PR against `hardik-143/sanity-plugin-seofields` on the `main` branch.
 4. Fill in the PR template — describe what changed, why, and how to test it.
@@ -264,7 +272,7 @@ Commits that do not follow this format may be squashed and reworded by the maint
 Before marking your PR as ready for review, confirm:
 
 - [ ] `npm run lint` passes
-- [ ] `npm run type-check` passes
+- [ ] `npm run typecheck` passes
 - [ ] Changes tested against Sanity Studio locally
 - [ ] New public APIs are exported from the correct entry point
 - [ ] Docs updated if behaviour changed (or a docs follow-up issue opened)
