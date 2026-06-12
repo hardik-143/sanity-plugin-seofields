@@ -77,6 +77,11 @@ export type {NewsArticleSchemaProps} from './newsArticle/component'
 export {buildNewsArticleJsonLd, NewsArticleSchema} from './newsArticle/component'
 export type {OfferSchemaProps} from './offer/component'
 export {buildOfferJsonLd, OfferSchema} from './offer/component'
+export type {OpinionNewsArticleSchemaProps} from './opinionNewsArticle/component'
+export {
+  buildOpinionNewsArticleJsonLd,
+  OpinionNewsArticleSchema,
+} from './opinionNewsArticle/component'
 export type {OrganizationSchemaProps} from './organization/component'
 export {buildOrganizationJsonLd, OrganizationSchema} from './organization/component'
 export type {PersonSchemaProps} from './person/component'

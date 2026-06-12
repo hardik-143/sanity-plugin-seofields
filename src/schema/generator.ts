@@ -329,7 +329,10 @@ function handleSelectVariant(
   }
 
   const nestedSrc = obj[active.value]
-  if (typeof nestedSrc !== 'object' || nestedSrc === null) return false
+  // Return true (consumed) even when nestedSrc is null/empty so the raw
+  // { variant: '...' } object is never passed to the generic emitter and
+  // leaked into the JSON-LD output as an unrecognised schema.org property.
+  if (typeof nestedSrc !== 'object' || nestedSrc === null) return true
 
   const nested = buildNestedJsonLd(
     nestedSrc as Record<string, unknown>,

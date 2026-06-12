@@ -36,6 +36,7 @@ import {musicAlbumFields} from './musicAlbum/schema'
 import {musicRecordingFields} from './musicRecording/schema'
 import {newsArticleFields} from './newsArticle/schema'
 import {offerFields} from './offer/schema'
+import {opinionNewsArticleFields} from './opinionNewsArticle/schema'
 import {buildOrganizationJsonLd} from './organization/component'
 import {personFields} from './person/schema'
 import {placeFields} from './place/schema'
@@ -156,6 +157,11 @@ const GENERIC_TYPES: Record<string, GenericEntry> = {
   schemaOrgNewsArticle: {
     schemaType: 'NewsArticle',
     fields: newsArticleFields,
+    requiredFields: ['headline'],
+  },
+  schemaOrgOpinionNewsArticle: {
+    schemaType: 'OpinionNewsArticle',
+    fields: opinionNewsArticleFields,
     requiredFields: ['headline'],
   },
   schemaOrgProfilePage: {

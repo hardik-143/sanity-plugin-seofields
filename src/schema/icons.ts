@@ -92,6 +92,7 @@ export const SchemaOrgIcons = {
   movie: PlayIcon,
   book: BookIcon,
   newsArticle: DocumentTextIcon,
+  opinionNewsArticle: DocumentTextIcon,
   itemList: ListIcon,
   profilePage: UserIcon,
   musicRecording: PlayIcon,

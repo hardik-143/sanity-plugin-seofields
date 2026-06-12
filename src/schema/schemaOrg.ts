@@ -53,6 +53,7 @@ import schemaOrgMusicAlbumSchema from './musicAlbum/schema'
 import schemaOrgMusicRecordingSchema from './musicRecording/schema'
 import schemaOrgNewsArticleSchema from './newsArticle/schema'
 import schemaOrgOfferSchema from './offer/schema'
+import schemaOrgOpinionNewsArticleSchema from './opinionNewsArticle/schema'
 import schemaOrgOrganizationSchema from './organization/schema'
 import schemaOrgPersonSchema from './person/schema'
 import schemaOrgPlaceSchema from './place/schema'
@@ -108,6 +109,7 @@ export interface SchemaOrgCombinedConfig {
   movie?: SchemaOrgConfig
   book?: SchemaOrgConfig
   newsArticle?: SchemaOrgConfig
+  opinionNewsArticle?: SchemaOrgConfig
   itemList?: SchemaOrgConfig
   profilePage?: SchemaOrgConfig
   musicRecording?: SchemaOrgConfig
@@ -151,6 +153,7 @@ const ALL_SCHEMA_ORG_TYPES = [
   'schemaOrgMovie',
   'schemaOrgBook',
   'schemaOrgNewsArticle',
+  'schemaOrgOpinionNewsArticle',
   'schemaOrgItemList',
   'schemaOrgProfilePage',
   'schemaOrgMusicRecording',
@@ -339,6 +342,13 @@ export const schemaOrgNewsArticlePlugin = definePlugin<SchemaOrgConfig | void>((
   schema: {types: [schemaOrgNewsArticleSchema(config as SchemaOrgConfig)]},
 }))
 
+export const schemaOrgOpinionNewsArticlePlugin = definePlugin<SchemaOrgConfig | void>(
+  (config = {}) => ({
+    name: 'sanity-plugin-seofields/schema-org-opinionnewsarticle',
+    schema: {types: [schemaOrgOpinionNewsArticleSchema(config as SchemaOrgConfig)]},
+  }),
+)
+
 export const schemaOrgItemListPlugin = definePlugin<SchemaOrgConfig | void>((config = {}) => ({
   name: 'sanity-plugin-seofields/schema-org-itemlist',
   schema: {types: [schemaOrgItemListSchema(config as SchemaOrgConfig)]},
@@ -416,6 +426,7 @@ export const schemaOrg = definePlugin<SchemaOrgCombinedConfig | void>((config = 
         schemaOrgMovieSchema(c.movie),
         schemaOrgBookSchema(c.book),
         schemaOrgNewsArticleSchema(c.newsArticle),
+        schemaOrgOpinionNewsArticleSchema(c.opinionNewsArticle),
         schemaOrgItemListSchema(c.itemList),
         schemaOrgProfilePageSchema(c.profilePage),
         schemaOrgMusicRecordingSchema(c.musicRecording),

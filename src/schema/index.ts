@@ -124,6 +124,7 @@ export {
   schemaOrgMusicAlbumPlugin,
   schemaOrgMusicRecordingPlugin,
   schemaOrgNewsArticlePlugin,
+  schemaOrgOpinionNewsArticlePlugin,
   schemaOrgProfilePagePlugin,
   schemaOrgRestaurantPlugin,
 } from './schemaOrg'
@@ -151,6 +152,7 @@ export {default as schemaOrgMusicAlbum} from './musicAlbum/schema'
 export {default as schemaOrgMusicRecording} from './musicRecording/schema'
 export {default as schemaOrgNewsArticle} from './newsArticle/schema'
 export {default as schemaOrgOffer} from './offer/schema'
+export {default as schemaOrgOpinionNewsArticle} from './opinionNewsArticle/schema'
 export {default as schemaOrgOrganization} from './organization/schema'
 export {default as schemaOrgPerson} from './person/schema'
 export {default as schemaOrgPlace} from './place/schema'
@@ -200,6 +202,10 @@ export type {
 } from './musicRecording/types'
 export type {SchemaOrgNewsArticleConfig, SchemaOrgNewsArticleData} from './newsArticle/types'
 export type {SchemaOrgOfferConfig, SchemaOrgOfferData} from './offer/types'
+export type {
+  SchemaOrgOpinionNewsArticleConfig,
+  SchemaOrgOpinionNewsArticleData,
+} from './opinionNewsArticle/types'
 export type {
   OrganizationContactPoint,
   SchemaOrgOrganizationConfig,

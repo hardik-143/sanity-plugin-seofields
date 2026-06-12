@@ -16,17 +16,17 @@ Manage SEO fields, social previews, robots directives, canonical URLs, Schema.or
 
 Most Sanity SEO plugins stop at title and description fields. `sanity-plugin-seofields` gives editors and developers a full SEO workflow — from per-document fields all the way to studio-wide audits.
 
-| Feature | What you get |
-| :--- | :--- |
-| Structured SEO fields | Complete field group for every document |
-| Live SERP preview | See the Google result while editing |
-| Open Graph + X/Twitter | Full social card controls |
-| Robots + canonical | Indexing directives and canonical URLs |
-| Custom meta tags | Reusable `metaTag` / `metaAttribute` types |
-| Schema.org JSON-LD | 38 types for structured data |
-| Next.js helpers | Metadata and script rendering |
-| SEO Health Dashboard | Audit documents across the whole studio |
-| CLI | Setup, reports, and exports |
+| Feature                | What you get                               |
+| :--------------------- | :----------------------------------------- |
+| Structured SEO fields  | Complete field group for every document    |
+| Live SERP preview      | See the Google result while editing        |
+| Open Graph + X/Twitter | Full social card controls                  |
+| Robots + canonical     | Indexing directives and canonical URLs     |
+| Custom meta tags       | Reusable `metaTag` / `metaAttribute` types |
+| Schema.org JSON-LD     | 39 types for structured data               |
+| Next.js helpers        | Metadata and script rendering              |
+| SEO Health Dashboard   | Audit documents across the whole studio    |
+| CLI                    | Setup, reports, and exports                |
 
 Use it as a simple field plugin, a structured data system, or a complete SEO operations layer for your Sanity projects.
 
@@ -90,7 +90,7 @@ Use it as a simple field plugin, a structured data system, or a complete SEO ope
 
 <br />
 
-- 38 Schema.org types as Sanity object schemas
+- 39 Schema.org types as Sanity object schemas
 - Combined Schema.org array field for flexible content modeling
 - Individual schema plugins when you only need specific types
 - Type picker UI for editors
@@ -212,14 +212,14 @@ Full guide: [Frontend integration](https://sanity-plugin-seofields.thehardik.in/
 
 ## Registered Schema Types
 
-| Type | Purpose |
-| :--- | :--- |
-| `seoFields` | Complete SEO field bundle for document schemas |
-| `openGraph` | Open Graph metadata for Facebook, LinkedIn, Slack, and other social surfaces |
-| `twitter` | X/Twitter Card metadata |
-| `robots` | Indexing and crawling directives |
-| `metaTag` | Custom meta tag container |
-| `metaAttribute` | Single custom meta attribute |
+| Type            | Purpose                                                                      |
+| :-------------- | :--------------------------------------------------------------------------- |
+| `seoFields`     | Complete SEO field bundle for document schemas                               |
+| `openGraph`     | Open Graph metadata for Facebook, LinkedIn, Slack, and other social surfaces |
+| `twitter`       | X/Twitter Card metadata                                                      |
+| `robots`        | Indexing and crawling directives                                             |
+| `metaTag`       | Custom meta tag container                                                    |
+| `metaAttribute` | Single custom meta attribute                                                 |
 
 ---
 
@@ -249,15 +249,15 @@ seofields({
 })
 ```
 
-| Option | Description |
-| :--- | :--- |
-| `seoPreview` | Enable or disable the live preview shown inside SEO fields |
-| `fieldOverrides` | Customize field titles, descriptions, validation, and field metadata |
-| `defaultHiddenFields` | Hide specific SEO fields globally |
-| `fieldVisibility` | Hide specific SEO fields for specific document types |
-| `fieldGroups` | Customize how fields are grouped in the `seoFields` object |
-| `apiVersion` | Sanity API version used by plugin clients |
-| `dashboard` | Enable and configure the SEO Health Dashboard tool |
+| Option                | Description                                                          |
+| :-------------------- | :------------------------------------------------------------------- |
+| `seoPreview`          | Enable or disable the live preview shown inside SEO fields           |
+| `fieldOverrides`      | Customize field titles, descriptions, validation, and field metadata |
+| `defaultHiddenFields` | Hide specific SEO fields globally                                    |
+| `fieldVisibility`     | Hide specific SEO fields for specific document types                 |
+| `fieldGroups`         | Customize how fields are grouped in the `seoFields` object           |
+| `apiVersion`          | Sanity API version used by plugin clients                            |
+| `dashboard`           | Enable and configure the SEO Health Dashboard tool                   |
 
 Full reference: [Configuration docs](https://sanity-plugin-seofields.thehardik.in/docs/configuration)
 
@@ -320,10 +320,7 @@ import seofields from 'sanity-plugin-seofields'
 import {schemaOrg} from 'sanity-plugin-seofields/schema'
 
 export default defineConfig({
-  plugins: [
-    seofields(),
-    schemaOrg(),
-  ],
+  plugins: [seofields(), schemaOrg()],
 })
 ```
 
@@ -342,11 +339,7 @@ import {
 } from 'sanity-plugin-seofields/schema'
 
 export default defineConfig({
-  plugins: [
-    schemaOrgArticlePlugin(),
-    schemaOrgFAQPagePlugin(),
-    schemaOrgProductPlugin(),
-  ],
+  plugins: [schemaOrgArticlePlugin(), schemaOrgFAQPagePlugin(), schemaOrgProductPlugin()],
 })
 ```
 
@@ -391,11 +384,7 @@ export function Page({page}: {page: PageData}) {
 Render individual types:
 
 ```tsx
-import {
-  ArticleSchema,
-  FAQPageSchema,
-  ProductSchema,
-} from 'sanity-plugin-seofields/schema/next'
+import {ArticleSchema, FAQPageSchema, ProductSchema} from 'sanity-plugin-seofields/schema/next'
 
 export function Page({page}: {page: PageData}) {
   return (
@@ -412,9 +401,9 @@ export function Page({page}: {page: PageData}) {
 
 <br />
 
-**Available Schema.org types** (38)
+**Available Schema.org types** (39)
 
-`AggregateRating` · `Article` · `BlogPosting` · `Book` · `Brand` · `BreadcrumbList` · `ContactPoint` · `Country` · `Course` · `Event` · `FAQPage` · `HowTo` · `ImageObject` · `ItemList` · `JobPosting` · `LegalService` · `LocalBusiness` · `Movie` · `MusicAlbum` · `MusicRecording` · `NewsArticle` · `Offer` · `Organization` · `Person` · `Place` · `PostalAddress` · `Product` · `ProfilePage` · `Recipe` · `Restaurant` · `Review` · `Service` · `SocialMediaPosting` · `SoftwareApplication` · `VideoObject` · `WebApplication` · `WebPage` · `Website`
+`AggregateRating` · `Article` · `BlogPosting` · `Book` · `Brand` · `BreadcrumbList` · `ContactPoint` · `Country` · `Course` · `Event` · `FAQPage` · `HowTo` · `ImageObject` · `ItemList` · `JobPosting` · `LegalService` · `LocalBusiness` · `Movie` · `MusicAlbum` · `MusicRecording` · `NewsArticle` · `Offer` · `OpinionNewsArticle` · `Organization` · `Person` · `Place` · `PostalAddress` · `Product` · `ProfilePage` · `Recipe` · `Restaurant` · `Review` · `Service` · `SocialMediaPosting` · `SoftwareApplication` · `VideoObject` · `WebApplication` · `WebPage` · `Website`
 
 Schema.org docs: [Structured data guide](https://sanity-plugin-seofields.thehardik.in/docs/schema-org)
 
@@ -466,25 +455,25 @@ CLI docs: [CLI guide](https://sanity-plugin-seofields.thehardik.in/docs/cli)
 
 ## Package Exports
 
-| Import path | Use |
-| :--- | :--- |
-| `sanity-plugin-seofields` | Studio plugin, base schema types, dashboard pane factory, shared types |
-| `sanity-plugin-seofields/next` | SEO metadata helpers and Schema.org React components |
-| `sanity-plugin-seofields/schema` | Schema.org Sanity schema plugins and type exports |
-| `sanity-plugin-seofields/schema/next` | Schema.org React JSON-LD components |
-| `sanity-plugin-seofields/define-cli` | CLI configuration helper |
+| Import path                           | Use                                                                    |
+| :------------------------------------ | :--------------------------------------------------------------------- |
+| `sanity-plugin-seofields`             | Studio plugin, base schema types, dashboard pane factory, shared types |
+| `sanity-plugin-seofields/next`        | SEO metadata helpers and Schema.org React components                   |
+| `sanity-plugin-seofields/schema`      | Schema.org Sanity schema plugins and type exports                      |
+| `sanity-plugin-seofields/schema/next` | Schema.org React JSON-LD components                                    |
+| `sanity-plugin-seofields/define-cli`  | CLI configuration helper                                               |
 
 ---
 
 ## Compatibility
 
-| Runtime | Supported |
-| :--- | :--- |
-| Node.js | `>=18` |
-| Sanity Studio | `^3`, `^4`, `^5` |
-| React | `^18`, `^19` |
-| Module format | ESM and CommonJS builds |
-| TypeScript | Type definitions included |
+| Runtime       | Supported                 |
+| :------------ | :------------------------ |
+| Node.js       | `>=18`                    |
+| Sanity Studio | `^3`, `^4`, `^5`          |
+| React         | `^18`, `^19`              |
+| Module format | ESM and CommonJS builds   |
+| TypeScript    | Type definitions included |
 
 ---
 

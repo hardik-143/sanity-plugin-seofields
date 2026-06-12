@@ -64,6 +64,11 @@ export type {NewsArticleSchemaProps} from './schema/newsArticle/component'
 export {buildNewsArticleJsonLd, NewsArticleSchema} from './schema/newsArticle/component'
 export type {OfferSchemaProps} from './schema/offer/component'
 export {buildOfferJsonLd, OfferSchema} from './schema/offer/component'
+export type {OpinionNewsArticleSchemaProps} from './schema/opinionNewsArticle/component'
+export {
+  buildOpinionNewsArticleJsonLd,
+  OpinionNewsArticleSchema,
+} from './schema/opinionNewsArticle/component'
 export type {OrganizationSchemaProps} from './schema/organization/component'
 export {buildOrganizationJsonLd, OrganizationSchema} from './schema/organization/component'
 export type {PersonSchemaProps} from './schema/person/component'

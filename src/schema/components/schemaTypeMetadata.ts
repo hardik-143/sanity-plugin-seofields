@@ -305,6 +305,13 @@ export const SCHEMA_TYPE_METADATA: SchemaTypeInfo[] = [
     keywords: ['news', 'journalism', 'press', 'story', 'report'],
   },
   {
+    type: 'schemaOrgOpinionNewsArticle',
+    title: 'Opinion News Article',
+    description: 'Opinion/editorial piece — a NewsArticle subtype that strengthens E-E-A-T.',
+    category: 'content',
+    keywords: ['opinion', 'editorial', 'column', 'commentary', 'op-ed'],
+  },
+  {
     type: 'schemaOrgItemList',
     title: 'Item List',
     description: 'An ordered or unordered list of items (carousel).',

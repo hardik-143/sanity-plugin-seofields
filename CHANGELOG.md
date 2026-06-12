@@ -7,11 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] — 2026-06-11
+
+### ✨ Added
+
+- **`OpinionNewsArticle` Schema.org type** — New `schemaOrgOpinionNewsArticle` type (a `NewsArticle` subtype per Schema.org spec) aimed at strengthening E-E-A-T signals for opinion, editorial, and column content. Ships with:
+  - Sanity schema (`schemaOrgOpinionNewsArticle`) registered through the combined `schemaOrg()` plugin or individually via `schemaOrgOpinionNewsArticlePlugin`.
+  - Next.js React component (`OpinionNewsArticleSchema`) and JSON-LD builder (`buildOpinionNewsArticleJsonLd`) exported from `sanity-plugin-seofields/next`.
+  - Full TypeScript types: `SchemaOrgOpinionNewsArticleData`, `SchemaOrgOpinionNewsArticleConfig`.
+  - Fields: `headline` (required), `description`, `image`, `author` (polymorphic Person/Organization), `publisher` (polymorphic Organization/Person), `datePublished` (required), `dateModified`, `articleSection`, `articleBody`, `dateline`, `printColumn`, `printEdition`, `printPage`, `printSection`, `backstory`.
+  - Searchable in the Type Picker dialog with keywords `opinion`, `editorial`, `column`, `commentary`, `op-ed`.
+  - `DocumentTextIcon` icon to match `NewsArticle`.
+
+  ```ts
+  // Combined plugin — includes OpinionNewsArticle automatically
+  import { schemaOrg } from 'sanity-plugin-seofields/schema'
+  plugins: [schemaOrg()]
+
+  // Individual plugin
+  import { schemaOrgOpinionNewsArticlePlugin } from 'sanity-plugin-seofields/schema'
+  plugins: [schemaOrgOpinionNewsArticlePlugin()]
+
+  // Next.js component
+  import { OpinionNewsArticleSchema } from 'sanity-plugin-seofields/next'
+  <OpinionNewsArticleSchema data={doc.structuredData} />
+  ```
+
+### 🐛 Fixed
+
+- **Polymorphic `select` fields leaking `variant` into JSON-LD output** — When an editor selected a variant (e.g. chose "Person" for the `author` field) but left all sub-fields blank, the raw Sanity data object `{ variant: 'person' }` was emitted directly into the JSON-LD output. Schema.org validators (including Google's Rich Results Test) would report: *"The property `variant` is not recognised by the schema (e.g. schema.org) for an object of type `Thing`."* The `handleSelectVariant` function in `generator.ts` now returns `true` (consumed — emit nothing) instead of `false` when the variant's nested sub-object is null or empty, preventing the raw value from falling through to the generic field emitter. This fix applies to **all** polymorphic `select` fields across every Schema.org type (author, publisher, image, genre, keywords, etc.).
+
+### 🧪 Tests
+
+- **4 new regression tests** in `src/__tests__/schemaOrg.test.ts` covering the `variant` leak fix:
+  - Asserts `variant` never appears in JSON-LD when `author` variant is set but sub-object is empty.
+  - Asserts `variant` never appears in JSON-LD when `publisher` variant is set but sub-object is empty.
+  - Asserts `author` correctly resolves to `{ "@type": "Person", ... }` when sub-fields are populated.
+  - Asserts `publisher` correctly resolves to `{ "@type": "Organization", ... }` when sub-fields are populated.
+
+---
+
 ## [1.6.5] — 2026-05-14
 
 ### 🐛 Fixed
 
-- **Meta title suffix length feedback and SERP spacing** — Fixed the meta title validator so the SEO feedback now checks the combined title + suffix length, explicitly notes when the suffix value is included in the count, and keeps the live SERP preview aligned with the same ` | ` separator spacing used in the rendered title. Also wired the meta title input to resolve configured `titleSuffix` / `titleSuffixQuery` values directly so the validation message stays accurate when suffixes are enabled. Reported in [#9](https://github.com/hardik-143/sanity-plugin-seofields/issues/9). Thanks to [@patricksdev](https://github.com/patricksdev) for the report and follow-up suggestion.
+- **Meta title suffix length feedback and SERP spacing** — Fixed the meta title validator so the SEO feedback now checks the combined title + suffix length, explicitly notes when the suffix value is included in the count, and keeps the live SERP preview aligned with the same `|` separator spacing used in the rendered title. Also wired the meta title input to resolve configured `titleSuffix` / `titleSuffixQuery` values directly so the validation message stays accurate when suffixes are enabled. Reported in [#9](https://github.com/hardik-143/sanity-plugin-seofields/issues/9). Thanks to [@patricksdev](https://github.com/patricksdev) for the report and follow-up suggestion.
 
 ---
 
