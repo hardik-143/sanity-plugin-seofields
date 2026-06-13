@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fields: `headline` (required), `description`, `image`, `author` (polymorphic Person/Organization), `publisher` (polymorphic Organization/Person), `datePublished` (required), `dateModified`, `articleSection`, `articleBody`, `dateline`, `printColumn`, `printEdition`, `printPage`, `printSection`, `backstory`.
   - Searchable in the Type Picker dialog with keywords `opinion`, `editorial`, `column`, `commentary`, `op-ed`.
   - `DocumentTextIcon` icon to match `NewsArticle`.
+  - Suggested in [#12](https://github.com/hardik-143/sanity-plugin-seofields/issues/12) by [@WebShapedBiz](https://github.com/WebShapedBiz). Thanks to Siniša Perović for the thoughtful publisher-focused E-E-A-T use case.
 
   ```ts
   // Combined plugin — includes OpinionNewsArticle automatically
