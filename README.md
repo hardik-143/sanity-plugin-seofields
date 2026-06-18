@@ -1,4 +1,4 @@
-![sanity-plugin-seofields — the complete SEO toolkit for Sanity Studio](https://raw.githubusercontent.com/hardik-143/sanity-plugin-seofields/main/BANNER.png)
+![sanity-plugin-seofields — the complete SEO toolkit for Sanity Studio](./sanity_plugin_seofields_logo.png)
 
 # sanity-plugin-seofields
 
@@ -6,7 +6,7 @@
 
 Manage SEO fields, social previews, robots directives, canonical URLs, Schema.org JSON-LD, and studio-wide SEO health checks — directly inside Sanity Studio v3, v4, or v5.
 
-[![npm version](https://img.shields.io/npm/v/sanity-plugin-seofields.svg?color=10b981&label=npm)](https://www.npmjs.com/package/sanity-plugin-seofields) [![npm downloads](https://img.shields.io/npm/dm/sanity-plugin-seofields.svg?color=2563eb&label=downloads)](https://www.npmjs.com/package/sanity-plugin-seofields) [![license](https://img.shields.io/npm/l/sanity-plugin-seofields.svg?color=f59e0b)](./LICENSE) [![GitHub stars](https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social)](https://github.com/hardik-143/sanity-plugin-seofields) [![Sanity](https://img.shields.io/badge/Sanity-v3%20%7C%20v4%20%7C%20v5-f03e2f?logo=sanity)](https://www.sanity.io) [![TypeScript](https://img.shields.io/badge/TypeScript-ready-3178c6?logo=typescript&logoColor=white)](#compatibility)
+<p><a href="https://www.npmjs.com/package/sanity-plugin-seofields"><img src="https://img.shields.io/npm/v/sanity-plugin-seofields.svg?color=10b981&label=npm" alt="npm version" /></a> <a href="https://www.npmjs.com/package/sanity-plugin-seofields"><img src="https://img.shields.io/npm/dm/sanity-plugin-seofields.svg?color=2563eb&label=downloads" alt="npm downloads" /></a> <a href="./LICENSE"><img src="https://img.shields.io/npm/l/sanity-plugin-seofields.svg?color=f59e0b" alt="license" /></a> <a href="https://github.com/hardik-143/sanity-plugin-seofields"><img src="https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social" alt="GitHub stars" /></a> <a href="https://www.sanity.io"><img src="https://img.shields.io/badge/Sanity-v3%20%7C%20v4%20%7C%20v5-f03e2f?logo=sanity" alt="Sanity" /></a> <a href="#compatibility"><img src="https://img.shields.io/badge/TypeScript-ready-3178c6?logo=typescript&logoColor=white" alt="TypeScript" /></a></p>
 
 [**Documentation**](https://sanity-plugin-seofields.thehardik.in/docs) &nbsp;•&nbsp; [Quick Start](#quick-start) &nbsp;•&nbsp; [Configuration](#configuration) &nbsp;•&nbsp; [Schema.org](#schemaorg-structured-data) &nbsp;•&nbsp; [CLI](#cli)
 
