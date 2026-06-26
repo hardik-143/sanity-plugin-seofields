@@ -8,8 +8,11 @@ import {
   StringInputProps,
 } from 'sanity'
 
+import GEOChecklist from '../components/geo/GEOChecklist'
+import FocusKeywordInput from '../components/meta/FocusKeywordInput'
 import MetaDescription from '../components/meta/MetaDescription'
 import MetaImage from '../components/meta/MetaImage'
+import MetaTagsPreview from '../components/meta/MetaTagsPreview'
 import MetaTitle from '../components/meta/MetaTitle'
 import type {SeoFieldGroup, SeoFieldsPluginConfig, SeoObjectFieldName} from '../plugin'
 import {getFieldHiddenFunction, getFieldInfo} from '../utils/fieldsUtils'
@@ -221,6 +224,67 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
         }),
         fieldGroupMap,
       ),
+      withGroup(
+        defineField({
+          name: 'focusKeyword',
+          ...getFieldInfo('focusKeyword', config.fieldOverrides),
+          type: 'string',
+          components: {
+            input: FocusKeywordInput,
+          },
+          hidden: getFieldHiddenFunction('focusKeyword', config),
+        }),
+        fieldGroupMap,
+      ),
+      withGroup(
+        defineField({
+          name: 'hreflangs',
+          ...getFieldInfo('hreflangs', config.fieldOverrides),
+          type: 'array',
+          of: [{type: 'hreflangEntry'}],
+          description:
+            'Add alternate language/region versions. Include x-default for the fallback URL.',
+          hidden: getFieldHiddenFunction('hreflangs', config),
+        }),
+        fieldGroupMap,
+      ),
+      ...(config.geo === false
+        ? []
+        : [
+            withGroup(
+              defineField({
+                name: 'geoChecklist',
+                ...getFieldInfo('geoChecklist', config.fieldOverrides),
+                type: 'string',
+                readOnly: true,
+                components: {
+                  input: GEOChecklist,
+                },
+                options: {
+                  ...(config.licenseKey ? {licenseKey: config.licenseKey} : {}),
+                } as Record<string, unknown>,
+                hidden: getFieldHiddenFunction('geoChecklist', config),
+              }),
+              fieldGroupMap,
+            ),
+          ]),
+      ...(config.metaTagsPreview === false
+        ? []
+        : [
+            withGroup(
+              defineField({
+                name: 'metaTagsPreview',
+                ...getFieldInfo('metaTagsPreview', config.fieldOverrides),
+                type: 'string',
+                readOnly: true,
+                components: {
+                  input: MetaTagsPreview,
+                },
+                hidden: getFieldHiddenFunction('metaTagsPreview', config),
+              }),
+              fieldGroupMap,
+            ),
+          ]),
       withGroup(openGraph(config) as unknown as FieldDefinition, fieldGroupMap),
       withGroup(twitter(config) as unknown as FieldDefinition, fieldGroupMap),
     ],

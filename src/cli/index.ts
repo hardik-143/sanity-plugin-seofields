@@ -47,7 +47,7 @@ const TIPS = [
   'Keywords should appear naturally — avoid keyword stuffing.',
   'Every page needs a unique meta title. Duplicates hurt rankings.',
   'Use `seofields export --format csv` to open SEO data in a spreadsheet.',
-  'Set `noIndex: true` on internal or draft pages to prevent indexing.',
+  'Set `noIndex: true`, `noFollow: true`, `noTranslate: true`, or `noImageIndex: true` when a page needs stricter crawler directives.',
   'OG title and meta title can differ — OG is optimised for social, meta for search.',
   'Run `seofields report` after content migrations to catch regressions.',
   'Use `seofields init --schema-org` to add structured data support.',

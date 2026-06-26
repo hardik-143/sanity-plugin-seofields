@@ -28,7 +28,8 @@ const DEFAULT_FIELD_INFO: Record<AllFieldKeys, {title: string; description: stri
   },
   robots: {
     title: 'Robots Settings',
-    description: 'Configure how search engine crawlers should index and follow links on this page.',
+    description:
+      'Configure how search engine crawlers should index, follow links, translate content, and index images on this page.',
   },
   metaAttributes: {
     title: 'Additional Meta Attributes',
@@ -104,6 +105,24 @@ const DEFAULT_FIELD_INFO: Record<AllFieldKeys, {title: string; description: stri
     title: 'X Image URL',
     description:
       'Enter the full URL of the image for X (formerly Twitter). Ensure the image is accessible and meets the recommended size.',
+  },
+  focusKeyword: {
+    title: 'Focus Keyword',
+    description:
+      'The primary keyword you want this page to rank for. Used to check keyword placement in title, description, and URL.',
+  },
+  hreflangs: {
+    title: 'Hreflang Entries',
+    description:
+      'Add alternate language/region versions of this page. Include x-default for the fallback URL.',
+  },
+  geoChecklist: {
+    title: 'AI Overview Readiness',
+    description: 'Checklist of signals that improve visibility in AI-generated overviews.',
+  },
+  metaTagsPreview: {
+    title: 'Meta Tags Preview',
+    description: 'Preview the full HTML <head> meta tags generated for this page.',
   },
 }
 

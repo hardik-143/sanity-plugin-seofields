@@ -10,7 +10,9 @@ import {Box, Button, Card, Dialog, Flex, Grid, Heading, Stack, Text, TextInput} 
 import {type ChangeEvent, type ComponentType, JSX, useCallback, useMemo, useState} from 'react'
 import type {ArrayInputFunctionsProps, ArraySchemaType} from 'sanity'
 import type {InputProps} from 'sanity'
+import {useFormValue} from 'sanity'
 
+import {SchemaOrgJsonLdPreview, type SchemaOrgJsonLdPreviewOptions} from './SchemaOrgJsonLdPreview'
 import {
   CATEGORY_LABELS,
   CATEGORY_ORDER,
@@ -194,6 +196,26 @@ function TypeArrayFunctions(props: ArrayInputFunctionsProps<any, ArraySchemaType
  * ```
  */
 export default function TypePickerInput(props: InputProps): JSX.Element {
-  const {renderDefault} = props
-  return <Stack space={3}>{renderDefault({...props, arrayFunctions: TypeArrayFunctions})}</Stack>
+  const {renderDefault, schemaType} = props
+  const rootDocument =
+    (useFormValue([]) as ({_type?: string; _id?: string} & Record<string, unknown>) | null) ?? {}
+  const previewConfig = (
+    schemaType as {options?: {schemaOrgJsonLdPreview?: boolean | SchemaOrgJsonLdPreviewOptions}}
+  ).options?.schemaOrgJsonLdPreview
+  const options = typeof previewConfig === 'object' ? previewConfig : undefined
+  const value = (props as {value?: Array<Record<string, unknown>>}).value
+
+  return (
+    <Stack space={3}>
+      {renderDefault({...props, arrayFunctions: TypeArrayFunctions})}
+      {previewConfig !== false && (
+        <SchemaOrgJsonLdPreview
+          {...options}
+          value={value ?? null}
+          document={rootDocument}
+          fieldPreview
+        />
+      )}
+    </Stack>
+  )
 }

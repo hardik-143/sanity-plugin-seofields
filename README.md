@@ -217,7 +217,7 @@ Full guide: [Frontend integration](https://sanity-plugin-seofields.thehardik.in/
 | `seoFields`     | Complete SEO field bundle for document schemas                               |
 | `openGraph`     | Open Graph metadata for Facebook, LinkedIn, Slack, and other social surfaces |
 | `twitter`       | X/Twitter Card metadata                                                      |
-| `robots`        | Indexing and crawling directives                                             |
+| `robots`        | Indexing, crawling, translation, and image indexing directives               |
 | `metaTag`       | Custom meta tag container                                                    |
 | `metaAttribute` | Single custom meta attribute                                                 |
 

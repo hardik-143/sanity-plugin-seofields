@@ -7,6 +7,143 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.0] — 2026-06-26
+
+### ✨ Added
+
+- **`focusKeyword` field** — New string field inside `seoFields` with a live, colour-coded inline feedback component (`FocusKeywordInput`). As editors type their target keyword the component immediately checks:
+  - **Title prominence** — green if the keyword is at the start, orange if it appears elsewhere, red if it is missing.
+  - **Description presence** — green if present, orange if missing.
+  - **URL slug match** — green if the slug contains the keyword (only evaluated when a `slug` field exists on the document), orange if absent.
+  - **Stuffing guard** — red warning when the keyword appears more than twice in the title.
+
+  The `focusKeyword` value is also read by the new GEO Checklist (see below) for its keyword-presence checks. The field is included in `SeoFields` TypeScript type and hidden/override-able via the existing `fieldVisibility` / `defaultHiddenFields` / `fieldOverrides` options. Available as a `SeoObjectFieldName` in `fieldGroups`.
+
+  ```ts
+  // Type definition
+  interface SeoFields {
+    focusKeyword?: string
+    // ...
+  }
+  ```
+
+- **`hreflangs` field + `hreflangEntry` schema type** — New array field on `seoFields` that stores international SEO alternate entries. Each item is an `hreflangEntry` object with:
+  - `locale` — BCP 47 language/region tag (e.g. `en`, `fr-FR`, `x-default`). Validated with a regex pattern in Studio; invalid tags show an inline error before saving.
+  - `url` — Absolute URL of the alternate page. Validated as `http` or `https`.
+
+  The `hreflangEntry` type is registered automatically alongside `seoFields`; no extra schema registration needed. Entries are queryable via GROQ and can be passed to Next.js `generateMetadata()` `alternates.languages` or rendered as `<link rel="alternate" hreflang="...">` tags manually. Field is typed on `SeoFields` and controllable via all existing hide/override options.
+
+  ```ts
+  // Type definition
+  interface SeoFields {
+    hreflangs?: Array<{locale: string; url: string}>
+    // ...
+  }
+  ```
+
+  ```ts
+  // GROQ
+  seo { hreflangs[] { locale, url } }
+  ```
+
+  ```tsx
+  // Next.js generateMetadata
+  alternates: {
+    languages: Object.fromEntries(
+      doc.seo.hreflangs.map(({ locale, url }) => [locale, url])
+    ),
+  }
+  ```
+
+- **`GEOChecklist` component + `geoChecklist` field** — GEO (Generative Engine Optimization) readiness panel rendered directly inside `seoFields`. Gives editors instant feedback on how well the page is structured for AI-powered overviews (Google AI Overviews, ChatGPT, Perplexity).
+
+  **Free checks (6):**
+  | Check | Pass condition |
+  |---|---|
+  | Description is answer-ready | 100–160 characters |
+  | Page is indexable | robots `noIndex` is not set |
+  | Has Schema.org structured data | at least one `schemaOrg` type on the document |
+  | Open Graph image is set | `openGraph.image` or `openGraph.imageUrl` is non-empty |
+  | Focus keyword in meta title | `focusKeyword` (if set) appears in `title` |
+  | Focus keyword in meta description | `focusKeyword` (if set) appears in `description` |
+
+  Keyword checks are skipped (treated as passing) when `focusKeyword` is not filled in, so the checklist never blocks editors who don't use keyword targeting.
+
+  **Pro checks** are unlocked when a valid `licenseKey` is present (shown as a locked teaser otherwise).
+
+  Shown by default. Disable globally with `geo: false`. Hide per document type via `fieldVisibility`. Available as `'geoChecklist'` in `fieldGroups`.
+
+  ```ts
+  seofields({
+    geo: false, // hides the checklist on all document types
+
+    // — or — hide per type
+    fieldVisibility: {
+      internalPage: {hiddenFields: ['geoChecklist']},
+    },
+  })
+  ```
+
+- **`MetaTagsPreview` component + `metaTagsPreview` field** — Live HTML `<head>` preview rendered inside `seoFields`. Shows the exact output that will be in the page source:
+  - `<title>`, `<meta name="description">`, `<meta name="keywords">`, `<meta name="robots">`
+  - `<link rel="canonical">`
+  - `og:title`, `og:description`, `og:url`, `og:type`, `og:site_name`, `og:image`
+  - `twitter:card`, `twitter:site`, `twitter:creator`, `twitter:title`, `twitter:description`, `twitter:image`
+  - `<link rel="alternate" hreflang="...">` entries
+  - Custom `metaAttributes` key/value pairs
+
+  Uploaded Sanity images are resolved to CDN URLs automatically using the Studio client's `projectId` + `dataset`. External image URLs (when `imageType: 'url'`) are displayed as-is. No additional configuration required.
+
+  Shown by default. Disable globally with `metaTagsPreview: false`. Hide per document type via `fieldVisibility`. Available as `'metaTagsPreview'` in `fieldGroups`.
+
+  ```ts
+  seofields({
+    metaTagsPreview: false, // hides the preview on all document types
+
+    // — or — hide per type
+    fieldVisibility: {
+      internalPage: {hiddenFields: ['metaTagsPreview']},
+    },
+  })
+  ```
+
+### 🔄 Changed
+
+- **`SeoObjectFieldName` union expanded** — `focusKeyword`, `hreflangs`, `geoChecklist`, and `metaTagsPreview` are now valid values in the `SeoObjectFieldName` union type, making them fully assignable in typed `fieldGroups` arrays.
+
+  ```ts
+  // All new field names work with TypeScript fieldGroups config
+  const groups: SeoFieldGroup[] = [
+    {
+      name: 'meta',
+      title: 'Meta',
+      default: true,
+      fields: [
+        'title',
+        'description',
+        'focusKeyword',
+        'metaImage',
+        'keywords',
+        'canonicalUrl',
+        'robots',
+        'hreflangs',
+        'metaTagsPreview',
+      ],
+    },
+    {name: 'openGraph', title: 'Open Graph', fields: ['openGraph']},
+    {name: 'twitter', title: 'Twitter Card', fields: ['twitter']},
+    {name: 'geo', title: 'GEO / AI', fields: ['geoChecklist']},
+  ]
+  ```
+
+- **`SeoFieldsPluginConfig` — two new top-level options:**
+  - `geo?: boolean` — set `false` to hide the GEO Checklist on all document types (default: `true`).
+  - `metaTagsPreview?: boolean` — set `false` to hide the Meta Tags Preview on all document types (default: `true`).
+
+- **`SeoFields` TypeScript type** — `focusKeyword?: string` and `hreflangs?: Array<{locale: string; url: string}>` added to the exported interface.
+
+---
+
 ## [1.7.0] — 2026-06-11
 
 ### ✨ Added
@@ -36,7 +173,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Fixed
 
-- **Polymorphic `select` fields leaking `variant` into JSON-LD output** — When an editor selected a variant (e.g. chose "Person" for the `author` field) but left all sub-fields blank, the raw Sanity data object `{ variant: 'person' }` was emitted directly into the JSON-LD output. Schema.org validators (including Google's Rich Results Test) would report: *"The property `variant` is not recognised by the schema (e.g. schema.org) for an object of type `Thing`."* The `handleSelectVariant` function in `generator.ts` now returns `true` (consumed — emit nothing) instead of `false` when the variant's nested sub-object is null or empty, preventing the raw value from falling through to the generic field emitter. This fix applies to **all** polymorphic `select` fields across every Schema.org type (author, publisher, image, genre, keywords, etc.).
+- **Polymorphic `select` fields leaking `variant` into JSON-LD output** — When an editor selected a variant (e.g. chose "Person" for the `author` field) but left all sub-fields blank, the raw Sanity data object `{ variant: 'person' }` was emitted directly into the JSON-LD output. Schema.org validators (including Google's Rich Results Test) would report: _"The property `variant` is not recognised by the schema (e.g. schema.org) for an object of type `Thing`."_ The `handleSelectVariant` function in `generator.ts` now returns `true` (consumed — emit nothing) instead of `false` when the variant's nested sub-object is null or empty, preventing the raw value from falling through to the generic field emitter. This fix applies to **all** polymorphic `select` fields across every Schema.org type (author, publisher, image, genre, keywords, etc.).
 
 ### 🧪 Tests
 

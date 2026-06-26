@@ -19,9 +19,13 @@ export interface SeoMetadata {
   robots?: {
     index?: boolean
     follow?: boolean
+    notranslate?: boolean
+    noimageindex?: boolean
     googleBot?: {
       index?: boolean
       follow?: boolean
+      notranslate?: boolean
+      noimageindex?: boolean
     }
   }
   openGraph?: {
@@ -79,7 +83,12 @@ interface SeoImageInput {
  */
 export interface SeoFieldsInput {
   _type?: string
-  robots?: {noIndex?: boolean | null; noFollow?: boolean | null} | null
+  robots?: {
+    noIndex?: boolean | null
+    noFollow?: boolean | null
+    noTranslate?: boolean | null
+    noImageIndex?: boolean | null
+  } | null
   title?: string | null
   description?: string | null
   metaImage?: SeoImageInput | null
@@ -281,9 +290,13 @@ export function buildSeoMeta(options: BuildSeoMetaOptions): SeoMetadata {
     robots: {
       index: !seo?.robots?.noIndex,
       follow: !seo?.robots?.noFollow,
+      notranslate: !!seo?.robots?.noTranslate,
+      noimageindex: !!seo?.robots?.noImageIndex,
       googleBot: {
         index: !seo?.robots?.noIndex,
         follow: !seo?.robots?.noFollow,
+        notranslate: !!seo?.robots?.noTranslate,
+        noimageindex: !!seo?.robots?.noImageIndex,
       },
     },
     openGraph: {

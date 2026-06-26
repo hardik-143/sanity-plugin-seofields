@@ -21,5 +21,18 @@ export {default as twitterSchema} from './schemas/types/twitter'
 export type {SeoHealthPaneOptions} from './components/SeoHealthPane'
 export {createSeoHealthPane} from './components/SeoHealthPane'
 
+// Export Schema.org Studio preview components
+export type {
+  SchemaOrgJsonLdPreviewOptions,
+  SchemaOrgJsonLdPreviewProps,
+} from './schema/components/SchemaOrgJsonLdPreview'
+export {
+  SchemaOrgJsonLdPreview as SchemaOrgDocumentJsonLdPreview,
+  SchemaOrgJsonLdPreview,
+} from './schema/components/SchemaOrgJsonLdPreview'
+
 // Export types
 export type {DocumentWithSeoHealth, SeoHealthMetrics, SeoHealthStatus} from './types'
+
+// Export shared scoring utility
+export {calculateHealthScore} from './utils/scoring'

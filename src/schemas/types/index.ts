@@ -3,6 +3,7 @@ import {SchemaTypeDefinition} from 'sanity'
 import {SeoFieldsPluginConfig} from '../../plugin'
 import seoFields from '..'
 import baseMeta from './baseMeta'
+import hreflangEntry from './hreflang'
 import metaAttribute from './metaAttribute'
 import metaTag from './metaTag'
 import openGraph from './openGraph'
@@ -18,5 +19,6 @@ export default function types(config: SeoFieldsPluginConfig = {}): SchemaTypeDef
     metaAttribute as SchemaTypeDefinition,
     metaTag,
     robots,
+    hreflangEntry as SchemaTypeDefinition,
   ]
 }

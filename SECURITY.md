@@ -10,10 +10,10 @@ If you believe you have found a security vulnerability, please **do not open a p
 
 Security fixes are currently provided for the latest published major version of the plugin.
 
-| Version | Supported |
-| --- | --- |
-| `1.x` (latest release) | ✅ Yes |
-| Older releases | ❌ No |
+| Version                | Supported |
+| ---------------------- | --------- |
+| `1.x` (latest release) | ✅ Yes    |
+| Older releases         | ❌ No     |
 
 If you are running an older release, upgrade to the latest `1.x` version before requesting support.
 

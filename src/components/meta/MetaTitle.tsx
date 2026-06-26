@@ -19,9 +19,11 @@ const MetaTitle = (props: StringInputProps): ReactElement => {
   const isParentseoField = parent && parent?._type === 'seoFields'
   const keywords = useMemo(() => parent?.keywords || [], [parent?.keywords])
 
-  const rootDoc = (useFormValue([]) as ({_type?: string} & Record<string, unknown>) | null) ?? {}
+  const rootDoc =
+    (useFormValue([]) as ({_type?: string; _id?: string} & Record<string, unknown>) | null) ?? {}
   const client = useClient({apiVersion: options?.apiVersion ?? '2024-01-01'})
   const [groqTitleSuffix, setGroqTitleSuffix] = useState<string>('')
+  const [isDuplicateTitle, setIsDuplicateTitle] = useState(false)
 
   const titleSuffixQuery = options?.titleSuffixQuery
   const titleSuffixOption = options?.titleSuffix
@@ -37,6 +39,24 @@ const MetaTitle = (props: StringInputProps): ReactElement => {
         setGroqTitleSuffix('')
       })
   }, [titleSuffixQuery, client])
+
+  const currentDocId = rootDoc._id ?? ''
+  useEffect(() => {
+    if (!value?.trim() || !currentDocId) {
+      setIsDuplicateTitle(false)
+      return () => {}
+    }
+    const timer = setTimeout(() => {
+      client
+        .fetch<number>(
+          `count(*[seo.title == $title && _id != $id && !(_id in path("drafts.**"))])`,
+          {title: value, id: currentDocId},
+        )
+        .then((count) => setIsDuplicateTitle(count > 0))
+        .catch(() => setIsDuplicateTitle(false))
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [value, client, currentDocId])
 
   const resolvedSuffix = useMemo((): string => {
     if (titleSuffixQuery) return groqTitleSuffix
@@ -74,6 +94,21 @@ const MetaTitle = (props: StringInputProps): ReactElement => {
             </Text>
           </div>
         ))}
+        {isDuplicateTitle && (
+          <div style={{display: 'flex', alignItems: 'center', gap: 7}}>
+            <div
+              style={{
+                minWidth: 10,
+                height: 10,
+                borderRadius: '50%',
+                backgroundColor: 'orange',
+              }}
+            />
+            <Text weight="bold" muted size={14}>
+              Duplicate meta title — another published document uses this exact title.
+            </Text>
+          </div>
+        )}
       </Stack>
     </Stack>
   )

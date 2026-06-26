@@ -30,7 +30,7 @@
 
 // ─── Combined renderer (for the schemaOrg array field) ────────────────────────
 export type {SchemaOrgScriptsProps} from './SchemaOrgScripts'
-export {SchemaOrgScripts} from './SchemaOrgScripts'
+export {buildSchemaOrgJsonLd, buildSchemaOrgJsonLds, SchemaOrgScripts} from './SchemaOrgScripts'
 
 // ─── Individual components ────────────────────────────────────────────────────
 export type {AggregateRatingSchemaProps} from './aggregateRating/component'

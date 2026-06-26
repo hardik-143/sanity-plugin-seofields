@@ -58,13 +58,13 @@ This prompts for your project ID, dataset, token source, and file format, then g
 
 ```ts
 // seofields.cli.ts
-import { defineSeoCli } from "sanity-plugin-seofields/define-cli";
+import {defineSeoCli} from 'sanity-plugin-seofields/define-cli'
 
 export default defineSeoCli({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
   token: process.env.SANITY_WRITE_TOKEN,
-});
+})
 ```
 
 ### All options
@@ -195,13 +195,13 @@ npx seofields create-config
 **Output example (TypeScript)**
 
 ```ts
-import { defineSeoCli } from "sanity-plugin-seofields/define-cli";
+import {defineSeoCli} from 'sanity-plugin-seofields/define-cli'
 
 export default defineSeoCli({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
   token: process.env.SANITY_READ_TOKEN,
-});
+})
 ```
 
 ---

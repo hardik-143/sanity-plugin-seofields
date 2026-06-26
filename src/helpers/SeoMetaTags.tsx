@@ -101,7 +101,11 @@ export function SeoMetaTags({
   const robotsContent = [
     meta.robots?.index === false ? 'noindex' : 'index',
     meta.robots?.follow === false ? 'nofollow' : 'follow',
-  ].join(', ')
+    meta.robots?.notranslate ? 'notranslate' : null,
+    meta.robots?.noimageindex ? 'noimageindex' : null,
+  ]
+    .filter(Boolean)
+    .join(', ')
 
   return (
     <>

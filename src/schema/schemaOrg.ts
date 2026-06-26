@@ -75,6 +75,8 @@ import schemaOrgWebsiteSchema from './website/schema'
 
 /** Per-type validation overrides for the combined `schemaOrg()` plugin. */
 export interface SchemaOrgCombinedConfig {
+  /** Configure the live JSON-LD preview shown below the combined `schemaOrg` array field. */
+  jsonLdPreview?: SchemaOrgConfig['jsonLdPreview']
   website?: SchemaOrgConfig
   organization?: SchemaOrgConfig
   webPage?: SchemaOrgConfig
@@ -440,6 +442,9 @@ export const schemaOrg = definePlugin<SchemaOrgCombinedConfig | void>((config = 
           components: {
             input: TypePickerInput,
           },
+          options: {
+            schemaOrgJsonLdPreview: c.jsonLdPreview,
+          } as never,
         }),
       ],
     },

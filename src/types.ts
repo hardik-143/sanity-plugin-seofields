@@ -30,6 +30,8 @@ export interface SanityImageWithAlt extends SanityImage {
 export interface RobotsSettings {
   noIndex?: boolean
   noFollow?: boolean
+  noTranslate?: boolean
+  noImageIndex?: boolean
 }
 
 // Meta Attribute
@@ -81,6 +83,8 @@ export interface SeoFields {
   canonicalUrl?: string
   openGraph?: OpenGraphSettings
   twitter?: TwitterCardSettings
+  focusKeyword?: string
+  hreflangs?: Array<{locale: string; url: string}>
 }
 export type FeedbackTypeColors = 'green' | 'orange' | 'red'
 export type FeedbackType = {

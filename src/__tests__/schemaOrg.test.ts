@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 import {buildArticleJsonLd} from '../schema/article/component'
+import {buildSchemaOrgJsonLd, buildSchemaOrgJsonLds} from '../schema/SchemaOrgScripts'
 import {buildOpinionNewsArticleJsonLd} from '../schema/opinionNewsArticle/component'
 import {buildLegalServiceJsonLd} from '../schema/legalService/component'
 import {legalServiceFields} from '../schema/legalService/schema'
@@ -55,6 +56,34 @@ describe('buildArticleJsonLd (regression)', () => {
     expect(result?.['@type']).toBe('Article')
     expect(result?.['@context']).toBe('https://schema.org')
     expect(result?.headline).toBe('My Article')
+  })
+})
+
+describe('combined Schema.org JSON-LD builders', () => {
+  it('builds JSON-LD for a combined schemaOrg array item', () => {
+    const result = buildSchemaOrgJsonLd({
+      _type: 'schemaOrgArticle',
+      headline: 'Combined Article',
+      description: 'Article description',
+    })
+
+    expect(result).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: 'Combined Article',
+      description: 'Article description',
+    })
+  })
+
+  it('filters invalid combined schemaOrg items', () => {
+    const result = buildSchemaOrgJsonLds([
+      {_type: 'schemaOrgArticle', description: 'Missing headline'},
+      {_type: 'schemaOrgWebPage', name: 'About'},
+    ])
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.['@type']).toBe('WebPage')
+    expect(result[0]?.name).toBe('About')
   })
 })
 

@@ -24,11 +24,12 @@ import {countryFields} from './country/schema'
 import {courseFields} from './course/schema'
 import {eventFields} from './event/schema'
 import {faqPageFields} from './faqPage/schema'
-import {buildGenericJsonLd, SchemaFieldDef} from './generator'
+import type {SchemaFieldDef} from './generator'
 import {howToFields} from './howTo/schema'
 import {imageObjectFields} from './imageObject/schema'
 import {itemListFields} from './itemList/schema'
 import {jobPostingFields} from './jobPosting/schema'
+import {buildGenericJsonLd} from './jsonLd'
 import {legalServiceFields} from './legalService/schema'
 import {localBusinessFields} from './localBusiness/schema'
 import {movieFields} from './movie/schema'
@@ -183,7 +184,9 @@ const GENERIC_TYPES: Record<string, GenericEntry> = {
   },
 }
 
-function buildJsonLdForItem(item: Record<string, unknown>): Record<string, unknown> | null {
+export function buildSchemaOrgJsonLd(
+  item: Record<string, unknown>,
+): Record<string, unknown> | null {
   const type = item._type as string | undefined
   if (!type) return null
 
@@ -201,6 +204,16 @@ function buildJsonLdForItem(item: Record<string, unknown>): Record<string, unkno
   return buildGenericJsonLd(entry.schemaType, item, entry.fields, entry.requiredFields)
 }
 
+export function buildSchemaOrgJsonLds(
+  data?: Array<Record<string, unknown>> | null,
+): Array<Record<string, unknown>> {
+  if (!data?.length) return []
+
+  return data
+    .map((item) => buildSchemaOrgJsonLd(item))
+    .filter((jsonLd): jsonLd is Record<string, unknown> => jsonLd !== null)
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export interface SchemaOrgScriptsProps {
@@ -215,16 +228,16 @@ export interface SchemaOrgScriptsProps {
 export function SchemaOrgScripts({data}: SchemaOrgScriptsProps): JSX.Element | null {
   if (!data?.length) return null
 
-  const scripts = data
-    .map((item) => buildJsonLdForItem(item))
-    .filter((jsonLd): jsonLd is Record<string, unknown> => jsonLd !== null)
+  const scripts = buildSchemaOrgJsonLds(data)
 
   if (!scripts.length) return null
 
   return (
     <>
-      {scripts.map((jsonLd) => (
-        <SchemaOrgScript key={JSON.stringify(jsonLd)} jsonLd={jsonLd} />
+      {scripts.map((jsonLd, idx) => (
+        // static server-rendered scripts — order is stable, index key is safe
+        // eslint-disable-next-line react/no-array-index-key
+        <SchemaOrgScript key={`${idx}-${jsonLd['@type'] as string}`} jsonLd={jsonLd} />
       ))}
     </>
   )

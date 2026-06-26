@@ -72,6 +72,15 @@ export {
 } from './_shared'
 
 // ─── Schema Type Picker Component ──────────────────────────────────────────────
+export type {
+  SchemaOrgJsonLdPreviewOptions,
+  SchemaOrgJsonLdPreviewProps,
+} from './components/SchemaOrgJsonLdPreview'
+export {
+  SchemaOrgJsonLdPreview as SchemaOrgDocumentJsonLdPreview,
+  SchemaOrgJsonLdPreview,
+  SchemaOrgJsonLdPreviewInput,
+} from './components/SchemaOrgJsonLdPreview'
 export type {SchemaTypeCategory, SchemaTypeInfo} from './components/schemaTypeMetadata'
 export {
   CATEGORY_LABELS,
@@ -79,6 +88,10 @@ export {
   SCHEMA_TYPE_METADATA,
 } from './components/schemaTypeMetadata'
 export {default as TypePickerInput} from './components/TypePickerInput'
+
+// ─── Combined JSON-LD builders ────────────────────────────────────────────────
+export type {SchemaOrgScriptsProps} from './SchemaOrgScripts'
+export {buildSchemaOrgJsonLd, buildSchemaOrgJsonLds, SchemaOrgScripts} from './SchemaOrgScripts'
 
 // ─── Combined plugin + all individual plugins ─────────────────────────────────
 export type {SchemaOrgCombinedConfig} from './schemaOrg'

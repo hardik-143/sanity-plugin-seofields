@@ -3,6 +3,7 @@ import {type ReactElement, useMemo} from 'react'
 import {StringInputProps, useFormValue} from 'sanity'
 
 import {FeedbackType} from '../../types'
+import {analyzeReadability} from '../../utils/readability'
 import {getMetaDescriptionValidationMessages} from '../../utils/seoUtils'
 
 const MetaDescription = (props: StringInputProps): ReactElement => {
@@ -16,6 +17,8 @@ const MetaDescription = (props: StringInputProps): ReactElement => {
     () => getMetaDescriptionValidationMessages(value || '', keywords, isParentseoField),
     [value, keywords, isParentseoField],
   )
+
+  const readability = useMemo(() => analyzeReadability(value || ''), [value])
 
   return (
     <Stack space={3}>
@@ -32,6 +35,22 @@ const MetaDescription = (props: StringInputProps): ReactElement => {
           </div>
         ))}
       </Stack>
+      {readability && (
+        <div style={{display: 'flex', alignItems: 'center', gap: 7}}>
+          <div
+            style={{
+              minWidth: 10,
+              height: 10,
+              borderRadius: '50%',
+              backgroundColor: readability.color,
+            }}
+          />
+          <Text weight="bold" muted size={14}>
+            Readability: {readability.label} (Flesch {readability.score} · Grade{' '}
+            {readability.gradeLevel})
+          </Text>
+        </div>
+      )}
     </Stack>
   )
 }

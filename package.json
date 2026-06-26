@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "The only Sanity Studio SEO plugin with a built-in audit dashboard. Manage meta tags, Open Graph, Twitter Cards, robots directives, JSON-LD structured data, and 38 Schema.org types.",
   "keywords": [
     "sanity",
@@ -150,6 +150,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "sanity": "^5.0.0",
+    "seofields-pro": "^1.0.1",
     "styled-components": "^6.1.19",
     "ts-jest": "^29.4.6",
     "ts-json-schema-generator": "^2.4.0",

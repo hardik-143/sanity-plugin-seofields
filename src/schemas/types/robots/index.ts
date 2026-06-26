@@ -21,6 +21,23 @@ export default defineType({
       description:
         'Enable this to prevent search engines from following links on this page. Links will not pass SEO value.',
     }),
+    defineField({
+      name: 'noTranslate',
+      title: 'No Translate',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Enable this to prevent search engines from offering a translated version of this page in search results.',
+    }),
+    defineField({
+      name: 'noImageIndex',
+      title: 'No Image Index',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Enable this to prevent images on this page from appearing in image search results.',
+    }),
   ],
-  description: 'Select how search engines should index and follow links on this page.',
+  description:
+    'Select how search engines should index, follow links, translate content, and index images on this page.',
 })

@@ -12,6 +12,8 @@ describe('buildSeoMeta', () => {
         robots: {
           noIndex: false,
           noFollow: false,
+          noTranslate: false,
+          noImageIndex: false,
         },
         openGraph: {
           title: 'OG Title',
@@ -45,6 +47,8 @@ describe('buildSeoMeta', () => {
       expect(result.keywords).toEqual(['seo', 'metadata', 'testing'])
       expect(result.robots?.index).toBe(true)
       expect(result.robots?.follow).toBe(true)
+      expect(result.robots?.notranslate).toBe(false)
+      expect(result.robots?.noimageindex).toBe(false)
       expect(result.openGraph?.type).toBe('article')
       expect(result.openGraph?.title).toBe('OG Title')
       expect(result.twitter?.card).toBe('summary_large_image')
@@ -151,6 +155,8 @@ describe('buildSeoMeta', () => {
           robots: {
             noIndex: true,
             noFollow: true,
+            noTranslate: true,
+            noImageIndex: true,
           },
         },
       })
@@ -158,9 +164,13 @@ describe('buildSeoMeta', () => {
       expect(result.robots).toBeDefined()
       expect(result.robots?.index).toBe(false)
       expect(result.robots?.follow).toBe(false)
+      expect(result.robots?.notranslate).toBe(true)
+      expect(result.robots?.noimageindex).toBe(true)
       expect(result.robots?.googleBot).toBeDefined()
       expect(result.robots?.googleBot?.index).toBe(false)
       expect(result.robots?.googleBot?.follow).toBe(false)
+      expect(result.robots?.googleBot?.notranslate).toBe(true)
+      expect(result.robots?.googleBot?.noimageindex).toBe(true)
     })
 
     it('should have correct openGraph structure', () => {

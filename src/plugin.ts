@@ -1,7 +1,9 @@
 // plugin.ts
 import {type ComponentType, createElement, lazy, Suspense} from 'react'
+import type {DocumentActionComponent, DocumentActionsContext} from 'sanity'
 import {definePlugin} from 'sanity'
 
+import {createSeoPublishGateAction} from './actions/SeoPublishGateAction'
 import types from './schemas/types'
 import type {DeprecationWarning, DocumentWithSeoHealth} from './types'
 
@@ -18,6 +20,10 @@ export type SeoFieldKeys =
   | 'keywords'
   | 'metaAttributes'
   | 'robots'
+  | 'focusKeyword'
+  | 'hreflangs'
+  | 'geoChecklist'
+  | 'metaTagsPreview'
 
 export type openGraphFieldKeys =
   | 'openGraphUrl'
@@ -56,6 +62,10 @@ export type SeoObjectFieldName =
   | 'canonicalUrl'
   | 'openGraph'
   | 'twitter'
+  | 'focusKeyword'
+  | 'hreflangs'
+  | 'geoChecklist'
+  | 'metaTagsPreview'
 
 /**
  * Defines a single tab/group within the `seoFields` object.
@@ -87,7 +97,31 @@ export interface FieldVisibilityConfig {
   hiddenFields?: ValidHiddenFieldKeys[]
 }
 
+/**
+ * Individual SEO fields that must be non-empty before publishing.
+ * Dot-notation for nested fields (e.g. 'openGraph.title').
+ */
+export type PublishGateRequiredField =
+  | 'title'
+  | 'description'
+  | 'metaImage'
+  | 'keywords'
+  | 'canonicalUrl'
+  | 'openGraph.title'
+  | 'openGraph.description'
+  | 'openGraph.image'
+  | 'openGraph.type'
+  | 'twitter.title'
+  | 'twitter.description'
+  | 'twitter.image'
+  | 'twitter.card'
+
 export interface SeoFieldsPluginConfig {
+  /**
+   * License key for pro features (SEO Health Dashboard, Publish Gate).
+   * Obtain at https://sanity-plugin-seofields.thehardik.in
+   */
+  licenseKey?: string
   /**
    * Enable or configure the SEO preview feature.
    * If set to `true`, the SEO preview will be enabled with default settings.
@@ -173,6 +207,16 @@ export interface SeoFieldsPluginConfig {
    * ]
    */
   fieldGroups?: SeoFieldGroup[]
+  /**
+   * Show the GEO / AI Overview readiness checklist inside seoFields.
+   * Defaults to `true`.
+   */
+  geo?: boolean
+  /**
+   * Show the Meta Tags HTML preview inside seoFields.
+   * Defaults to `true`.
+   */
+  metaTagsPreview?: boolean
   /**
    * The base URL of your website, used for generating full URLs in the SEO preview.
    * Defaults to 'https://www.example.com' if not provided.
@@ -272,7 +316,7 @@ export interface SeoFieldsPluginConfig {
         apiVersion?: string
         /**
          * License key for the SEO Health Dashboard pro feature.
-         * Obtain a license at https://sanity-plugin-seofields.thehardik.in
+         * @deprecated Use the root-level `licenseKey` option instead.
          */
         licenseKey?: string
         /**
@@ -351,6 +395,50 @@ export interface SeoFieldsPluginConfig {
          */
         compactStats?: boolean
       }
+
+  /**
+   * Gate publishing based on SEO score or required field presence.
+   * Requires a valid root-level `licenseKey` — silently disabled if key is absent or invalid.
+   *
+   * @example
+   * ```ts
+   * publishGate: {
+   *   mode: 'warn',
+   *   minScore: 70,
+   *   requiredFields: ['title', 'description', 'openGraph.title'],
+   *   types: ['post', 'page'],
+   * }
+   * ```
+   */
+  publishGate?: {
+    /**
+     * 'block' — disables the Publish button with a tooltip reason (default).
+     * 'warn'  — shows a confirm dialog; editor can bypass and publish anyway.
+     * @default 'block'
+     */
+    mode?: 'block' | 'warn'
+    /**
+     * Minimum overall SEO health score (0–100) required to publish.
+     * Gate fires when the document's score is below this threshold.
+     * @default 60
+     */
+    minScore?: number
+    /**
+     * Individual fields that MUST be non-empty. Gate fires if any are missing.
+     * Use dot-notation for nested fields: 'openGraph.title', 'twitter.image', etc.
+     */
+    requiredFields?: PublishGateRequiredField[]
+    /**
+     * Restrict the gate to specific document types.
+     * Omit to apply to all document types that have an `seo` field.
+     */
+    types?: string[]
+    /**
+     * Custom message shown in the block tooltip or warn dialog.
+     * Accepts a string or a function receiving (score, issues[]).
+     */
+    message?: string | ((score: number, issues: string[]) => string)
+  }
 }
 
 interface ResolvedDashboardConfig {
@@ -393,6 +481,7 @@ interface ResolvedDashboardConfig {
 const resolveDashboardConfig = (
   healthDashboard: SeoFieldsPluginConfig['healthDashboard'],
   rootApiVersion?: string,
+  rootLicenseKey?: string,
 ): ResolvedDashboardConfig => {
   const cfg = typeof healthDashboard === 'object' ? healthDashboard : undefined
 
@@ -407,10 +496,20 @@ const resolveDashboardConfig = (
       '[sanity-plugin-seofields] "healthDashboard.apiVersion" is deprecated. Move it to the root "apiVersion" option instead.',
     )
   }
+  if (cfg?.licenseKey !== undefined && !rootLicenseKey) {
+    deprecationWarnings.push({
+      key: 'healthDashboard.licenseKey → licenseKey',
+      version: 'v1.8.0',
+      changelogUrl: 'https://github.com/hardik-143/sanity-plugin-seofields/blob/main/CHANGELOG.md',
+    })
+    console.warn(
+      '[sanity-plugin-seofields] "healthDashboard.licenseKey" is deprecated. Move it to the root "licenseKey" option instead.',
+    )
+  }
 
   return {
     enabled: healthDashboard !== false,
-    toolTitle: cfg?.tool?.title ?? 'SEO Health',
+    toolTitle: cfg?.tool?.title ?? cfg?.toolTitle ?? 'SEO Health',
     toolName: cfg?.tool?.name ?? 'seo-health-dashboard',
     icon: cfg?.content?.icon,
     title: cfg?.content?.title,
@@ -421,7 +520,7 @@ const resolveDashboardConfig = (
     queryRequireSeo: cfg?.query?.requireSeo,
     queryGroq: cfg?.query?.groq,
     apiVersion: cfg?.apiVersion ?? rootApiVersion,
-    licenseKey: cfg?.licenseKey,
+    licenseKey: rootLicenseKey ?? cfg?.licenseKey,
     typeDisplayLabels: cfg?.typeDisplayLabels,
     typeColumnMode: cfg?.typeColumnMode,
     titleField: cfg?.titleField,
@@ -448,8 +547,9 @@ const resolveDashboardConfig = (
 }
 
 const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
-  const {healthDashboard = true} = config as SeoFieldsPluginConfig
-  const dash = resolveDashboardConfig(healthDashboard, (config as SeoFieldsPluginConfig).apiVersion)
+  const cfg = config as SeoFieldsPluginConfig
+  const {healthDashboard = true, licenseKey, publishGate} = cfg
+  const dash = resolveDashboardConfig(healthDashboard, cfg.apiVersion, licenseKey)
 
   const LazySeoHealthTool = lazy(() => import('./components/SeoHealthTool'))
 
@@ -487,8 +587,25 @@ const seofields = definePlugin<SeoFieldsPluginConfig | void>((config = {}) => {
   return {
     name: 'sanity-plugin-seofields',
     schema: {
-      types: types(config as SeoFieldsPluginConfig),
+      types: types(cfg),
     },
+    ...(publishGate &&
+      licenseKey && {
+        document: {
+          actions: (
+            prev: DocumentActionComponent[],
+            context: DocumentActionsContext,
+          ): DocumentActionComponent[] => {
+            if (publishGate.types?.length && !publishGate.types.includes(context.schemaType))
+              return prev
+            return prev.map((Action) =>
+              Action.action === 'publish'
+                ? createSeoPublishGateAction(Action, {...publishGate, licenseKey})
+                : Action,
+            )
+          },
+        },
+      }),
     ...(dash.enabled && {
       tools: [
         {

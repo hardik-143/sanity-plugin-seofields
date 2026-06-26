@@ -17,7 +17,11 @@ export {SeoMetaTags} from './helpers/SeoMetaTags'
 
 // Schema.org — Combined
 export type {SchemaOrgScriptsProps} from './schema/SchemaOrgScripts'
-export {SchemaOrgScripts} from './schema/SchemaOrgScripts'
+export {
+  buildSchemaOrgJsonLd,
+  buildSchemaOrgJsonLds,
+  SchemaOrgScripts,
+} from './schema/SchemaOrgScripts'
 
 // Schema.org — Individual (also importable from ./next/website etc.)
 export type {AggregateRatingSchemaProps} from './schema/aggregateRating/component'

@@ -31,13 +31,13 @@ This project follows the [Contributor Covenant](https://www.contributor-covenant
 
 You don't have to write code to contribute:
 
-| What | How |
-|---|---|
-| 🐛 Report a bug | [Open a bug report](https://github.com/hardik-143/sanity-plugin-seofields/issues/new) |
-| 💡 Suggest a feature | [Open a feature request](https://github.com/hardik-143/sanity-plugin-seofields/issues/new) |
-| 📖 Improve docs | Edit a doc page and open a PR |
-| ✅ Fix a bug | Comment on the issue, fork, and open a PR |
-| ⭐ Spread the word | Star the repo, leave a [review](https://sanity-plugin-seofields.thehardik.in/reviews), or share it with your team |
+| What                 | How                                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 🐛 Report a bug      | [Open a bug report](https://github.com/hardik-143/sanity-plugin-seofields/issues/new)                             |
+| 💡 Suggest a feature | [Open a feature request](https://github.com/hardik-143/sanity-plugin-seofields/issues/new)                        |
+| 📖 Improve docs      | Edit a doc page and open a PR                                                                                     |
+| ✅ Fix a bug         | Comment on the issue, fork, and open a PR                                                                         |
+| ⭐ Spread the word   | Star the repo, leave a [review](https://sanity-plugin-seofields.thehardik.in/reviews), or share it with your team |
 
 ---
 
@@ -86,11 +86,11 @@ Never opened a PR on an open-source project before? No worries. Here's a quick p
 
 ### Prerequisites
 
-| Tool | Minimum version |
-|---|---|
-| Node.js | 18.x |
-| npm | 9.x |
-| Sanity Studio | v3, v4, or v5 |
+| Tool          | Minimum version |
+| ------------- | --------------- |
+| Node.js       | 18.x            |
+| npm           | 9.x             |
+| Sanity Studio | v3, v4, or v5   |
 
 ### Fork and clone
 
@@ -125,14 +125,14 @@ Then start Sanity Studio normally (`npm run dev` / `sanity dev`) and the studio 
 
 ### Useful scripts
 
-| Command | What it does |
-|---|---|
-| `npm run watch` | Build in watch mode |
-| `npm run build` | Production build (ESM + CJS + CLI via tsup) |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run `tsc --noEmit` type check |
-| `npm run format` | Run Prettier |
-| `npm test` | Run the Jest test suite |
+| Command             | What it does                                |
+| ------------------- | ------------------------------------------- |
+| `npm run watch`     | Build in watch mode                         |
+| `npm run build`     | Production build (ESM + CJS + CLI via tsup) |
+| `npm run lint`      | Run ESLint                                  |
+| `npm run typecheck` | Run `tsc --noEmit` type check               |
+| `npm run format`    | Run Prettier                                |
+| `npm test`          | Run the Jest test suite                     |
 
 ---
 
@@ -184,12 +184,12 @@ git checkout -b fix/your-fix-name   # or feat/your-feature-name
 
 Branch naming conventions:
 
-| Prefix | Use for |
-|---|---|
-| `fix/` | Bug fixes |
-| `feat/` | New features |
-| `docs/` | Documentation only |
-| `chore/` | Build, config, dependency updates |
+| Prefix      | Use for                                     |
+| ----------- | ------------------------------------------- |
+| `fix/`      | Bug fixes                                   |
+| `feat/`     | New features                                |
+| `docs/`     | Documentation only                          |
+| `chore/`    | Build, config, dependency updates           |
 | `refactor/` | Code restructuring with no behaviour change |
 
 ### TypeScript
@@ -225,14 +225,14 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 
 **Types:**
 
-| Type | When to use |
-|---|---|
-| `feat` | A new feature |
-| `fix` | A bug fix |
-| `docs` | Documentation only |
+| Type       | When to use                                             |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | A new feature                                           |
+| `fix`      | A bug fix                                               |
+| `docs`     | Documentation only                                      |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `chore` | Build process, dependency, or config changes |
-| `test` | Adding or updating tests |
+| `chore`    | Build process, dependency, or config changes            |
+| `test`     | Adding or updating tests                                |
 
 **Examples:**
 
