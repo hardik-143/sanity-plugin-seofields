@@ -8,10 +8,13 @@
 export type {
   BuildSeoMetaOptions,
   SeoFieldsInput,
+  SeoHead,
+  SeoHeadLinkTag,
+  SeoHeadMetaTag,
   SeoMetadata,
   SeoMetaDefaults,
 } from './helpers/seoMeta'
-export {buildSeoMeta, sanitizeOGType, sanitizeTwitterCard} from './helpers/seoMeta'
+export {buildSeoHead, buildSeoMeta, sanitizeOGType, sanitizeTwitterCard} from './helpers/seoMeta'
 export type {SeoMetaTagsProps} from './helpers/SeoMetaTags'
 export {SeoMetaTags} from './helpers/SeoMetaTags'
 

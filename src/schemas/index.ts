@@ -10,12 +10,13 @@ import {
 
 import GEOChecklist from '../components/geo/GEOChecklist'
 import FocusKeywordInput from '../components/meta/FocusKeywordInput'
+import KeywordsInput from '../components/meta/KeywordsInput'
 import MetaDescription from '../components/meta/MetaDescription'
 import MetaImage from '../components/meta/MetaImage'
 import MetaTagsPreview from '../components/meta/MetaTagsPreview'
 import MetaTitle from '../components/meta/MetaTitle'
 import type {SeoFieldGroup, SeoFieldsPluginConfig, SeoObjectFieldName} from '../plugin'
-import {getFieldHiddenFunction, getFieldInfo} from '../utils/fieldsUtils'
+import {getFieldHiddenFunction, getFieldInfo, withLicense} from '../utils/fieldsUtils'
 import {isEmpty} from '../utils/utils'
 import openGraph from './types/openGraph'
 import twitter from './types/twitter'
@@ -74,6 +75,100 @@ function withGroup(
   return {...field, group: groups.length === 1 ? groups[0] : groups} as FieldDefinition
 }
 
+type SeoPreviewConfig = SeoFieldsPluginConfig['seoPreview']
+
+function shouldShowPreviewField(seoPreview: SeoPreviewConfig): boolean {
+  if (typeof seoPreview === 'boolean') return seoPreview
+  if (typeof seoPreview === 'object') return !isEmpty(seoPreview)
+  return false
+}
+
+/** Options shared between the `preview` field and the `title` field's suffix behavior. */
+function getSeoPreviewSuffixOptions(seoPreview: SeoPreviewConfig): Record<string, unknown> {
+  if (typeof seoPreview !== 'object' || !seoPreview) return {}
+  const extra: Record<string, unknown> = {}
+  if (seoPreview.titleSuffix) extra.titleSuffix = seoPreview.titleSuffix
+  if (seoPreview.titleSuffixQuery) extra.titleSuffixQuery = seoPreview.titleSuffixQuery
+  return extra
+}
+
+function getPreviewFieldOptions(config: SeoFieldsPluginConfig): Record<string, unknown> {
+  const seoPreview = config.seoPreview
+  const extra: Record<string, unknown> = {}
+  if (typeof seoPreview === 'object' && seoPreview) {
+    if (seoPreview.prefix) extra.prefix = seoPreview.prefix
+    if (seoPreview.titleSuffixInheritColor) {
+      extra.titleSuffixInheritColor = seoPreview.titleSuffixInheritColor
+    }
+  }
+
+  return {
+    baseUrl: config.baseUrl || 'https://www.example.com',
+    ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
+    ...getSeoPreviewSuffixOptions(seoPreview),
+    ...extra,
+  }
+}
+
+function getAiOption(config: SeoFieldsPluginConfig): Record<string, unknown> {
+  return config.ai ? {ai: withLicense(config.ai, config.licenseKey)} : {}
+}
+
+function getTitleFieldOptions(config: SeoFieldsPluginConfig): Record<string, unknown> {
+  return {
+    ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
+    ...getSeoPreviewSuffixOptions(config.seoPreview),
+    ...getAiOption(config),
+  }
+}
+
+function buildGeoChecklistField(
+  config: SeoFieldsPluginConfig,
+  fieldGroupMap: Map<SeoObjectFieldName, string[]> | undefined,
+): FieldDefinition[] {
+  if (config.geo === false) return []
+  return [
+    withGroup(
+      defineField({
+        name: 'geoChecklist',
+        ...getFieldInfo('geoChecklist', config.fieldOverrides),
+        type: 'string',
+        readOnly: true,
+        components: {
+          input: GEOChecklist,
+        },
+        options: {
+          ...(config.licenseKey ? {licenseKey: config.licenseKey} : {}),
+        } as Record<string, unknown>,
+        hidden: getFieldHiddenFunction('geoChecklist', config),
+      }),
+      fieldGroupMap,
+    ),
+  ]
+}
+
+function buildMetaTagsPreviewField(
+  config: SeoFieldsPluginConfig,
+  fieldGroupMap: Map<SeoObjectFieldName, string[]> | undefined,
+): FieldDefinition[] {
+  if (config.metaTagsPreview === false) return []
+  return [
+    withGroup(
+      defineField({
+        name: 'metaTagsPreview',
+        ...getFieldInfo('metaTagsPreview', config.fieldOverrides),
+        type: 'string',
+        readOnly: true,
+        components: {
+          input: MetaTagsPreview,
+        },
+        hidden: getFieldHiddenFunction('metaTagsPreview', config),
+      }),
+      fieldGroupMap,
+    ),
+  ]
+}
+
 export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   const groupsCfg = config.fieldGroups
   const fieldGroupMap = groupsCfg?.length ? buildFieldGroupMap(groupsCfg) : undefined
@@ -95,8 +190,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
         fieldGroupMap,
       ),
       // 👇 conditionally spread preview field
-      ...((typeof config.seoPreview === 'boolean' && config.seoPreview) ||
-      (typeof config.seoPreview === 'object' && !isEmpty(config.seoPreview))
+      ...(shouldShowPreviewField(config.seoPreview)
         ? [
             withGroup(
               defineField({
@@ -104,30 +198,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
                 title: 'SEO Preview',
                 type: 'string',
                 components: {input: SeoPreviewWrapper},
-                options: {
-                  baseUrl: config.baseUrl || 'https://www.example.com',
-                  ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
-                  ...(typeof config.seoPreview === 'object' &&
-                  config.seoPreview &&
-                  config.seoPreview.prefix
-                    ? {prefix: config.seoPreview.prefix}
-                    : {}),
-                  ...(typeof config.seoPreview === 'object' &&
-                  config.seoPreview &&
-                  config.seoPreview.titleSuffix
-                    ? {titleSuffix: config.seoPreview.titleSuffix}
-                    : {}),
-                  ...(typeof config.seoPreview === 'object' &&
-                  config.seoPreview &&
-                  config.seoPreview.titleSuffixInheritColor
-                    ? {titleSuffixInheritColor: config.seoPreview.titleSuffixInheritColor}
-                    : {}),
-                  ...(typeof config.seoPreview === 'object' &&
-                  config.seoPreview &&
-                  config.seoPreview.titleSuffixQuery
-                    ? {titleSuffixQuery: config.seoPreview.titleSuffixQuery}
-                    : {}),
-                } as Record<string, unknown>,
+                options: getPreviewFieldOptions(config) as Record<string, unknown>,
                 initialValue: '' as string,
                 readOnly: true,
               }),
@@ -144,19 +215,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           components: {
             input: MetaTitle,
           },
-          options: {
-            ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
-            ...(typeof config.seoPreview === 'object' &&
-            config.seoPreview &&
-            config.seoPreview.titleSuffix
-              ? {titleSuffix: config.seoPreview.titleSuffix}
-              : {}),
-            ...(typeof config.seoPreview === 'object' &&
-            config.seoPreview &&
-            config.seoPreview.titleSuffixQuery
-              ? {titleSuffixQuery: config.seoPreview.titleSuffixQuery}
-              : {}),
-          } as Record<string, unknown>,
+          options: getTitleFieldOptions(config) as Record<string, unknown>,
           hidden: getFieldHiddenFunction('title', config),
         }),
         fieldGroupMap,
@@ -170,6 +229,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           components: {
             input: MetaDescription,
           },
+          options: getAiOption(config) as Record<string, unknown>,
           hidden: getFieldHiddenFunction('description', config),
         }),
         fieldGroupMap,
@@ -208,6 +268,8 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           of: [{type: 'string'}],
           description:
             'Add relevant keywords for this page. These keywords will be used for SEO purposes.',
+          components: config.ai ? {input: KeywordsInput} : undefined,
+          options: getAiOption(config) as Record<string, unknown>,
           hidden: getFieldHiddenFunction('keywords', config),
         }),
         fieldGroupMap,
@@ -232,6 +294,7 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           components: {
             input: FocusKeywordInput,
           },
+          options: getAiOption(config) as Record<string, unknown>,
           hidden: getFieldHiddenFunction('focusKeyword', config),
         }),
         fieldGroupMap,
@@ -248,43 +311,8 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
         }),
         fieldGroupMap,
       ),
-      ...(config.geo === false
-        ? []
-        : [
-            withGroup(
-              defineField({
-                name: 'geoChecklist',
-                ...getFieldInfo('geoChecklist', config.fieldOverrides),
-                type: 'string',
-                readOnly: true,
-                components: {
-                  input: GEOChecklist,
-                },
-                options: {
-                  ...(config.licenseKey ? {licenseKey: config.licenseKey} : {}),
-                } as Record<string, unknown>,
-                hidden: getFieldHiddenFunction('geoChecklist', config),
-              }),
-              fieldGroupMap,
-            ),
-          ]),
-      ...(config.metaTagsPreview === false
-        ? []
-        : [
-            withGroup(
-              defineField({
-                name: 'metaTagsPreview',
-                ...getFieldInfo('metaTagsPreview', config.fieldOverrides),
-                type: 'string',
-                readOnly: true,
-                components: {
-                  input: MetaTagsPreview,
-                },
-                hidden: getFieldHiddenFunction('metaTagsPreview', config),
-              }),
-              fieldGroupMap,
-            ),
-          ]),
+      ...buildGeoChecklistField(config, fieldGroupMap),
+      ...buildMetaTagsPreviewField(config, fieldGroupMap),
       withGroup(openGraph(config) as unknown as FieldDefinition, fieldGroupMap),
       withGroup(twitter(config) as unknown as FieldDefinition, fieldGroupMap),
     ],

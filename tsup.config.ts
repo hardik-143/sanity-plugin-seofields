@@ -2,7 +2,9 @@ import {defineConfig} from 'tsup'
 
 import pkg from './package.json'
 
-// All packages that ship with the npm package and should NOT be bundled
+// Runtime dependencies are kept external so they stay as separate packages in node_modules.
+// This does not require manual installs: regular `dependencies` are installed automatically
+// when users install `sanity-plugin-seofields`.
 const CLI_EXTERNALS = [
   // Node built-ins handled automatically
   // CLI runtime deps — present in node_modules, no need to inline
@@ -19,6 +21,8 @@ const CLI_EXTERNALS = [
   '@sanity/icons',
   '@sanity/incompatible-plugin',
   'styled-components',
+  // Auto-installed via dependencies; do not inline the pro code into the public bundle.
+  'seofields-pro',
   'next',
   'next/server',
 ]
@@ -31,6 +35,8 @@ const LIB_EXTERNALS = [
   '@sanity/icons',
   '@sanity/incompatible-plugin',
   'styled-components',
+  // Auto-installed via dependencies; do not inline the pro code into the public bundle.
+  'seofields-pro',
   'next',
   'next/server',
 ]
@@ -40,7 +46,9 @@ export default defineConfig([
   {
     entry: {
       index: 'src/index.ts',
+      head: 'src/head.ts',
       next: 'src/next.ts',
+      server: 'src/server.ts',
       schema: 'src/schema/index.ts',
       'schema/next': 'src/schema/next.ts',
       'define-cli': 'src/define-cli.ts',
@@ -50,7 +58,6 @@ export default defineConfig([
     splitting: true,
     sourcemap: true,
     clean: true,
-    treeshake: true,
     external: LIB_EXTERNALS,
   },
   // CLI build (ESM only, minified executable)

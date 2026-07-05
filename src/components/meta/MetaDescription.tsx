@@ -1,13 +1,16 @@
 import {Stack, Text} from '@sanity/ui'
 import {type ReactElement, useMemo} from 'react'
-import {StringInputProps, useFormValue} from 'sanity'
+import {PatchEvent, set, StringInputProps, useFormValue} from 'sanity'
 
+import type {AiConfig} from '../../plugin'
 import {FeedbackType} from '../../types'
 import {analyzeReadability} from '../../utils/readability'
 import {getMetaDescriptionValidationMessages} from '../../utils/seoUtils'
+import SeoGenButton from '../ai/SeoGenButton'
 
 const MetaDescription = (props: StringInputProps): ReactElement => {
-  const {value, renderDefault, path} = props
+  const {value, renderDefault, path, schemaType, onChange} = props
+  const {options} = schemaType as {options?: {ai?: AiConfig}}
 
   const parent = useFormValue([path[0]]) as {keywords?: string[]; _type?: string}
   const isParentseoField = parent && parent?._type === 'seoFields'
@@ -23,6 +26,12 @@ const MetaDescription = (props: StringInputProps): ReactElement => {
   return (
     <Stack space={3}>
       {renderDefault(props)}
+      <SeoGenButton
+        field="description"
+        ai={options?.ai}
+        seoFieldPath={String(path[0])}
+        onGenerate={(v) => onChange(PatchEvent.from(set(v)))}
+      />
       <Stack space={2}>
         {feedbackItems.map((item: FeedbackType) => (
           <div key={item.text} style={{display: 'flex', alignItems: 'center', gap: 7}}>

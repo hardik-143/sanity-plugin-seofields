@@ -16,9 +16,9 @@ export default function types(config: SeoFieldsPluginConfig = {}): SchemaTypeDef
     baseMeta(config), // pass config here
     openGraph(config), // pass config here
     twitter(config), // pass config here
-    metaAttribute as SchemaTypeDefinition,
+    metaAttribute,
     metaTag,
     robots,
-    hreflangEntry as SchemaTypeDefinition,
+    hreflangEntry,
   ]
 }

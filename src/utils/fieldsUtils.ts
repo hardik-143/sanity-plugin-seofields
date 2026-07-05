@@ -1,4 +1,12 @@
-import {AllFieldKeys, SeoFieldsPluginConfig, ValidHiddenFieldKeys} from '../plugin'
+import {AiConfig, AllFieldKeys, SeoFieldsPluginConfig, ValidHiddenFieldKeys} from '../plugin'
+
+export function withLicense(
+  ai: AiConfig | undefined,
+  licenseKey: string | undefined,
+): AiConfig | undefined {
+  if (!ai) return undefined
+  return licenseKey ? {...ai, _licenseKey: licenseKey} : ai
+}
 
 const DEFAULT_FIELD_INFO: Record<AllFieldKeys, {title: string; description: string}> = {
   title: {

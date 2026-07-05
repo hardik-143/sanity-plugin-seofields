@@ -4,7 +4,7 @@
  * Provides framework-agnostic SEO metadata utilities for use with:
  * - Next.js App Router  → buildSeoMeta() inside generateMetadata()
  * - Next.js Pages Router → <SeoMetaTags> inside Next.js <Head>
- * - Nuxt / Remix / any SSR → <SeoMetaTags> inside your <head> slot
+ * - Astro / Nuxt / Vue / SvelteKit / Remix → buildSeoHead() into native head APIs
  */
 
 import type {SanityImage, SanityImageWithAlt} from '../types'
@@ -46,9 +46,32 @@ export interface SeoMetadata {
   }
   alternates?: {
     canonical?: string
+    languages?: Record<string, string>
   }
   /** Any custom meta attributes from seo.metaAttributes */
   other?: Record<string, string>
+}
+
+/** Plain `<meta>` tag data returned by buildSeoHead(). */
+export type SeoHeadMetaTag = {name: string; content: string} | {property: string; content: string}
+
+/** Plain `<link>` tag data returned by buildSeoHead(). */
+export interface SeoHeadLinkTag {
+  rel: string
+  href: string
+  hreflang?: string
+}
+
+/**
+ * Framework-neutral head data returned by buildSeoHead().
+ *
+ * Use this in Astro, Nuxt, Vue, SvelteKit, Remix, or any frontend where you
+ * need plain values instead of React elements or Next.js Metadata.
+ */
+export interface SeoHead {
+  title?: string | null
+  meta: SeoHeadMetaTag[]
+  link: SeoHeadLinkTag[]
 }
 
 /** Default values used when SEO fields are missing. */
@@ -95,6 +118,7 @@ export interface SeoFieldsInput {
   metaAttributes?: Array<{_key?: string; key?: string; value?: string; type?: string}> | null
   keywords?: string[] | null
   canonicalUrl?: string | null
+  hreflangs?: Array<{locale?: string | null; url?: string | null}> | null
   openGraph?: {
     _type?: string
     url?: string | null
@@ -209,6 +233,9 @@ function resolveOgImage(
   if (seo?.openGraph?.image && imageUrlResolver) {
     return imageUrlResolver(seo.openGraph.image as SanityImage) || defaults.ogImage || ''
   }
+  if (seo?.metaImage && imageUrlResolver) {
+    return imageUrlResolver(seo.metaImage as SanityImage) || defaults.ogImage || ''
+  }
   return defaults.ogImage || ''
 }
 
@@ -244,6 +271,44 @@ function buildCustomMetaMap(seo: SeoFieldsInput | null | undefined): Record<stri
   return other
 }
 
+function buildHreflangMap(
+  hreflangs: SeoFieldsInput['hreflangs'] | null | undefined,
+): Record<string, string> | undefined {
+  if (!Array.isArray(hreflangs)) return undefined
+
+  const languages: Record<string, string> = {}
+  for (const entry of hreflangs) {
+    if (entry?.locale && entry.url) {
+      languages[entry.locale] = entry.url
+    }
+  }
+
+  return Object.keys(languages).length > 0 ? languages : undefined
+}
+
+function robotsToContent(meta: SeoMetadata): string {
+  return [
+    meta.robots?.index === false ? 'noindex' : 'index',
+    meta.robots?.follow === false ? 'nofollow' : 'follow',
+    meta.robots?.notranslate ? 'notranslate' : null,
+    meta.robots?.noimageindex ? 'noimageindex' : null,
+  ]
+    .filter(Boolean)
+    .join(', ')
+}
+
+function pushNameMeta(meta: SeoHeadMetaTag[], name: string, content?: string | null): void {
+  if (content) meta.push({name, content})
+}
+
+function pushPropertyMeta(meta: SeoHeadMetaTag[], property: string, content?: string | null): void {
+  if (content) meta.push({property, content})
+}
+
+function customMetaUsesProperty(name: string): boolean {
+  return /^(og|fb|article|book|music|profile|product|video):/.test(name)
+}
+
 // ─── Core builder ─────────────────────────────────────────────────────────────
 
 /**
@@ -254,7 +319,7 @@ function buildCustomMetaMap(seo: SeoFieldsInput | null | undefined): Record<stri
  *
  * @example Next.js App Router
  * ```ts
- * import { buildSeoMeta } from 'sanity-plugin-seofields'
+ * import { buildSeoMeta } from 'sanity-plugin-seofields/next'
  * import { urlFor } from '@/sanity/lib/image'
  *
  * export async function generateMetadata(): Promise<Metadata> {
@@ -280,6 +345,7 @@ export function buildSeoMeta(options: BuildSeoMetaOptions): SeoMetadata {
   const ogImageURL = resolveOgImage(seo, defaults, imageUrlResolver)
   const twitterImageURL = resolveTwitterImage(seo, ogImageURL, imageUrlResolver)
   const other = buildCustomMetaMap(seo)
+  const languages = buildHreflangMap(seo?.hreflangs)
 
   const ogUrl = seo?.openGraph?.url || fullUrl
 
@@ -302,8 +368,8 @@ export function buildSeoMeta(options: BuildSeoMetaOptions): SeoMetadata {
     openGraph: {
       type: sanitizeOGType(seo?.openGraph?.type ?? undefined),
       url: ogUrl || undefined,
-      title: seo?.openGraph?.title ?? defaults.title,
-      description: seo?.openGraph?.description ?? defaults.description,
+      title: seo?.openGraph?.title ?? seo?.title ?? defaults.title,
+      description: seo?.openGraph?.description ?? seo?.description ?? defaults.description,
       siteName: seo?.openGraph?.siteName ?? defaults.siteName,
       images: ogImageURL ? [{url: ogImageURL}] : [],
     },
@@ -311,13 +377,97 @@ export function buildSeoMeta(options: BuildSeoMetaOptions): SeoMetadata {
       card: sanitizeTwitterCard(seo?.twitter?.card ?? undefined),
       site: seo?.twitter?.site ?? defaults.twitterSite,
       creator: seo?.twitter?.creator ?? defaults.twitterCreator,
-      title: seo?.twitter?.title ?? defaults.title,
-      description: seo?.twitter?.description ?? defaults.description,
+      title: seo?.twitter?.title ?? seo?.openGraph?.title ?? seo?.title ?? defaults.title,
+      description:
+        seo?.twitter?.description ??
+        seo?.openGraph?.description ??
+        seo?.description ??
+        defaults.description,
       images: twitterImageURL ? [twitterImageURL] : [],
     },
     alternates: {
-      canonical: fullUrl || undefined,
+      canonical: seo?.canonicalUrl || fullUrl || undefined,
+      ...(languages ? {languages} : {}),
     },
     ...(Object.keys(other).length > 0 ? {other} : {}),
+  }
+}
+
+/**
+ * Convert Sanity SEO fields into plain head tag data.
+ *
+ * This helper is framework-neutral: it returns serializable `title`, `meta`,
+ * and `link` arrays that can be passed to Astro layouts, Nuxt/Vue `useHead`,
+ * SvelteKit `<svelte:head>`, Remix `meta()` exports, or any custom renderer.
+ *
+ * @example Astro / Nuxt / SvelteKit
+ * ```ts
+ * import { buildSeoHead } from 'sanity-plugin-seofields/head'
+ *
+ * const head = buildSeoHead({
+ *   seo: page.seo,
+ *   baseUrl: 'https://example.com',
+ *   path: `/blog/${page.slug}`,
+ *   defaults: { title: page.title, siteName: 'My Site' },
+ *   imageUrlResolver: (img) => urlFor(img).width(1200).height(630).url(),
+ * })
+ * ```
+ */
+export function buildSeoHead(options: BuildSeoMetaOptions): SeoHead {
+  const metadata = buildSeoMeta(options)
+  const meta: SeoHeadMetaTag[] = []
+  const link: SeoHeadLinkTag[] = []
+  const robotsContent = robotsToContent(metadata)
+
+  pushNameMeta(meta, 'description', metadata.description)
+  if (metadata.keywords?.length) {
+    pushNameMeta(meta, 'keywords', metadata.keywords.join(', '))
+  }
+  pushNameMeta(meta, 'robots', robotsContent)
+  pushNameMeta(meta, 'googlebot', robotsContent)
+
+  pushPropertyMeta(meta, 'og:type', metadata.openGraph?.type)
+  pushPropertyMeta(meta, 'og:url', metadata.openGraph?.url)
+  pushPropertyMeta(meta, 'og:title', metadata.openGraph?.title)
+  pushPropertyMeta(meta, 'og:description', metadata.openGraph?.description)
+  pushPropertyMeta(meta, 'og:site_name', metadata.openGraph?.siteName)
+
+  for (const image of metadata.openGraph?.images || []) {
+    pushPropertyMeta(meta, 'og:image', image.url)
+    if (image.width) pushPropertyMeta(meta, 'og:image:width', String(image.width))
+    if (image.height) pushPropertyMeta(meta, 'og:image:height', String(image.height))
+    if (image.alt) pushPropertyMeta(meta, 'og:image:alt', image.alt)
+  }
+
+  pushNameMeta(meta, 'twitter:card', metadata.twitter?.card)
+  pushNameMeta(meta, 'twitter:site', metadata.twitter?.site)
+  pushNameMeta(meta, 'twitter:creator', metadata.twitter?.creator)
+  pushNameMeta(meta, 'twitter:title', metadata.twitter?.title)
+  pushNameMeta(meta, 'twitter:description', metadata.twitter?.description)
+
+  for (const imageUrl of metadata.twitter?.images || []) {
+    pushNameMeta(meta, 'twitter:image', imageUrl)
+  }
+
+  for (const [name, content] of Object.entries(metadata.other || {})) {
+    if (customMetaUsesProperty(name)) {
+      pushPropertyMeta(meta, name, content)
+    } else {
+      pushNameMeta(meta, name, content)
+    }
+  }
+
+  if (metadata.alternates?.canonical) {
+    link.push({rel: 'canonical', href: metadata.alternates.canonical})
+  }
+
+  for (const [hreflang, href] of Object.entries(metadata.alternates?.languages || {})) {
+    link.push({rel: 'alternate', hreflang, href})
+  }
+
+  return {
+    title: metadata.title,
+    meta,
+    link,
   }
 }

@@ -1,4 +1,90 @@
 // plugin.ts
+export type AiIndustry =
+  | 'blog'
+  | 'ecommerce'
+  | 'healthcare'
+  | 'pharmacy'
+  | 'saas'
+  | 'finance'
+  | 'realestate'
+  | 'education'
+  | 'restaurant'
+  | 'travel'
+  | 'fitness'
+  | 'hospitality'
+  | 'nonprofit'
+  | 'legal'
+  | 'insurance'
+  | 'automotive'
+  | 'homeServices'
+
+export interface AiConfig {
+  /** AI provider to use for text generation. */
+  provider?: 'openai' | 'anthropic' | 'groq' | 'gemini' | 'ollama'
+  /**
+   * API key for the provider. Not required for ollama or when using a proxy endpoint.
+   * Warning: this is bundled into Studio's client-side JS and readable by anyone with Studio
+   * access. For production, use `endpoint` instead — see `sanity-plugin-seofields/server`
+   * for ready-made proxy handlers (Next.js, Express, Node, Cloudflare Workers, etc.).
+   */
+  apiKey?: string
+  /** Override the provider's default model. */
+  model?: string
+  /** Override the provider's base URL. Accepts any OpenAI-compatible endpoint (DeepSeek, xAI Grok, Azure OpenAI, etc.). */
+  baseUrl?: string
+  /**
+   * Proxy endpoint — POST { field, content, focusKeyword, keywords, meta } → { result: string }.
+   * Key stays server-side. Build one with `sanity-plugin-seofields/server`, e.g.
+   * `createNextRouteHandler({ provider: 'openai', apiKey: process.env.OPENAI_API_KEY })`.
+   */
+  endpoint?: string
+  /** Sampling temperature. Defaults to 0.7. */
+  temperature?: number
+  /**
+   * Root document field(s) used as content for the AI prompt. Defaults to 'body'.
+   *
+   * - `string` — one field, used for every document type
+   * - `string[]` — multiple fields in priority order, used for every document type
+   * - `Record<string, string | string[]>` — per-document-type field(s); use a `default`
+   *   key for unlisted types (falls back to `'body'` if omitted)
+   *
+   * @example
+   * content: ['title', 'excerpt', 'body']
+   *
+   * @example
+   * content: {
+   *   page: ['sections'],
+   *   news: 'content',
+   *   work: ['content', 'contentExtended'],
+   *   author: 'bio',
+   *   default: 'body',
+   * }
+   */
+  content?: string | string[] | Record<string, string | string[]>
+  /** Industry context for prompts. When set, uses domain-specific vocabulary. Omit for generic prompts. */
+  industry?: AiIndustry
+  /** Enable test mode — uses static pre-written outputs without any API call. Shows test warning in UI. */
+  testMode?: boolean
+  /** Number of full generation attempts before giving up. Defaults to 2. */
+  maxRetries?: number
+  /**
+   * Controls what is returned when all attempts fail validation:
+   * - true: returns the first raw response (before refinement passes)
+   * - false / undefined (default): returns the last attempt's output
+   */
+  keepFirstOnValidationFail?: boolean
+  /**
+   * Width of the "Generate with AI" button.
+   * - 'full' (default): stretches to the field's full width.
+   * - 'auto': normal button width, left-aligned.
+   */
+  buttonWidth?: 'full' | 'auto'
+  /** @internal — forwarded from root licenseKey at plugin setup time. Do not set manually. */
+  _licenseKey?: string
+  /** @internal — Sanity project ID used for pro feature validation. Do not set manually. */
+  _projectId?: string
+}
+
 import {type ComponentType, createElement, lazy, Suspense} from 'react'
 import type {DocumentActionComponent, DocumentActionsContext} from 'sanity'
 import {definePlugin} from 'sanity'
@@ -410,6 +496,13 @@ export interface SeoFieldsPluginConfig {
    * }
    * ```
    */
+  /**
+   * AI text generation configuration.
+   * Supports OpenAI, Anthropic, Groq, Gemini, Ollama, or a custom proxy endpoint.
+   * Set `testMode: true` to preview generation without an API key.
+   */
+  ai?: AiConfig
+
   publishGate?: {
     /**
      * 'block' — disables the Publish button with a tooltip reason (default).

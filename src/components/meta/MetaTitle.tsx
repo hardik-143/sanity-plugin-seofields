@@ -1,17 +1,20 @@
 import {Stack, Text} from '@sanity/ui'
 import {type ReactElement, useEffect, useMemo, useState} from 'react'
-import {StringInputProps, useClient, useFormValue} from 'sanity'
+import {PatchEvent, set, StringInputProps, useClient, useFormValue} from 'sanity'
 
+import type {AiConfig} from '../../plugin'
 import {FeedbackType} from '../../types'
 import {getMetaTitleValidationMessages} from '../../utils/seoUtils'
+import SeoGenButton from '../ai/SeoGenButton'
 
 const MetaTitle = (props: StringInputProps): ReactElement => {
-  const {value, renderDefault, path, schemaType} = props
+  const {value, renderDefault, path, schemaType, onChange} = props
   const {options} = schemaType as {
     options?: {
       apiVersion?: string
       titleSuffix?: ((doc: {_type?: string} & Record<string, unknown>) => string) | string
       titleSuffixQuery?: string
+      ai?: AiConfig
     }
   }
 
@@ -78,6 +81,12 @@ const MetaTitle = (props: StringInputProps): ReactElement => {
   return (
     <Stack space={3}>
       {renderDefault(props)}
+      <SeoGenButton
+        field="title"
+        ai={options?.ai}
+        seoFieldPath={String(path[0])}
+        onGenerate={(v) => onChange(PatchEvent.from(set(v)))}
+      />
       <Stack space={2}>
         {feedbackItems.map((item: FeedbackType) => (
           <div key={item.text} style={{display: 'flex', alignItems: 'center', gap: 7}}>

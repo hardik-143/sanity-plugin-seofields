@@ -1,12 +1,15 @@
 import {Stack, Text} from '@sanity/ui'
 import {type ReactNode, useMemo} from 'react'
-import {StringInputProps, useFormValue} from 'sanity'
+import {PatchEvent, set, StringInputProps, useFormValue} from 'sanity'
 
+import type {AiConfig} from '../../plugin'
 import {FeedbackType} from '../../types'
 import {getOgTitleValidation} from '../../utils/seoUtils'
+import SeoGenButton from '../ai/SeoGenButton'
 
 const OgTitle = (props: StringInputProps): ReactNode => {
-  const {value, renderDefault, path} = props
+  const {value, renderDefault, path, schemaType, onChange} = props
+  const {options} = schemaType as {options?: {ai?: AiConfig}}
 
   // Access parent object to get keywords
   const parent = useFormValue([path[0]]) as {keywords?: string[]; _type?: string}
@@ -21,6 +24,12 @@ const OgTitle = (props: StringInputProps): ReactNode => {
   return (
     <Stack space={3}>
       {renderDefault(props)}
+      <SeoGenButton
+        field="ogTitle"
+        ai={options?.ai}
+        seoFieldPath={String(path[0])}
+        onGenerate={(v) => onChange(PatchEvent.from(set(v)))}
+      />
       <Stack space={2}>
         {feedbackItems.map((item: FeedbackType) => (
           <div key={item.text} style={{display: 'flex', alignItems: 'center', gap: 7}}>

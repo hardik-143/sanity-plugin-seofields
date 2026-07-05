@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.9.0] — 2026-07-04
+
+### ✨ Added
+
+- **Framework-neutral frontend head export** — new `sanity-plugin-seofields/head` entry point for Astro, Nuxt, Vue, SvelteKit, Remix, and custom SSR frontends. It exports `buildSeoHead`, `buildSeoMeta`, `sanitizeOGType`, `sanitizeTwitterCard`, and related types without importing the Studio plugin entry or React components.
+- **`buildSeoHead(options)`** — converts `seoFields` data into plain serializable `{ title, meta, link }` head data. Use it with Astro layouts, Nuxt/Vue `useHead`, SvelteKit `<svelte:head>`, Remix `meta()` mappings, or any custom head renderer.
+- **Expanded frontend integration documentation** — README and website docs now include examples for Next.js App Router, Next.js Pages Router, Astro, Nuxt 3, Vue 3, and SvelteKit using the actual `seoFields` field names (`seo.title`, `seo.description`, `seo.twitter.card`, `seo.hreflangs`, etc.).
+- **Server-side AI proxy adapters** — new `sanity-plugin-seofields/server` entry point with `createSeoAiHandler` plus ready-made framework adapters: `createNextRouteHandler`, `createExpressHandler`, `createNodeHandler`, and `createFetchHandler` (any Fetch API runtime — Cloudflare Workers, Deno, Bun). Each wraps the same generation + refinement pipeline used in direct-provider mode, but keeps the real `apiKey` server-side only. See [AI.md](./AI.md#server-side-proxy-recommended-for-production).
+- **API key exposure warning** — if `ai.apiKey` is set without `ai.endpoint`, the plugin now logs a `console.warn` in the browser explaining that Studio bundles are client-side and the key is readable by anyone with Studio access.
+- **Proxy mode (`ai.endpoint`) sends `keywords`, `meta`, `industry`, and license key** — the request body includes `field`, `content`, `focusKeyword`, `keywords`, `meta`, `industry`, and `licenseKey`, so proxied requests get the same keyword-injection, refinement passes, and industry-specific prompt pool as direct-provider mode.
+- **17 AI industries across two tiers** — free tier: `blog`, `restaurant`, `travel`, `ecommerce`, `education`, `fitness`, `hospitality`, `nonprofit` (4 of 10 prompts free per field, remaining 6 unlock with a license). Pro tier: `healthcare`, `pharmacy`, `finance`, `realestate`, `saas`, `legal`, `insurance`, `automotive`, `homeServices` (all 10 prompts require a license).
+- **10 prompt angle variations per field** — each generated field (title, description, focus keyword, keywords, OG/Twitter title/description) draws from 10 prompt variations.
+- **AI content generation** — new "Generate with AI" and keyword suggestion features across title, description, focus keyword, keywords, and OG/Twitter fields. See [AI.md](./AI.md), which documents providers, industries/tiers, the server-side proxy adapters, content-source mapping, and the full config reference in one place.
+- **Real keyword-quality health scoring** — the SEO Health Dashboard's `keywords` scoring bucket (10 points) no longer just checks that a `keywords` array is non-empty. It now grades whether keywords/`focusKeyword` are actually used in the title or description, rewards focus-keyword prominence (start of title > elsewhere in title > description only), and penalizes keyword stuffing — capped at the same 10-point budget so total scores stay on the existing 0–100 scale. A new shared `getFocusKeywordPlacement` helper backs both this scoring and the live `focusKeyword` field feedback, so the two never drift apart.
+
+### 🐛 Fixed
+
+- **Frontend image and canonical fallbacks** — `buildSeoMeta()` now respects `seo.canonicalUrl` before constructing a canonical URL from `baseUrl + path`, falls back to `seo.metaImage` when no Open Graph image is set, and exposes `seo.hreflangs` as `alternates.languages` for Next.js metadata consumers.
+- **`hasKeywordOveruse` crash on regex-metacharacter keywords** — keywords containing characters like `+` (e.g. `"C++"`) previously threw `Invalid regular expression: Nothing to repeat` when checked for stuffing, in every place that ran the check (title/description/OG/Twitter live feedback, and now health scoring). Keywords are now escaped before being used in a `RegExp`.
+
 ## [1.8.0] — 2026-06-26
 
 ### ✨ Added
@@ -31,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `locale` — BCP 47 language/region tag (e.g. `en`, `fr-FR`, `x-default`). Validated with a regex pattern in Studio; invalid tags show an inline error before saving.
   - `url` — Absolute URL of the alternate page. Validated as `http` or `https`.
 
-  The `hreflangEntry` type is registered automatically alongside `seoFields`; no extra schema registration needed. Entries are queryable via GROQ and can be passed to Next.js `generateMetadata()` `alternates.languages` or rendered as `<link rel="alternate" hreflang="...">` tags manually. Field is typed on `SeoFields` and controllable via all existing hide/override options.
+  The `hreflangEntry` type is registered automatically alongside `seoFields`; no extra schema registration needed. Entries are queryable via GROQ and can be passed to Next.js `generateMetadata()` `alternates.languages`, returned through `buildSeoHead()` as alternate links, or rendered as `<link rel="alternate" hreflang="...">` tags manually in any frontend. Field is typed on `SeoFields` and controllable via all existing hide/override options.
 
   ```ts
   // Type definition
@@ -106,6 +126,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     },
   })
   ```
+
+- **Root-level `licenseKey` option** — `SeoFieldsPluginConfig.licenseKey` is now the single place to supply your pro license key. It is forwarded automatically to the SEO Health Dashboard, Publish Gate, and GEO Checklist pro checks — no need to repeat it per feature.
+
+  ```ts
+  seofields({
+    licenseKey: 'SEOF-XXXX-XXXX-XXXX',
+  })
+  ```
+
+### 🗑️ Deprecated
+
+- **`healthDashboard.licenseKey`** — Move `licenseKey` to the root config instead. The old key still works (used as a fallback when the root key is absent) but logs a console warning and shows an amber banner inside the dashboard UI.
 
 ### 🔄 Changed
 

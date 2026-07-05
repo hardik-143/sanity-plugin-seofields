@@ -5,7 +5,7 @@ import TwitterImage from '../../../components/twitter/TwitterImage'
 import TwitterImageUrl from '../../../components/twitter/TwitterImageUrl'
 import TwitterTitle from '../../../components/twitter/twitterTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
-import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
+import {getFieldHiddenFunction, getFieldInfo, withLicense} from '../../../utils/fieldsUtils'
 
 export default function twitter(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
@@ -48,6 +48,9 @@ export default function twitter(config: SeoFieldsPluginConfig = {}): SchemaTypeD
         components: {
           input: TwitterTitle,
         },
+        options: {
+          ...(config.ai ? {ai: withLicense(config.ai, config.licenseKey)} : {}),
+        } as Record<string, unknown>,
       }),
       defineField({
         name: 'description',
@@ -58,6 +61,9 @@ export default function twitter(config: SeoFieldsPluginConfig = {}): SchemaTypeD
         components: {
           input: TwitterDescription,
         },
+        options: {
+          ...(config.ai ? {ai: withLicense(config.ai, config.licenseKey)} : {}),
+        } as Record<string, unknown>,
       }),
       defineField({
         name: 'imageType',

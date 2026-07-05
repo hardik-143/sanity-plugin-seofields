@@ -58,8 +58,10 @@ I appreciate responsible disclosure and will do my best to keep you informed dur
 This policy covers security issues in the `npm/` package, including:
 
 - The published `sanity-plugin-seofields` package
-- Next.js helpers exported from `sanity-plugin-seofields/next`
+- Framework-neutral head helpers exported from `sanity-plugin-seofields/head`
+- Next.js and React helpers exported from `sanity-plugin-seofields/next`
 - Schema.org helpers exported from `sanity-plugin-seofields/schema` and `sanity-plugin-seofields/schema/next`
+- Server-side AI proxy adapters exported from `sanity-plugin-seofields/server`
 - The `seofields` CLI shipped with the package
 
 Non-security bugs, feature requests, and documentation issues should be reported through the normal GitHub issues flow:

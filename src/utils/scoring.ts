@@ -1,4 +1,5 @@
 import type {SeoHealthMetrics, SeoHealthStatus} from '../types'
+import {getFocusKeywordPlacement, hasKeywordOveruse, hasMatchingKeyword} from './seoUtils'
 
 const getStatusCategory = (score: number): SeoHealthStatus => {
   if (score >= 80) return 'excellent'
@@ -85,6 +86,86 @@ const scoreTwitterCard = (twitter?: Record<string, unknown>): {score: number; is
   return {score, issues}
 }
 
+interface KeywordScoreResult {
+  score: number
+  issues: string[]
+  stuffed: boolean
+}
+
+// Rewards keywords that are actually used in title/description, not just declared.
+const scoreKeywordArray = (
+  keywords: string[] | undefined,
+  title: string | undefined,
+  description: string | undefined,
+): KeywordScoreResult => {
+  if (!keywords || keywords.length === 0) {
+    return {score: 0, issues: ['No keywords defined'], stuffed: false}
+  }
+
+  const issues: string[] = []
+  let score = 2
+  if (
+    hasMatchingKeyword(title || '', keywords) ||
+    hasMatchingKeyword(description || '', keywords)
+  ) {
+    score += 3
+  } else {
+    issues.push('Keywords defined but not used in title or description')
+  }
+
+  const stuffed =
+    hasKeywordOveruse(title || '', keywords) || hasKeywordOveruse(description || '', keywords)
+  if (stuffed) issues.push('Keyword stuffing detected — reduce repeated keyword usage')
+
+  return {score, issues, stuffed}
+}
+
+const scoreFocusKeyword = (
+  focusKeyword: string | undefined,
+  title: string | undefined,
+  description: string | undefined,
+): KeywordScoreResult => {
+  const placement = getFocusKeywordPlacement(focusKeyword, title, description)
+  if (!placement.hasFocusKeyword) {
+    return {score: 0, issues: ['No focus keyword defined'], stuffed: false}
+  }
+
+  const issues: string[] = []
+  let score = 1
+  if (placement.atStartOfTitle) {
+    score += 4
+  } else if (placement.inTitle) {
+    score += 2
+    issues.push('Focus keyword is in the title but not at the start')
+  } else if (placement.inDescription) {
+    score += 1
+    issues.push('Focus keyword missing from meta title')
+  } else {
+    issues.push('Focus keyword missing from meta title and description')
+  }
+
+  if (placement.isStuffed)
+    issues.push('Focus keyword appears too many times in title — avoid stuffing')
+
+  return {score, issues, stuffed: placement.isStuffed}
+}
+
+// Combined budget stays within the 10 points historically allotted to "keywords" so the 100-point total is unchanged.
+const scoreKeywordOptimization = (
+  keywords: string[] | undefined,
+  focusKeyword: string | undefined,
+  title: string | undefined,
+  description: string | undefined,
+): {score: number; issues: string[]} => {
+  const arrayResult = scoreKeywordArray(keywords, title, description)
+  const focusResult = scoreFocusKeyword(focusKeyword, title, description)
+
+  let score = arrayResult.score + focusResult.score
+  if (arrayResult.stuffed || focusResult.stuffed) score = Math.max(0, score - 2)
+
+  return {score: Math.min(score, 10), issues: [...arrayResult.issues, ...focusResult.issues]}
+}
+
 interface SeoDocument {
   seo?: Record<string, unknown>
 }
@@ -98,6 +179,7 @@ export const calculateHealthScore = (doc: SeoDocument): SeoHealthMetrics => {
   const title = seo.title as string | undefined
   const description = seo.description as string | undefined
   const keywords = seo.keywords as string[] | undefined
+  const focusKeyword = seo.focusKeyword as string | undefined
   const robots = seo.robots as
     | {noIndex?: boolean; noFollow?: boolean; noTranslate?: boolean; noImageIndex?: boolean}
     | undefined
@@ -117,8 +199,9 @@ export const calculateHealthScore = (doc: SeoDocument): SeoHealthMetrics => {
   if (seo.metaImage) score += 10
   else issues.push('Missing meta image')
 
-  if (keywords && keywords.length > 0) score += 10
-  else issues.push('No keywords defined')
+  const keywordResult = scoreKeywordOptimization(keywords, focusKeyword, title, description)
+  score += keywordResult.score
+  issues.push(...keywordResult.issues)
 
   if (robots && !robots.noIndex) score += 5
   else if (!robots) score += 5

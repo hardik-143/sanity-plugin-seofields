@@ -7,7 +7,7 @@
  * @example Next.js Pages Router
  * ```tsx
  * import Head from 'next/head'
- * import { SeoMetaTags } from 'sanity-plugin-seofields'
+ * import { SeoMetaTags } from 'sanity-plugin-seofields/next'
  *
  * export default function Page({ seo }) {
  *   return (
@@ -27,7 +27,7 @@
  * }
  * ```
  *
- * @example Nuxt 3 / generic SSR (inside <Head> slot)
+ * @example React SSR (inside a framework <Head> slot)
  * ```tsx
  * <Head>
  *   <SeoMetaTags data={seo} baseUrl="https://example.com" path="/" />

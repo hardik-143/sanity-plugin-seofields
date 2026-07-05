@@ -1,5 +1,5 @@
-import {buildSeoMeta, sanitizeOGType, sanitizeTwitterCard} from '../helpers/seoMeta'
 import type {SeoFieldsInput} from '../helpers/seoMeta'
+import {buildSeoHead, buildSeoMeta, sanitizeOGType, sanitizeTwitterCard} from '../helpers/seoMeta'
 
 describe('buildSeoMeta', () => {
   describe('with valid input', () => {
@@ -236,6 +236,36 @@ describe('buildSeoMeta', () => {
 
       expect(result.alternates?.canonical).toBe('https://example.com/page')
     })
+
+    it('should prioritize explicit canonicalUrl over constructed URL', () => {
+      const result = buildSeoMeta({
+        seo: {
+          canonicalUrl: 'https://canonical.example.com/page',
+        },
+        baseUrl: 'https://example.com',
+        path: '/page',
+      })
+
+      expect(result.alternates?.canonical).toBe('https://canonical.example.com/page')
+    })
+
+    it('should expose hreflangs as Next.js alternates languages', () => {
+      const result = buildSeoMeta({
+        seo: {
+          hreflangs: [
+            {locale: 'en', url: 'https://example.com/en/page'},
+            {locale: 'fr-FR', url: 'https://example.com/fr/page'},
+            {locale: 'x-default', url: 'https://example.com/page'},
+          ],
+        },
+      })
+
+      expect(result.alternates?.languages).toEqual({
+        en: 'https://example.com/en/page',
+        'fr-FR': 'https://example.com/fr/page',
+        'x-default': 'https://example.com/page',
+      })
+    })
   })
 
   describe('URL handling', () => {
@@ -317,6 +347,72 @@ describe('buildSeoMeta', () => {
       })
 
       expect(result.openGraph?.images?.[0]?.url).toBe('https://example.com/direct.jpg')
+    })
+
+    it('should fall back to metaImage when no Open Graph image is set', () => {
+      const mockResolver = jest.fn().mockReturnValue('https://example.com/meta-image.jpg')
+
+      const result = buildSeoMeta({
+        seo: {
+          metaImage: {
+            _type: 'image',
+            asset: {_ref: 'image-meta', _type: 'reference'},
+          } as any,
+        },
+        imageUrlResolver: mockResolver,
+      })
+
+      expect(mockResolver).toHaveBeenCalled()
+      expect(result.openGraph?.images).toEqual([{url: 'https://example.com/meta-image.jpg'}])
+      expect(result.twitter?.images).toEqual(['https://example.com/meta-image.jpg'])
+    })
+  })
+
+  describe('buildSeoHead', () => {
+    it('should build framework-neutral title, meta, and link tags', () => {
+      const result = buildSeoHead({
+        seo: {
+          title: 'Head Title',
+          description: 'Head description',
+          keywords: ['sanity', 'seo'],
+          canonicalUrl: 'https://example.com/head',
+          robots: {
+            noIndex: true,
+            noFollow: false,
+            noTranslate: true,
+            noImageIndex: false,
+          },
+          openGraph: {
+            title: 'OG Head',
+            description: 'OG description',
+            siteName: 'Example',
+          },
+          twitter: {
+            card: 'summary_large_image',
+            site: '@example',
+          },
+          metaAttributes: [{key: 'article:author', value: 'Hardik'}],
+          hreflangs: [{locale: 'en', url: 'https://example.com/head'}],
+        },
+      })
+
+      expect(result.title).toBe('Head Title')
+      expect(result.meta).toEqual(
+        expect.arrayContaining([
+          {name: 'description', content: 'Head description'},
+          {name: 'keywords', content: 'sanity, seo'},
+          {name: 'robots', content: 'noindex, follow, notranslate'},
+          {property: 'og:title', content: 'OG Head'},
+          {name: 'twitter:card', content: 'summary_large_image'},
+          {property: 'article:author', content: 'Hardik'},
+        ]),
+      )
+      expect(result.link).toEqual(
+        expect.arrayContaining([
+          {rel: 'canonical', href: 'https://example.com/head'},
+          {rel: 'alternate', hreflang: 'en', href: 'https://example.com/head'},
+        ]),
+      )
     })
   })
 

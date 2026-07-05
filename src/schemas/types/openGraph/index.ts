@@ -5,7 +5,7 @@ import OgImage from '../../../components/openGraph/OgImage'
 import OgImageUrl from '../../../components/openGraph/OgImageUrl'
 import OgTitle from '../../../components/openGraph/OgTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
-import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
+import {getFieldHiddenFunction, getFieldInfo, withLicense} from '../../../utils/fieldsUtils'
 
 export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
@@ -27,8 +27,11 @@ export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTyp
         type: 'string',
         hidden: getFieldHiddenFunction('openGraphTitle', config),
         components: {
-          input: OgTitle, // Can also wrap with a string input + preview
+          input: OgTitle,
         },
+        options: {
+          ...(config.ai ? {ai: withLicense(config.ai, config.licenseKey)} : {}),
+        } as Record<string, unknown>,
       }),
       defineField({
         name: 'description',
@@ -37,8 +40,11 @@ export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTyp
         rows: 3,
         hidden: getFieldHiddenFunction('openGraphDescription', config),
         components: {
-          input: OgDescription, // Can also wrap with a text area + preview
+          input: OgDescription,
         },
+        options: {
+          ...(config.ai ? {ai: withLicense(config.ai, config.licenseKey)} : {}),
+        } as Record<string, unknown>,
       }),
       defineField({
         name: 'siteName',

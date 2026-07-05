@@ -8,6 +8,8 @@ export const hasMatchingKeyword = (title: string, keywordList: string[]): boolea
   return keywordList.some((keyword) => keyword && lowerTitle.includes(keyword.toLowerCase()))
 }
 
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 export const hasKeywordOveruse = (
   title: string,
   keywordList: string[],
@@ -17,7 +19,7 @@ export const hasKeywordOveruse = (
   const lowerTitle = title.toLowerCase()
   return keywordList.some((keyword) => {
     if (!keyword) return false
-    const matches = lowerTitle.match(new RegExp(keyword.toLowerCase(), 'g'))
+    const matches = lowerTitle.match(new RegExp(escapeRegExp(keyword.toLowerCase()), 'g'))
     return matches ? matches.length > maxOccurrences : false
   })
 }
@@ -35,6 +37,41 @@ export const primaryKeywordAtStart = (title: string, keywords: string[]): boolea
 
 export const truncate = (text: string, maxLength: number): string =>
   text.length > maxLength ? `${text.slice(0, maxLength)}…` : text
+
+export interface FocusKeywordPlacement {
+  hasFocusKeyword: boolean
+  inTitle: boolean
+  atStartOfTitle: boolean
+  inDescription: boolean
+  isStuffed: boolean
+}
+
+/** Shared placement facts for a single focus keyword, used by both the live editor UI and health scoring. */
+export const getFocusKeywordPlacement = (
+  focusKeyword: string | undefined,
+  title: string | undefined,
+  description: string | undefined,
+): FocusKeywordPlacement => {
+  const keyword = (focusKeyword || '').trim()
+  if (!keyword) {
+    return {
+      hasFocusKeyword: false,
+      inTitle: false,
+      atStartOfTitle: false,
+      inDescription: false,
+      isStuffed: false,
+    }
+  }
+
+  const keywordList = [keyword]
+  return {
+    hasFocusKeyword: true,
+    inTitle: hasMatchingKeyword(title || '', keywordList),
+    atStartOfTitle: !!title && primaryKeywordAtStart(title, keywordList),
+    inDescription: hasMatchingKeyword(description || '', keywordList),
+    isStuffed: hasKeywordOveruse(title || '', keywordList, 2),
+  }
+}
 
 export const hasExcessivePunctuation = (title: string): boolean => /[!@#$%^&*]{2,}/.test(title)
 
