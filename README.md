@@ -334,6 +334,7 @@ seofields({
 | `fieldVisibility`     | Hide specific SEO fields for specific document types                                   |
 | `fieldGroups`         | Customize how fields are grouped in the `seoFields` object                             |
 | `apiVersion`          | Sanity API version used by plugin clients                                              |
+| `hreflang`            | Auto-populate hreflangs from translations — see [Hreflang auto-populate](#hreflang-auto-populate) |
 | `dashboard`           | Enable and configure the SEO Health Dashboard tool                                     |
 | `licenseKey`          | License key for pro features (dashboard, publish gate, pro industries)                 |
 | `ai`                  | Enable "Generate with AI" fields — see [AI Content Generation](#ai-content-generation) |
@@ -380,6 +381,18 @@ export const {POST, OPTIONS} = createNextRouteHandler({
 | Pro (9)  | `healthcare`, `pharmacy`, `finance`, `realestate`, `saas`, `legal`, `insurance`, `automotive`, `homeServices` | All 10 require a license                 |
 
 Without `industry` set, generation uses generic prompts, which are always free.
+
+**Custom prompts** — write your own prompt wording with `customPrompt` (free: one function) or `customPrompts` (paid: up to 5 generic + 5 per industry, behind a license). Your function receives all extracted document values (`content`, `focusKeyword`, `keywords`, `meta`, `field`, `industry`) and returns the prompt string. Custom prompts replace the built-in pool by default; set `merge: true` to mix them in. In proxy mode set them on the server handler config. See [AI.md → Custom Prompts](./AI.md#custom-prompts).
+
+```ts
+seofields({
+  ai: {
+    provider: 'openai',
+    apiKey: process.env.SANITY_STUDIO_OPENAI_API_KEY,
+    customPrompt: (v) => `Write a 55-char SEO ${v.field} about: ${v.content.slice(0, 200)}`,
+  },
+})
+```
 
 **Content source** (`ai.content`) — defaults to the document's `body` field. Accepts a single field, an array of fields in priority order, or a per-document-type mapping with a `default` fallback. Nested Portable Text is found automatically.
 
@@ -837,6 +850,64 @@ Common usage:
 - Pass an `imageUrlResolver` when your Sanity image data needs URL building
 
 Docs: [Frontend integration](https://sanity-plugin-seofields.thehardik.in/docs/frontend-integration)
+
+---
+
+## Hreflang auto-populate
+
+For projects using [`@sanity/document-internationalization`](https://github.com/sanity-io/document-internationalization), derive hreflang alternates from your translation references instead of typing them by hand.
+
+**Frontend** — `buildHreflangs()` turns the resolved `_translations` array into entries and feeds `buildSeoMeta`:
+
+```ts
+import {buildSeoMeta, buildHreflangs} from 'sanity-plugin-seofields/next' // or /head
+
+// GROQ: "_translations": *[_type=="translation.metadata" && references(^._id)].translations[].value->{ language, "slug": slug.current }
+export async function generateMetadata() {
+  return buildSeoMeta({
+    seo: data.seo,
+    baseUrl: 'https://example.com',
+    path: `/${data.slug.current}`,
+    hreflangs: buildHreflangs(data._translations, {
+      baseUrl: 'https://example.com',
+      xDefault: 'en',
+      // resolvePath: (t) => `/${t.language}/${t.slug}`,
+    }),
+  })
+}
+```
+
+**Studio** — enable `hreflang.autoFill` to add a **Sync from translations** button to the `hreflangs` field (entries stay editable):
+
+```ts
+seofields({
+  baseUrl: 'https://example.com',
+  hreflang: {autoFill: true /*, localeField: 'language', resolvePath */},
+})
+```
+
+The Studio sync reads `translation.metadata` via the standard client — no extra dependency required.
+
+---
+
+## llms.txt generator
+
+Generate an [llms.txt](https://llmstxt.org) file from your Sanity content with `buildLlmsTxt()` + `docsToLlmsSection()` (framework-neutral, exported from `/head` and `/next`):
+
+```ts
+import {buildLlmsTxt, docsToLlmsSection} from 'sanity-plugin-seofields/head'
+
+const body = buildLlmsTxt({
+  title: 'Acme',
+  summary: 'Everything Acme, for humans and LLMs.',
+  baseUrl: 'https://acme.com',
+  sections: [
+    docsToLlmsSection(posts, {title: 'Blog', baseUrl: 'https://acme.com'}),
+    docsToLlmsSection(docsPages, {title: 'Docs', baseUrl: 'https://acme.com'}),
+  ],
+})
+// serve `body` from /llms.txt (route handler or build step)
+```
 
 ---
 

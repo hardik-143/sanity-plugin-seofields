@@ -10,6 +10,7 @@ import {
 
 import GEOChecklist from '../components/geo/GEOChecklist'
 import FocusKeywordInput from '../components/meta/FocusKeywordInput'
+import HreflangInput from '../components/meta/HreflangInput'
 import KeywordsInput from '../components/meta/KeywordsInput'
 import MetaDescription from '../components/meta/MetaDescription'
 import MetaImage from '../components/meta/MetaImage'
@@ -307,6 +308,16 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           of: [{type: 'hreflangEntry'}],
           description:
             'Add alternate language/region versions. Include x-default for the fallback URL.',
+          ...(config.hreflang?.autoFill
+            ? {
+                components: {input: HreflangInput},
+                options: {
+                  hreflang: config.hreflang,
+                  baseUrl: config.baseUrl,
+                  apiVersion: config.apiVersion,
+                } as Record<string, unknown>,
+              }
+            : {}),
           hidden: getFieldHiddenFunction('hreflangs', config),
         }),
         fieldGroupMap,

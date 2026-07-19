@@ -1,6 +1,6 @@
 import type {AiConfig, AiIndustry} from '../plugin'
 import {analyzeReadability} from './readability'
-import {type MetaContext, pickPrompt, type SeoGenField} from './seoPrompts'
+import {type MetaContext, normalizeCustomPrompts, pickPrompt, type SeoGenField} from './seoPrompts'
 
 const DEFAULT_MAX_RETRIES = 2
 
@@ -422,6 +422,7 @@ export async function generateSeoText(
 
   const maxRetries = config.maxRetries ?? DEFAULT_MAX_RETRIES
   const isLicensed = Boolean(config._licenseKey)
+  const custom = normalizeCustomPrompts(config.customPrompt, config.customPrompts)
   const constraint = FIELD_CONSTRAINTS[field]
   let firstRaw = ''
   let lastRaw = ''
@@ -432,9 +433,12 @@ export async function generateSeoText(
     const prompt = await pickPrompt(
       field,
       {content, keyword: focusKeyword, keywords, meta},
-      config.industry,
-      isLicensed ? config._licenseKey : undefined,
-      config._projectId,
+      {
+        industry: config.industry,
+        licenseKey: isLicensed ? config._licenseKey : undefined,
+        projectId: config._projectId,
+        custom,
+      },
     )
     const raw = stripQuotes(await callApi(prompt))
     if (attempt === 0) firstRaw = raw

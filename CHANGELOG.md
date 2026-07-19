@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.0] — 2026-07-11
+
+### ✨ Added
+
+- **Custom AI prompts** — write your own prompt wording using the same document values the built-in prompts use. A custom prompt function receives a `CustomPromptValues` object (`field`, `content`, `focusKeyword`, `keywords`, `meta`, `industry`) — the extracted document text and metadata — and returns the prompt string sent to the provider. See [AI.md](./AI.md#custom-prompts).
+  - **Free tier — `ai.customPrompt`** — a single custom prompt function `(values) => string`. The function itself branches on `field`/`industry`.
+  - **Pro tier — `ai.customPrompts`** — `{ generic?, byIndustry?, merge? }` for up to **5 generic** + **5 per-industry** custom prompts, unlocked only behind a validated license via `seofields-pro`. Without a valid license this collapses to a single prompt (same as the free tier).
+  - **Replace or merge** — custom prompts **replace** the built-in angle pool for a field by default; set `merge: true` to mix them into the built-in pool instead.
+  - **Proxy-mode note** — functions can't cross the HTTP boundary, so in `ai.endpoint` (proxy) mode custom prompts must be set on the **server** handler config passed to `createSeoAiHandler`, not on the Studio's `ai` config.
+- **Hreflang auto-populate** — derive hreflang alternates from document translations instead of typing them by hand (designed for `@sanity/document-internationalization`).
+  - **`buildHreflangs(translations, options)`** (exported from `/head` and `/next`) — maps resolved `_translations` (`{language, slug}`) into `{locale, url}` entries. Supports `baseUrl`, `resolvePath`, `xDefault`, and a `current` document; dedupes by locale.
+  - **`buildSeoMeta({ hreflangs })`** — new option that supersedes `seo.hreflangs`, so alternates can come straight from `buildHreflangs`.
+  - **Studio `hreflang: { autoFill }` config** — adds a "Sync from translations" button to the `hreflangs` field that reads `translation.metadata` references and fills entries (still editable). No new dependency.
+- **`llms.txt` generator** — `buildLlmsTxt(options)` + `docsToLlmsSection(docs, options)` (exported from `/head` and `/next`) build an [llmstxt.org](https://llmstxt.org)-format file from Sanity content: H1 title, summary blockquote, and `##` link sections. Serve it from a `/llms.txt` route or build step.
+
 ## [1.9.0] — 2026-07-04
 
 ### ✨ Added

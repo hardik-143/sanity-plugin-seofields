@@ -2,18 +2,11 @@ import {defineConfig} from 'tsup'
 
 import pkg from './package.json'
 
-// Runtime dependencies are kept external so they stay as separate packages in node_modules.
-// This does not require manual installs: regular `dependencies` are installed automatically
-// when users install `sanity-plugin-seofields`.
+// CLI build: bundle all CLI deps (commander, picocolors, ora, @clack/prompts, @sanity/client)
+// directly into cli.js so the binary is self-contained when run via `npx seofields`.
+// Only keep Studio/React packages external since they are never used by the CLI.
 const CLI_EXTERNALS = [
-  // Node built-ins handled automatically
-  // CLI runtime deps — present in node_modules, no need to inline
-  'commander',
-  'picocolors',
-  'ora',
-  '@clack/prompts',
-  '@sanity/client',
-  // Studio / React (not used in CLI but kept for safety)
+  // Studio / React (not used in CLI)
   'sanity',
   'react',
   'react-dom',
@@ -21,7 +14,7 @@ const CLI_EXTERNALS = [
   '@sanity/icons',
   '@sanity/incompatible-plugin',
   'styled-components',
-  // Auto-installed via dependencies; do not inline the pro code into the public bundle.
+  // seofields-pro is optional/pro; keep external
   'seofields-pro',
   'next',
   'next/server',

@@ -1,4 +1,17 @@
 // plugin.ts
+import type {HreflangTranslation} from './helpers/hreflang'
+import type {MetaContext, SeoGenField} from './utils/seoPrompts'
+
+/** Auto-populate configuration for the `hreflangs` field. */
+export interface HreflangConfig {
+  /** Show the "Sync from translations" button on the hreflangs field. */
+  autoFill?: boolean
+  /** Field holding the language tag on translated documents. Defaults to 'language'. */
+  localeField?: string
+  /** Build the path for a translation. Defaults to `/${slug}`. */
+  resolvePath?: (t: HreflangTranslation) => string
+}
+
 export type AiIndustry =
   | 'blog'
   | 'ecommerce'
@@ -17,6 +30,23 @@ export type AiIndustry =
   | 'insurance'
   | 'automotive'
   | 'homeServices'
+
+/**
+ * All the generic document values the plugin extracts, handed to a custom prompt function so you can
+ * template your own prompt exactly the way the built-in prompts are built. `content` is the extracted
+ * document text (same output as the plugin's own content extraction).
+ */
+export type CustomPromptValues = {
+  field: SeoGenField
+  content: string
+  focusKeyword: string
+  keywords: string[]
+  meta?: MetaContext
+  industry?: AiIndustry
+}
+
+/** Receives all generic document values, returns the prompt string sent to the AI provider. */
+export type CustomPromptFn = (values: CustomPromptValues) => string
 
 export interface AiConfig {
   /** AI provider to use for text generation. */
@@ -63,6 +93,31 @@ export interface AiConfig {
   content?: string | string[] | Record<string, string | string[]>
   /** Industry context for prompts. When set, uses domain-specific vocabulary. Omit for generic prompts. */
   industry?: AiIndustry
+  /**
+   * FREE tier: a single custom prompt (generic or industry-specific — the function decides based on the
+   * `field`/`industry` it receives). Ignored if `customPrompts` is also set.
+   *
+   * In proxy mode (`endpoint`), custom prompts must be set on the **server** handler config
+   * (`createSeoAiHandler`) — a function cannot be sent over HTTP.
+   *
+   * @example
+   * customPrompt: (v) => `Write a 55-char SEO ${v.field} about: ${v.content.slice(0, 200)}`
+   */
+  customPrompt?: CustomPromptFn
+  /**
+   * PAID tier: up to 5 generic + up to 5 per-industry custom prompts. The count and per-industry
+   * pools are unlocked only behind a validated license via `seofields-pro`; without a valid license
+   * this collapses to a single prompt (same as the free `customPrompt`).
+   *
+   * By default custom prompts **replace** the built-in angle pool for a field. Set `merge: true` to
+   * mix them into the built-in pool instead.
+   */
+  customPrompts?: {
+    generic?: CustomPromptFn[]
+    byIndustry?: Partial<Record<AiIndustry, CustomPromptFn[]>>
+    /** Mix custom prompts with the built-in angle pool. Default false = replace. */
+    merge?: boolean
+  }
   /** Enable test mode — uses static pre-written outputs without any API call. Shows test warning in UI. */
   testMode?: boolean
   /** Number of full generation attempts before giving up. Defaults to 2. */
@@ -314,6 +369,16 @@ export interface SeoFieldsPluginConfig {
    * @example '2024-01-01'
    */
   apiVersion?: string
+  /**
+   * Auto-populate the `hreflangs` field from document translations. Designed for
+   * `@sanity/document-internationalization` — adds a "Sync from translations" button to the field
+   * that reads the `translation.metadata` references and fills alternate entries (still editable).
+   * URLs are built from the root `baseUrl` + each translation's slug.
+   *
+   * @example
+   * hreflang: { autoFill: true, resolvePath: (t) => `/${t.language}/${t.slug}` }
+   */
+  hreflang?: HreflangConfig
   /**
    * Enable or configure the SEO Health Dashboard tool.
    * If set to `true`, the dashboard is enabled with all defaults.

@@ -210,6 +210,65 @@ Get a license: [sanity-plugin-seofields.thehardik.in/get-license](https://sanity
 
 ---
 
+## Custom Prompts
+
+Write your own prompt wording using the same document values the built-in prompts use. Your function
+receives a `CustomPromptValues` object and returns the prompt string sent to the provider:
+
+```ts
+type CustomPromptValues = {
+  field: 'title' | 'description' | 'focusKeyword' | 'keywords' | 'ogTitle' | 'ogDescription' | 'twitterTitle' | 'twitterDescription'
+  content: string          // extracted document text (same source the plugin uses)
+  focusKeyword: string
+  keywords: string[]
+  meta?: { title?: string; description?: string; slug?: string }
+  industry?: AiIndustry
+}
+```
+
+**Free tier — one custom prompt** via `customPrompt`. The function itself decides how to branch on
+`field`/`industry`:
+
+```ts
+seofields({
+  ai: {
+    provider: 'openai',
+    apiKey: process.env.SANITY_STUDIO_OPENAI_API_KEY,
+    customPrompt: (v) =>
+      `Write a punchy 55-character SEO ${v.field} for our brand about: ${v.content.slice(0, 200)}.
+Return only the text.`,
+  },
+})
+```
+
+**Paid tier — up to 5 generic + 5 per industry** via `customPrompts` (unlocked behind a validated
+license):
+
+```ts
+seofields({
+  ai: {
+    provider: 'openai',
+    apiKey: process.env.SANITY_STUDIO_OPENAI_API_KEY,
+    industry: 'saas',
+    customPrompts: {
+      generic: [fnA, fnB],                 // up to 5
+      byIndustry: { saas: [fn1, fn2, fn3] }, // up to 5 per industry
+      merge: true,                          // mix with built-in angles; omit/false = replace
+    },
+  },
+  licenseKey: process.env.SANITY_STUDIO_SEO_LICENSE_KEY,
+})
+```
+
+- **Replace by default** — custom prompts replace the built-in angle pool for the field. Set
+  `merge: true` to add them to the built-in pool instead (the plugin randomly picks per generation).
+- Without a valid license, `customPrompts` collapses to a **single** prompt (same as the free tier).
+- **Proxy mode caveat:** functions can't cross the HTTP boundary. When using `endpoint`, set
+  `customPrompt`/`customPrompts` on your **server** handler config (`createSeoAiHandler`), not the
+  Studio's `ai` config.
+
+---
+
 ## Generation & Refinement Pipeline
 
 Each generation attempt runs through automatic refinement passes before being accepted:
@@ -235,6 +294,8 @@ If every attempt still fails validation, the plugin returns either the **first**
 | `temperature`               | Sampling temperature. Defaults to `0.7`.                                                                                         |
 | `content`                   | Root document field(s) used as source content. `string \| string[] \| Record<string, string \| string[]>`. Defaults to `'body'`. |
 | `industry`                  | Prompt context — see [industries & tiers](#industries--prompt-tiers).                                                            |
+| `customPrompt`              | Free: one custom prompt function `(values) => string`. See [custom prompts](#custom-prompts).                                    |
+| `customPrompts`             | Paid: `{ generic?, byIndustry?, merge? }` — up to 5 each, behind a license. See [custom prompts](#custom-prompts).               |
 | `testMode`                  | Use static demo outputs, no provider API call.                                                                                   |
 | `maxRetries`                | Full generation attempts before returning a result. Defaults to `2`.                                                             |
 | `keepFirstOnValidationFail` | `true` returns the first raw response when every attempt fails validation; `false`/undefined (default) returns the last attempt. |

@@ -8,6 +8,7 @@
  */
 
 import type {SanityImage, SanityImageWithAlt} from '../types'
+import {joinUrl} from './url'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -179,6 +180,15 @@ export interface BuildSeoMetaOptions {
    * imageUrlResolver: (img) => urlFor(img).width(1200).url()
    */
   imageUrlResolver?: (image: SanityImage | SanityImageWithAlt) => string | null | undefined
+
+  /**
+   * Override the hreflang alternates. When provided, this supersedes `seo.hreflangs` — pair it with
+   * `buildHreflangs()` to derive alternates from `@sanity/document-internationalization` translations.
+   *
+   * @example
+   * hreflangs: buildHreflangs(data._translations, { baseUrl })
+   */
+  hreflangs?: Array<{locale?: string | null; url?: string | null}> | null
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
@@ -335,17 +345,14 @@ function customMetaUsesProperty(name: string): boolean {
  * ```
  */
 export function buildSeoMeta(options: BuildSeoMetaOptions): SeoMetadata {
-  const {seo, baseUrl = '', path = '', defaults = {}, imageUrlResolver} = options
+  const {seo, baseUrl = '', path = '', defaults = {}, imageUrlResolver, hreflangs} = options
 
-  const normalizedBase = baseUrl.replace(/\/+$/, '') // remove trailing /
-  const normalizedPath = path.replace(/^\/+/, '') // remove leading /
-
-  const fullUrl = [normalizedBase, normalizedPath].filter(Boolean).join('/')
+  const fullUrl = joinUrl(baseUrl, path)
 
   const ogImageURL = resolveOgImage(seo, defaults, imageUrlResolver)
   const twitterImageURL = resolveTwitterImage(seo, ogImageURL, imageUrlResolver)
   const other = buildCustomMetaMap(seo)
-  const languages = buildHreflangMap(seo?.hreflangs)
+  const languages = buildHreflangMap(hreflangs ?? seo?.hreflangs)
 
   const ogUrl = seo?.openGraph?.url || fullUrl
 

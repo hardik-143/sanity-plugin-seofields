@@ -18,6 +18,24 @@ export {buildSeoHead, buildSeoMeta, sanitizeOGType, sanitizeTwitterCard} from '.
 export type {SeoMetaTagsProps} from './helpers/SeoMetaTags'
 export {SeoMetaTags} from './helpers/SeoMetaTags'
 
+// Hreflang alternates from `@sanity/document-internationalization` translations
+export type {
+  BuildHreflangsOptions,
+  HreflangLinkEntry,
+  HreflangTranslation,
+} from './helpers/hreflang'
+export {buildHreflangs} from './helpers/hreflang'
+
+// llms.txt generation (https://llmstxt.org)
+export type {
+  BuildLlmsTxtOptions,
+  DocsToLlmsSectionOptions,
+  LlmsDoc,
+  LlmsLink,
+  LlmsSection,
+} from './helpers/llmsTxt'
+export {buildLlmsTxt, docsToLlmsSection} from './helpers/llmsTxt'
+
 // Schema.org — Combined
 export type {SchemaOrgScriptsProps} from './schema/SchemaOrgScripts'
 export {

@@ -498,4 +498,27 @@ describe('buildSeoMeta', () => {
       expect(result.twitter?.images).toEqual([])
     })
   })
+
+  describe('hreflangs override', () => {
+    it('uses seo.hreflangs when no override is passed', () => {
+      const result = buildSeoMeta({
+        seo: {hreflangs: [{locale: 'en', url: 'https://e.com/en'}]},
+      })
+      expect(result.alternates?.languages).toEqual({en: 'https://e.com/en'})
+    })
+
+    it('lets the hreflangs option supersede seo.hreflangs', () => {
+      const result = buildSeoMeta({
+        seo: {hreflangs: [{locale: 'en', url: 'https://e.com/old'}]},
+        hreflangs: [
+          {locale: 'en', url: 'https://e.com/en'},
+          {locale: 'fr', url: 'https://e.com/fr'},
+        ],
+      })
+      expect(result.alternates?.languages).toEqual({
+        en: 'https://e.com/en',
+        fr: 'https://e.com/fr',
+      })
+    })
+  })
 })

@@ -34,4 +34,17 @@ describe('createSeoAiHandler', () => {
 
     await expect(handle({field: 'keywords'} as never)).rejects.toThrow('Invalid request body')
   })
+
+  it('applies a custom prompt set on the server handler config', async () => {
+    const handle = createSeoAiHandler({
+      provider: 'openai',
+      apiKey: 'server-side-key',
+      customPrompt: (v) => `CUSTOM_PROMPT_FOR_${v.field}_${v.content}`,
+    })
+
+    await handle({field: 'keywords', content: 'hiking boots page'})
+
+    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body)
+    expect(body.messages[0].content).toBe('CUSTOM_PROMPT_FOR_keywords_hiking boots page')
+  })
 })

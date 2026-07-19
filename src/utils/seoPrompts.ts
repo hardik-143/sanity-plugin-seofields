@@ -1,4 +1,4 @@
-import type {AiIndustry} from '../plugin'
+import type {AiIndustry, CustomPromptFn} from '../plugin'
 
 export const FREE_INDUSTRIES = [
   'blog',
@@ -40,6 +40,20 @@ type PromptFn = (p: PromptParams) => string
 type AngleFn = (params: PromptParams & {ctx: string}) => string
 type FieldAngles = Record<SeoGenField, AngleFn[]>
 type PublicIndustry = (typeof FREE_INDUSTRIES)[number]
+
+/**
+ * Normalized custom-prompt config. `customPrompt` (free) collapses into `generic: [fn]`;
+ * `customPrompts` (paid) is used as-is. See `normalizeCustomPrompts`.
+ */
+export type CustomPromptConfig = {
+  generic?: CustomPromptFn[]
+  byIndustry?: Partial<Record<AiIndustry, CustomPromptFn[]>>
+  merge?: boolean
+}
+
+/** Custom prompts already wrapped as `PromptFn`s and bound to the current field + industry. */
+type WrappedCustom = {genericPrompts: PromptFn[]; industryPrompts: PromptFn[]; merge: boolean}
+
 type LicensedPromptPoolResolver = (options: {
   licenseKey?: string
   projectId?: string
@@ -47,6 +61,8 @@ type LicensedPromptPoolResolver = (options: {
   industry?: AiIndustry
   /** Free-tier pool — returned as-is when the license fails validation or the pro package is unavailable. */
   publicPrompts: PromptFn[]
+  /** Pre-wrapped custom prompts. Count caps (≤5 each) + merge are applied behind license validation. */
+  custom?: WrappedCustom
 }) => Promise<PromptFn[]>
 
 const GENERIC_CTX = 'Write for a general web audience.'
@@ -341,11 +357,52 @@ export const INDUSTRY_PROMPTS = Object.fromEntries(
 
 export const DEFAULT_PROMPTS = buildFieldPrompts(GENERIC_CTX, PUBLIC_ANGLE_COUNT)
 
+/** Collapse the two public config fields into one normalized shape. `customPrompts` wins if both are set. */
+export function normalizeCustomPrompts(
+  customPrompt?: CustomPromptFn,
+  customPrompts?: CustomPromptConfig,
+): CustomPromptConfig | undefined {
+  if (customPrompts) return customPrompts
+  if (customPrompt) return {generic: [customPrompt]}
+  return undefined
+}
+
+// Bind a user CustomPromptFn to the current field + industry, exposing it through the existing PromptFn
+// contract. `p.keyword` maps to `focusKeyword` in the values object handed to the user.
+function toPromptFn(fn: CustomPromptFn, field: SeoGenField, industry?: AiIndustry): PromptFn {
+  return (p: PromptParams) =>
+    fn({
+      field,
+      content: p.content,
+      focusKeyword: p.keyword,
+      keywords: p.keywords,
+      meta: p.meta,
+      industry,
+    })
+}
+
+// Wrap the custom fns relevant to this (field, industry) into PromptFns. Counts are NOT capped here —
+// the free cap (1) is applied in resolvePromptPool, the paid cap (5 each) inside seofields-pro.
+function wrapCustom(
+  custom: CustomPromptConfig,
+  field: SeoGenField,
+  industry?: AiIndustry,
+): WrappedCustom {
+  const genericFns = custom.generic ?? []
+  const industryFns = industry ? (custom.byIndustry?.[industry] ?? []) : []
+  return {
+    genericPrompts: genericFns.map((fn) => toPromptFn(fn, field, industry)),
+    industryPrompts: industryFns.map((fn) => toPromptFn(fn, field, industry)),
+    merge: custom.merge === true,
+  }
+}
+
 async function resolvePromptPool(
   field: SeoGenField,
   industry?: AiIndustry,
   licenseKey?: string,
   projectId?: string,
+  custom?: CustomPromptConfig,
 ): Promise<PromptFn[]> {
   const isFreeIndustry = Boolean(
     industry && (FREE_INDUSTRIES as readonly string[]).includes(industry),
@@ -354,37 +411,56 @@ async function resolvePromptPool(
     ? INDUSTRY_PROMPTS[industry as PublicIndustry][field]
     : DEFAULT_PROMPTS[field]
 
-  if (!licenseKey) return publicPrompts
+  const wrapped = custom ? wrapCustom(custom, field, industry) : undefined
 
-  // The remaining angles (up to 10 total) live entirely in `seofields-pro` — never shipped in
-  // this package's bundle — and are only returned once the license actually validates.
-  try {
-    const mod = (await import('seofields-pro')) as {
-      resolveLicensedPromptPool?: LicensedPromptPoolResolver
+  // The remaining angles (up to 10 total) plus the paid custom-prompt cap (5 each) live entirely in
+  // `seofields-pro` — never shipped in this package's bundle — and are only unlocked once the license
+  // actually validates.
+  if (licenseKey) {
+    try {
+      const mod = (await import('seofields-pro')) as {
+        resolveLicensedPromptPool?: LicensedPromptPoolResolver
+      }
+      // Pro package unavailable — an unverified licenseKey alone must never unlock the pool.
+      if (typeof mod.resolveLicensedPromptPool === 'function') {
+        return mod.resolveLicensedPromptPool({
+          licenseKey,
+          projectId,
+          field,
+          industry,
+          publicPrompts,
+          custom: wrapped,
+        })
+      }
+    } catch {
+      // fall through to the free path below
     }
-    // Pro package unavailable — an unverified licenseKey alone must never unlock the pool.
-    if (typeof mod.resolveLicensedPromptPool !== 'function') return publicPrompts
-
-    return mod.resolveLicensedPromptPool({
-      licenseKey,
-      projectId,
-      field,
-      industry,
-      publicPrompts,
-    })
-  } catch {
-    return publicPrompts
   }
+
+  // Free / pro-unavailable path. Custom prompts are capped to a single prompt (industry-specific for
+  // the active industry preferred, else generic). Cannot be enforced cryptographically here.
+  if (wrapped) {
+    const single = wrapped.industryPrompts[0] ?? wrapped.genericPrompts[0]
+    if (single) {
+      return wrapped.merge ? [...publicPrompts, single] : [single]
+    }
+  }
+  return publicPrompts
+}
+
+export type PickPromptOptions = {
+  industry?: AiIndustry
+  licenseKey?: string
+  projectId?: string
+  custom?: CustomPromptConfig
 }
 
 export async function pickPrompt(
   field: SeoGenField,
   params: PromptParams,
-  industry?: AiIndustry,
-  licenseKey?: string,
-  projectId?: string,
+  {industry, licenseKey, projectId, custom}: PickPromptOptions = {},
 ): Promise<string> {
-  const pool = await resolvePromptPool(field, industry, licenseKey, projectId)
+  const pool = await resolvePromptPool(field, industry, licenseKey, projectId, custom)
   const fn = pool[Math.floor(Math.random() * pool.length)]
   return fn(params)
 }

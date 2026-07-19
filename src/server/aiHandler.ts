@@ -29,6 +29,10 @@ function isValidBody(body: unknown): body is SeoAiRequestBody {
  * a real `AiConfig` — including `apiKey` — which never has to be sent to the browser. Pair with
  * `endpoint` in the Studio's `ai` config, and one of the framework adapters in
  * `sanity-plugin-seofields/server` to expose it over HTTP.
+ *
+ * NOTE: `customPrompt` / `customPrompts` are functions and cannot cross the HTTP boundary, so in
+ * proxy mode they must be set on THIS server config (the `AiConfig` passed here), not on the Studio's
+ * `ai` config. They apply automatically since this handler runs `generateSeoText` with `config`.
  */
 export function createSeoAiHandler(config: AiConfig): SeoAiHandler {
   return async function handleSeoAiRequest(body: SeoAiRequestBody): Promise<{result: string}> {
