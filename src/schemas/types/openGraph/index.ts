@@ -5,7 +5,12 @@ import OgImage from '../../../components/openGraph/OgImage'
 import OgImageUrl from '../../../components/openGraph/OgImageUrl'
 import OgTitle from '../../../components/openGraph/OgTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
-import {getFieldHiddenFunction, getFieldInfo, withLicense} from '../../../utils/fieldsUtils'
+import {
+  getFieldHiddenFunction,
+  getFieldInfo,
+  getKeywordsVisibilityChecker,
+  withLicense,
+} from '../../../utils/fieldsUtils'
 
 export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
@@ -31,6 +36,7 @@ export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTyp
         },
         options: {
           ...(config.ai ? {ai: withLicense(config.ai, config.licenseKey)} : {}),
+          isKeywordsVisible: getKeywordsVisibilityChecker(config),
         } as Record<string, unknown>,
       }),
       defineField({
@@ -44,6 +50,7 @@ export default function openGraph(config: SeoFieldsPluginConfig = {}): SchemaTyp
         },
         options: {
           ...(config.ai ? {ai: withLicense(config.ai, config.licenseKey)} : {}),
+          isKeywordsVisible: getKeywordsVisibilityChecker(config),
         } as Record<string, unknown>,
       }),
       defineField({

@@ -80,6 +80,7 @@ export const getMetaTitleValidationMessages = (
   keywords: string[],
   isParentseoField: boolean,
   suffixLength = 0,
+  keywordsVisible = true,
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
 
@@ -113,7 +114,7 @@ export const getMetaTitleValidationMessages = (
     })
 
   // Keyword checks
-  if (isParentseoField) {
+  if (isParentseoField && keywordsVisible) {
     if (keywords.length > 0) {
       const hasKeyword = hasMatchingKeyword(title, keywords)
       feedback.push({
@@ -152,6 +153,7 @@ export const getMetaDescriptionValidationMessages = (
   description: string,
   keywords: string[],
   isParentseoField: boolean,
+  keywordsVisible = true,
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
 
@@ -179,7 +181,7 @@ export const getMetaDescriptionValidationMessages = (
     feedback.push({text: `Description length (${charCount}) looks good for SEO.`, color: 'green'})
 
   // Keyword checks
-  if (isParentseoField) {
+  if (isParentseoField && keywordsVisible) {
     if (keywords.length > 0) {
       const hasKeyword = hasMatchingKeyword(description, keywords)
       feedback.push({
@@ -224,6 +226,7 @@ export const getOgTitleValidation = (
   title: string,
   keywords: string[] = [],
   isParentseoField: boolean,
+  keywordsVisible = true,
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
   const min = 40
@@ -246,7 +249,7 @@ export const getOgTitleValidation = (
     feedback.push({text: `OG Title is ${count} chars — exceeds recommended ${max}.`, color: 'red'})
   else feedback.push({text: `OG Title length (${count}) looks good.`, color: 'green'})
 
-  if (isParentseoField) {
+  if (isParentseoField && keywordsVisible) {
     // Keyword checks
     if (keywords.length > 0) {
       const hasKeyword = hasMatchingKeyword(title, keywords)
@@ -288,6 +291,7 @@ export const getOgDescriptionValidation = (
   desc: string,
   keywords: string[] = [],
   isParentseoField: boolean,
+  keywordsVisible = true,
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
   const min = 90
@@ -317,7 +321,7 @@ export const getOgDescriptionValidation = (
   else feedback.push({text: `OG Description length (${count}) looks good.`, color: 'green'})
 
   // Keyword checks
-  if (isParentseoField) {
+  if (isParentseoField && keywordsVisible) {
     if (keywords.length > 0) {
       const hasKeyword = hasMatchingKeyword(desc, keywords)
       feedback.push({
@@ -361,6 +365,7 @@ export const getTwitterTitleValidation = (
   title: string,
   keywords: string[] = [],
   isParentseoField: boolean,
+  keywordsVisible = true,
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
   const min = 30
@@ -385,7 +390,7 @@ export const getTwitterTitleValidation = (
     })
   else feedback.push({text: `X Title length (${count}) looks good.`, color: 'green'})
 
-  if (isParentseoField) {
+  if (isParentseoField && keywordsVisible) {
     // Keyword checks
     if (keywords.length > 0) {
       const hasKeyword = hasMatchingKeyword(title, keywords)
@@ -414,6 +419,7 @@ export const getTwitterDescriptionValidation = (
   desc: string,
   keywords: string[] = [],
   isParentseoField: boolean,
+  keywordsVisible = true,
 ): FeedbackType[] => {
   const feedback: FeedbackType[] = []
   const min = 50
@@ -438,7 +444,7 @@ export const getTwitterDescriptionValidation = (
     })
   else feedback.push({text: `X Description length (${count}) looks good.`, color: 'green'})
 
-  if (isParentseoField) {
+  if (isParentseoField && keywordsVisible) {
     // Keyword checks
     if (keywords.length > 0) {
       const hasKeyword = hasMatchingKeyword(desc, keywords)

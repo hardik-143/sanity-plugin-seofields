@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.1] — 2026-07-25
+
+### 🐛 Fixed
+
+- **Hidden keyword validation feedback** — title, description, Open Graph title/description, and X Card title/description now skip keyword-related feedback when the `keywords` field is hidden via `defaultHiddenFields` or document-type `fieldVisibility`. Length, punctuation, and other non-keyword feedback still runs. Fixes [#14](https://github.com/hardik-143/sanity-plugin-seofields/issues/14). Thanks to [@m4n1ok](https://github.com/m4n1ok) (Antonin Caudron) for reporting the issue.
+
+
+---
+
 ## [1.10.0] — 2026-07-11
 
 ### ✨ Added

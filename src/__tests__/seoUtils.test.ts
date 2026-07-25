@@ -1,4 +1,13 @@
-import {getFocusKeywordPlacement, hasKeywordOveruse} from '../utils/seoUtils'
+import {
+  getFocusKeywordPlacement,
+  getMetaDescriptionValidationMessages,
+  getMetaTitleValidationMessages,
+  getOgDescriptionValidation,
+  getOgTitleValidation,
+  getTwitterDescriptionValidation,
+  getTwitterTitleValidation,
+  hasKeywordOveruse,
+} from '../utils/seoUtils'
 
 describe('getFocusKeywordPlacement', () => {
   it('returns all-false facts when no focus keyword is set', () => {
@@ -39,6 +48,68 @@ describe('getFocusKeywordPlacement', () => {
   it('does not flag stuffing for two or fewer occurrences', () => {
     const result = getFocusKeywordPlacement('widget', 'widget guide to widget care', '')
     expect(result.isStuffed).toBe(false)
+  })
+})
+
+describe('keywordsVisible gate for empty-keyword feedback', () => {
+  const NO_KEYWORDS_MSG = 'No keywords defined. Consider adding relevant keywords.'
+  const title = 'A perfectly reasonable title that is long enough for the recommended range'
+  const description =
+    'A perfectly reasonable description that sits comfortably within the recommended length range for meta descriptions.'
+
+  it('getMetaTitleValidationMessages shows the message by default (keywordsVisible defaults true)', () => {
+    const messages = getMetaTitleValidationMessages(title, [], true)
+    expect(messages.some((m) => m.text === NO_KEYWORDS_MSG)).toBe(true)
+  })
+
+  it('getMetaTitleValidationMessages suppresses the message when keywords are hidden', () => {
+    const messages = getMetaTitleValidationMessages(title, [], true, 0, false)
+    expect(messages.some((m) => m.text === NO_KEYWORDS_MSG)).toBe(false)
+  })
+
+  it('getMetaDescriptionValidationMessages suppresses the message when keywords are hidden', () => {
+    const messages = getMetaDescriptionValidationMessages(description, [], true, false)
+    expect(messages.some((m) => m.text === NO_KEYWORDS_MSG)).toBe(false)
+  })
+
+  it('getOgTitleValidation suppresses the message when keywords are hidden', () => {
+    const messages = getOgTitleValidation(
+      'A good enough OG title for length checks',
+      [],
+      true,
+      false,
+    )
+    expect(messages.some((m) => m.text === NO_KEYWORDS_MSG)).toBe(false)
+  })
+
+  it('getOgDescriptionValidation suppresses the message when keywords are hidden', () => {
+    const messages = getOgDescriptionValidation(
+      'A good enough OG description that comfortably meets the recommended length',
+      [],
+      true,
+      false,
+    )
+    expect(messages.some((m) => m.text === NO_KEYWORDS_MSG)).toBe(false)
+  })
+
+  it('getTwitterTitleValidation suppresses the message when keywords are hidden', () => {
+    const messages = getTwitterTitleValidation(
+      'A good enough X title for length checks',
+      [],
+      true,
+      false,
+    )
+    expect(messages.some((m) => m.text === NO_KEYWORDS_MSG)).toBe(false)
+  })
+
+  it('getTwitterDescriptionValidation suppresses the message when keywords are hidden', () => {
+    const messages = getTwitterDescriptionValidation(
+      'A good enough X description that comfortably meets the recommended length',
+      [],
+      true,
+      false,
+    )
+    expect(messages.some((m) => m.text === NO_KEYWORDS_MSG)).toBe(false)
   })
 })
 

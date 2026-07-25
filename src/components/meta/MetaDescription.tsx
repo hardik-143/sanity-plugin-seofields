@@ -10,15 +10,26 @@ import SeoGenButton from '../ai/SeoGenButton'
 
 const MetaDescription = (props: StringInputProps): ReactElement => {
   const {value, renderDefault, path, schemaType, onChange} = props
-  const {options} = schemaType as {options?: {ai?: AiConfig}}
+  const {options} = schemaType as {
+    options?: {ai?: AiConfig; isKeywordsVisible?: (documentType?: string) => boolean}
+  }
 
   const parent = useFormValue([path[0]]) as {keywords?: string[]; _type?: string}
   const isParentseoField = parent && parent?._type === 'seoFields'
   const keywords = useMemo(() => parent?.keywords || [], [parent?.keywords])
+  const rootDoc = useFormValue([]) as {_type?: string} | null
+
+  const keywordsVisible = options?.isKeywordsVisible?.(rootDoc?._type) ?? true
 
   const feedbackItems = useMemo(
-    () => getMetaDescriptionValidationMessages(value || '', keywords, isParentseoField),
-    [value, keywords, isParentseoField],
+    () =>
+      getMetaDescriptionValidationMessages(
+        value || '',
+        keywords,
+        isParentseoField,
+        keywordsVisible,
+      ),
+    [value, keywords, isParentseoField, keywordsVisible],
   )
 
   const readability = useMemo(() => analyzeReadability(value || ''), [value])

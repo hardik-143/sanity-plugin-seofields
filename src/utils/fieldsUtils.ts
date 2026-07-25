@@ -185,3 +185,13 @@ export const getFieldHiddenFunction = (
     return isFieldHidden(fieldName, config, documentType)
   }
 }
+
+/**
+ * Get a resolver that tells title/description inputs whether the keywords field
+ * is visible for a given document type, so they can skip keyword-related feedback.
+ */
+export const getKeywordsVisibilityChecker = (
+  config: SeoFieldsPluginConfig,
+): ((documentType?: string) => boolean) => {
+  return (documentType) => !isFieldHidden('keywords', config, documentType)
+}

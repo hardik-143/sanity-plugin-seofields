@@ -15,6 +15,7 @@ const MetaTitle = (props: StringInputProps): ReactElement => {
       titleSuffix?: ((doc: {_type?: string} & Record<string, unknown>) => string) | string
       titleSuffixQuery?: string
       ai?: AiConfig
+      isKeywordsVisible?: (documentType?: string) => boolean
     }
   }
 
@@ -73,9 +74,18 @@ const MetaTitle = (props: StringInputProps): ReactElement => {
   // ` | ` separator = 3 chars
   const suffixLength = resolvedSuffix ? resolvedSuffix.length + 3 : 0
 
+  const keywordsVisible = options?.isKeywordsVisible?.(rootDoc?._type) ?? true
+
   const feedbackItems = useMemo(
-    () => getMetaTitleValidationMessages(value || '', keywords, isParentseoField, suffixLength),
-    [value, keywords, isParentseoField, suffixLength],
+    () =>
+      getMetaTitleValidationMessages(
+        value || '',
+        keywords,
+        isParentseoField,
+        suffixLength,
+        keywordsVisible,
+      ),
+    [value, keywords, isParentseoField, suffixLength, keywordsVisible],
   )
 
   return (

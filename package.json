@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-seofields",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "The complete Sanity Studio SEO plugin with an audit dashboard, AI generation, Schema.org JSON-LD, and frontend helpers for Next.js, Astro, Nuxt, Vue, SvelteKit, and Remix.",
   "keywords": [
     "sanity",

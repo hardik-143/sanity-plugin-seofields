@@ -17,7 +17,12 @@ import MetaImage from '../components/meta/MetaImage'
 import MetaTagsPreview from '../components/meta/MetaTagsPreview'
 import MetaTitle from '../components/meta/MetaTitle'
 import type {SeoFieldGroup, SeoFieldsPluginConfig, SeoObjectFieldName} from '../plugin'
-import {getFieldHiddenFunction, getFieldInfo, withLicense} from '../utils/fieldsUtils'
+import {
+  getFieldHiddenFunction,
+  getFieldInfo,
+  getKeywordsVisibilityChecker,
+  withLicense,
+} from '../utils/fieldsUtils'
 import {isEmpty} from '../utils/utils'
 import openGraph from './types/openGraph'
 import twitter from './types/twitter'
@@ -120,6 +125,7 @@ function getTitleFieldOptions(config: SeoFieldsPluginConfig): Record<string, unk
     ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
     ...getSeoPreviewSuffixOptions(config.seoPreview),
     ...getAiOption(config),
+    isKeywordsVisible: getKeywordsVisibilityChecker(config),
   }
 }
 
@@ -230,7 +236,10 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
           components: {
             input: MetaDescription,
           },
-          options: getAiOption(config) as Record<string, unknown>,
+          options: {
+            ...getAiOption(config),
+            isKeywordsVisible: getKeywordsVisibilityChecker(config),
+          } as Record<string, unknown>,
           hidden: getFieldHiddenFunction('description', config),
         }),
         fieldGroupMap,
