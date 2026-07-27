@@ -4,7 +4,11 @@ import MetaDescription from '../../../components/meta/MetaDescription'
 import MetaImage from '../../../components/meta/MetaImage'
 import MetaTitle from '../../../components/meta/MetaTitle'
 import {SeoFieldsPluginConfig} from '../../../plugin'
-import {getFieldHiddenFunction, getFieldInfo} from '../../../utils/fieldsUtils'
+import {
+  getFieldHiddenFunction,
+  getFieldInfo,
+  getKeywordsVisibilityChecker,
+} from '../../../utils/fieldsUtils'
 
 export default function baseMeta(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   return defineType({
@@ -19,6 +23,9 @@ export default function baseMeta(config: SeoFieldsPluginConfig = {}): SchemaType
         components: {
           input: MetaTitle,
         },
+        options: {
+          isKeywordsVisible: getKeywordsVisibilityChecker(config),
+        } as Record<string, unknown>,
         hidden: getFieldHiddenFunction('title', config),
       }),
       defineField({
@@ -29,6 +36,9 @@ export default function baseMeta(config: SeoFieldsPluginConfig = {}): SchemaType
         components: {
           input: MetaDescription,
         },
+        options: {
+          isKeywordsVisible: getKeywordsVisibilityChecker(config),
+        } as Record<string, unknown>,
         hidden: getFieldHiddenFunction('description', config),
       }),
       defineField({

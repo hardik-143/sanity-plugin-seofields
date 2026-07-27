@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.2] — 2026-07-27
+
+### 🐛 Fixed
+
+- **`baseMetaSchema` hidden keyword feedback** — `baseMeta` title and description inputs now receive the same keyword-visibility config as the main `seoFields` schema, so keyword-related inline feedback is skipped when `keywords` is hidden via `defaultHiddenFields` or document-type `fieldVisibility`. Follow-up to [#14](https://github.com/hardik-143/sanity-plugin-seofields/issues/14). Thanks again to [@m4n1ok](https://github.com/m4n1ok) for testing the release and catching the standalone schema path.
+
+---
+
 ## [1.10.1] — 2026-07-25
 
 ### 🐛 Fixed
