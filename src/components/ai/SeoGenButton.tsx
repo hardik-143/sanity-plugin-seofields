@@ -1,12 +1,14 @@
-import {SparklesIcon} from '@sanity/icons'
 import {Button, Card, Flex, Text} from '@sanity/ui'
 import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react'
 import {useFormValue, useWorkspace} from 'sanity'
 
 import type {AiConfig} from '../../plugin'
 import {extractDocText, resolveContentFields} from '../../utils/extractDocText'
+import {defineIcon} from '../../utils/icon'
 import {generateSeoText} from '../../utils/seoContentGen'
 import {type MetaContext, pickTestOutput, type SeoGenField} from '../../utils/seoPrompts'
+
+const SparklesIcon = defineIcon('sparkles')
 
 type GenState = 'idle' | 'loading' | 'cooldown' | 'error'
 

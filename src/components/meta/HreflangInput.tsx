@@ -1,10 +1,12 @@
-import {TranslateIcon} from '@sanity/icons'
 import {Button, Card, Flex, Stack, Text} from '@sanity/ui'
 import {type ReactElement, useCallback, useState} from 'react'
 import {type ArrayOfObjectsInputProps, PatchEvent, set, useClient, useFormValue} from 'sanity'
 
 import {buildHreflangs, type HreflangTranslation} from '../../helpers/hreflang'
 import type {HreflangConfig} from '../../plugin'
+import {defineIcon} from '../../utils/icon'
+
+const TranslateIcon = defineIcon('translate')
 
 type HreflangOptions = {
   hreflang?: HreflangConfig

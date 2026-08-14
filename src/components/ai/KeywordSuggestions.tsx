@@ -1,12 +1,14 @@
-import {SparklesIcon} from '@sanity/icons'
 import {Badge, Box, Button, Card, Flex, Spinner, Stack, Text} from '@sanity/ui'
 import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react'
 import {useFormValue, useWorkspace} from 'sanity'
 
 import type {AiConfig} from '../../plugin'
 import {extractDocText, resolveContentFields} from '../../utils/extractDocText'
+import {defineIcon} from '../../utils/icon'
 import {generateSeoText} from '../../utils/seoContentGen'
 import {pickTestOutput} from '../../utils/seoPrompts'
+
+const SparklesIcon = defineIcon('sparkles')
 
 interface Props {
   ai?: AiConfig

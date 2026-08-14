@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.11.0] — 2026-08-13
+
+### ✨ Added
+
+- **Sanity Studio 6 support** — `sanity` peer dependency widened to `^3 || ^4 || ^5 || ^6`.
+
+### 🐛 Fixed
+
+- **`@sanity/icons@5` compatibility** — the plugin no longer imports named icons (`ApiIcon`, `SparklesIcon`, `TranslateIcon`, `AddIcon`, `SearchIcon`, …) from the `@sanity/icons` root entry. Those exports were removed in icons v5, which Studio 6 ships, so the plugin failed to load under Turbopack and other modern bundlers with `Error: Export ApiIcon doesn't exist in target module`. Icons are now built from the root `<Icon symbol="…" />` API, which is present on icons v3, v4 and v5 alike — so Studio 3/4/5 keep working unchanged. Fixes [#15](https://github.com/hardik-143/sanity-plugin-seofields/issues/15). Thanks again to [@m4n1ok](https://github.com/m4n1ok) (Antonin Caudron) for the report and the detailed version-compatibility breakdown.
+
+### 🔧 Changed
+
+- **Peer dependencies** — `@sanity/icons` narrowed from `>=2` to `>=3`. v2 has no root `Icon` export, so the previous range advertised support the plugin never actually had.
+- **`seofields-pro`** bumped to `^1.3.0`, which widens its own `sanity` peer to include `^6`. Without it, installing on Studio 6 fails with an `ERESOLVE` peer conflict even after the icon fix.
+
+---
+
 ## [1.10.2] — 2026-07-27
 
 ### 🐛 Fixed
@@ -20,7 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🐛 Fixed
 
 - **Hidden keyword validation feedback** — title, description, Open Graph title/description, and X Card title/description now skip keyword-related feedback when the `keywords` field is hidden via `defaultHiddenFields` or document-type `fieldVisibility`. Length, punctuation, and other non-keyword feedback still runs. Fixes [#14](https://github.com/hardik-143/sanity-plugin-seofields/issues/14). Thanks to [@m4n1ok](https://github.com/m4n1ok) (Antonin Caudron) for reporting the issue.
-
 
 ---
 

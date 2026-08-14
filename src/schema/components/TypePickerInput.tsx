@@ -5,13 +5,13 @@
  * Replaces the default Sanity array "Add" button with a searchable, categorized
  * type picker dialog. Used by the `schemaOrg` combined array type.
  */
-import {AddIcon, SearchIcon} from '@sanity/icons'
 import {Box, Button, Card, Dialog, Flex, Grid, Heading, Stack, Text, TextInput} from '@sanity/ui'
 import {type ChangeEvent, type ComponentType, JSX, useCallback, useMemo, useState} from 'react'
 import type {ArrayInputFunctionsProps, ArraySchemaType} from 'sanity'
 import type {InputProps} from 'sanity'
 import {useFormValue} from 'sanity'
 
+import {defineIcon} from '../../utils/icon'
 import {SchemaOrgJsonLdPreview, type SchemaOrgJsonLdPreviewOptions} from './SchemaOrgJsonLdPreview'
 import {
   CATEGORY_LABELS,
@@ -20,6 +20,9 @@ import {
   type SchemaTypeCategory,
   type SchemaTypeInfo,
 } from './schemaTypeMetadata'
+
+const AddIcon = defineIcon('add')
+const SearchIcon = defineIcon('search')
 
 // ─── Search Helpers ───────────────────────────────────────────────────────────
 

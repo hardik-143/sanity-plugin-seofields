@@ -4,7 +4,7 @@
 
 **SEO fields, social metadata, Schema.org JSON-LD, AI generation, and SEO health checks for Sanity Studio.**
 
-<p><a href="https://www.npmjs.com/package/sanity-plugin-seofields"><img src="https://img.shields.io/npm/v/sanity-plugin-seofields.svg?color=10b981&label=npm" alt="npm version" /></a> <a href="https://www.npmjs.com/package/sanity-plugin-seofields"><img src="https://img.shields.io/npm/dm/sanity-plugin-seofields.svg?color=2563eb&label=downloads" alt="npm downloads" /></a> <a href="./LICENSE"><img src="https://img.shields.io/npm/l/sanity-plugin-seofields.svg?color=f59e0b" alt="license" /></a> <a href="https://github.com/hardik-143/sanity-plugin-seofields"><img src="https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social" alt="GitHub stars" /></a> <a href="https://www.sanity.io"><img src="https://img.shields.io/badge/Sanity-v3%20%7C%20v4%20%7C%20v5-f03e2f?logo=sanity" alt="Sanity" /></a></p>
+<p><a href="https://www.npmjs.com/package/sanity-plugin-seofields"><img src="https://img.shields.io/npm/v/sanity-plugin-seofields.svg?color=10b981&label=npm" alt="npm version" /></a> <a href="https://www.npmjs.com/package/sanity-plugin-seofields"><img src="https://img.shields.io/npm/dm/sanity-plugin-seofields.svg?color=2563eb&label=downloads" alt="npm downloads" /></a> <a href="./LICENSE"><img src="https://img.shields.io/npm/l/sanity-plugin-seofields.svg?color=f59e0b" alt="license" /></a> <a href="https://github.com/hardik-143/sanity-plugin-seofields"><img src="https://img.shields.io/github/stars/hardik-143/sanity-plugin-seofields?style=social" alt="GitHub stars" /></a> <a href="https://www.sanity.io"><img src="https://img.shields.io/badge/Sanity-v3%20%7C%20v4%20%7C%20v5%20%7C%20v6-f03e2f?logo=sanity" alt="Sanity" /></a></p>
 
 [Documentation](https://sanity-plugin-seofields.thehardik.in/docs) ·
 [Quick start](https://sanity-plugin-seofields.thehardik.in/docs/quick-start) ·
@@ -34,9 +34,15 @@ npm install sanity-plugin-seofields
 Peer dependencies:
 
 ```txt
-sanity   ^3 || ^4 || ^5
-react    ^18 || ^19
+sanity          ^3 || ^4 || ^5 || ^6
+@sanity/icons   >=3
+react           ^18 || ^19
 ```
+
+Sanity Studio 3, 4, 5 and 6 are all supported. Icons are rendered through the root
+`<Icon symbol="…" />` API from `@sanity/icons`, the one entry point shared by icons v3, v4
+and v5 — so the plugin works on Studio 6 (which ships `@sanity/icons@5`, where the named
+icon exports such as `ApiIcon` were removed) without dropping older Studios.
 
 ## Quick Start
 
@@ -103,28 +109,28 @@ Full guide: [Frontend integration](https://sanity-plugin-seofields.thehardik.in/
 
 ## Common Links
 
-| Topic | Link |
-| :---- | :--- |
-| Quick start | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/quick-start) |
-| Plugin configuration | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/configuration) |
-| Frontend integration | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/frontend-integration) |
-| AI content generation | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/ai) |
-| SEO Health Dashboard | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/dashboard) |
-| Schema.org structured data | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/schema-org) |
-| CLI | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/cli) |
-| License key | [Get license](https://sanity-plugin-seofields.thehardik.in/get-license) |
+| Topic                      | Link                                                                           |
+| :------------------------- | :----------------------------------------------------------------------------- |
+| Quick start                | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/quick-start)          |
+| Plugin configuration       | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/configuration)        |
+| Frontend integration       | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/frontend-integration) |
+| AI content generation      | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/ai)                   |
+| SEO Health Dashboard       | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/dashboard)            |
+| Schema.org structured data | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/schema-org)           |
+| CLI                        | [Docs](https://sanity-plugin-seofields.thehardik.in/docs/cli)                  |
+| License key                | [Get license](https://sanity-plugin-seofields.thehardik.in/get-license)        |
 
 ## Package Exports
 
-| Import path | Use |
-| :---------- | :-- |
-| `sanity-plugin-seofields` | Studio plugin, schema types, dashboard helpers, shared types |
-| `sanity-plugin-seofields/head` | Framework-neutral SEO helpers |
-| `sanity-plugin-seofields/server` | Server-side AI proxy adapters |
-| `sanity-plugin-seofields/next` | Next.js metadata helpers and React meta tags |
-| `sanity-plugin-seofields/schema` | Schema.org Sanity schema plugins |
-| `sanity-plugin-seofields/schema/next` | Schema.org React JSON-LD components |
-| `sanity-plugin-seofields/define-cli` | CLI configuration helper |
+| Import path                           | Use                                                          |
+| :------------------------------------ | :----------------------------------------------------------- |
+| `sanity-plugin-seofields`             | Studio plugin, schema types, dashboard helpers, shared types |
+| `sanity-plugin-seofields/head`        | Framework-neutral SEO helpers                                |
+| `sanity-plugin-seofields/server`      | Server-side AI proxy adapters                                |
+| `sanity-plugin-seofields/next`        | Next.js metadata helpers and React meta tags                 |
+| `sanity-plugin-seofields/schema`      | Schema.org Sanity schema plugins                             |
+| `sanity-plugin-seofields/schema/next` | Schema.org React JSON-LD components                          |
+| `sanity-plugin-seofields/define-cli`  | CLI configuration helper                                     |
 
 ## CLI
 
@@ -136,13 +142,14 @@ Docs: [CLI guide](https://sanity-plugin-seofields.thehardik.in/docs/cli)
 
 ## Compatibility
 
-| Runtime | Supported |
-| :------ | :-------- |
-| Node.js | `>=18` |
-| Sanity Studio | `^3`, `^4`, `^5` |
-| React | `^18`, `^19` |
-| Module format | ESM and CommonJS |
-| TypeScript | Included |
+| Runtime       | Supported              |
+| :------------ | :--------------------- |
+| Node.js       | `>=18`                 |
+| Sanity Studio | `^3`, `^4`, `^5`, `^6` |
+| `@sanity/icons` | `>=3` (v3, v4, v5)   |
+| React         | `^18`, `^19`           |
+| Module format | ESM and CommonJS       |
+| TypeScript    | Included               |
 
 ## Contributing
 
