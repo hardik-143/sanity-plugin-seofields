@@ -145,6 +145,7 @@ import type {DocumentActionComponent, DocumentActionsContext} from 'sanity'
 import {definePlugin} from 'sanity'
 
 import {createSeoPublishGateAction} from './actions/SeoPublishGateAction'
+import type {SeoPerformanceConfig} from './performanceStub'
 import types from './schemas/types'
 import type {DeprecationWarning, DocumentWithSeoHealth} from './types'
 
@@ -207,6 +208,7 @@ export type SeoObjectFieldName =
   | 'hreflangs'
   | 'geoChecklist'
   | 'metaTagsPreview'
+  | 'performanceSummary'
 
 /**
  * Defines a single tab/group within the `seoFields` object.
@@ -358,6 +360,12 @@ export interface SeoFieldsPluginConfig {
    * Defaults to `true`.
    */
   metaTagsPreview?: boolean
+  /**
+   * Hosted Search Console and GA4 analytics shown inside documents.
+   * Use the same object with `createSeoPerformanceView()` when registering
+   * the full document view through Structure Builder.
+   */
+  seoPerformance?: SeoPerformanceConfig
   /**
    * The base URL of your website, used for generating full URLs in the SEO preview.
    * Defaults to 'https://www.example.com' if not provided.

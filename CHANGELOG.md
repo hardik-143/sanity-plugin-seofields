@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.12.0] — 2026-09-13
+
+### ✨ Added
+
+- **Performance — Search Console and GA4 for the page you are editing.** A new document view showing clicks, impressions, average position and GA4 engagement for that exact URL, with period comparison, charts and a shareable read-only report. Enable it with the `seoPerformance` plugin option and `createSeoPerformanceView`, and add the compact `performanceSummary` field to see the headline numbers inline on the document.
+
+  Performance is a paid feature, billed as a $10/month subscription per Sanity project and separate from the one-time licence key. It ships in [`seofields-pro`](https://www.npmjs.com/package/seofields-pro), installed automatically as a dependency of this package — there is nothing extra to add. Studios without a subscription see an upgrade card in place of the view; entitlement is enforced server-side.
+
+### 🔧 Changed
+
+- **`seofields-pro` requirement raised to `^1.4.0`.** Earlier versions do not provide the Performance view, and a Studio resolving one will show the upgrade card instead.
+
 ## [1.11.0] — 2026-08-13
 
 ### ✨ Added

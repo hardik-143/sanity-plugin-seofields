@@ -107,6 +107,52 @@ For Astro, Nuxt, Vue, SvelteKit, Remix, or custom renderers, use `buildSeoHead()
 
 Full guide: [Frontend integration](https://sanity-plugin-seofields.thehardik.in/docs/frontend-integration)
 
+## Search Console and GA4 document view
+
+> **Paid feature.** The implementation ships in `seofields-pro`, which is installed
+> automatically as a dependency of this plugin, and needs an active analytics subscription.
+> Studios that cannot resolve `seofields-pro` show an upgrade card in place of the view.
+> The imports below are unchanged either way.
+
+The hosted analytics add-on can resolve the production URL for a document and show Search Console
+and GA4 metrics in a dedicated Studio view. Reuse one configuration object for the field summary and
+the Structure Builder view:
+
+```ts
+import {defineConfig} from 'sanity'
+import {structureTool, type DefaultDocumentNodeResolver} from 'sanity/structure'
+import seofields, {
+  createSeoPerformanceView,
+  type SeoPerformanceConfig,
+} from 'sanity-plugin-seofields'
+
+const seoPerformance: SeoPerformanceConfig = {
+  documentTypes: ['page', 'post'],
+  resolveUrl: (document) => {
+    const slug = (document.slug as {current?: string} | undefined)?.current
+    return slug ? `https://example.com/${slug}` : null
+  },
+}
+
+const PerformanceView = createSeoPerformanceView(seoPerformance)
+
+const defaultDocumentNode: DefaultDocumentNodeResolver = (S, {schemaType}) =>
+  S.document().views([
+    S.view.form(),
+    ...(['page', 'post'].includes(schemaType)
+      ? [S.view.component(PerformanceView).id('performance').title('Performance')]
+      : []),
+  ])
+
+export default defineConfig({
+  // ...project and dataset
+  plugins: [structureTool({defaultDocumentNode}), seofields({seoPerformance})],
+})
+```
+
+The Google OAuth credentials remain in the hosted service. Editors do not add Google client secrets,
+refresh tokens, or service-account keys to the Studio configuration.
+
 ## Common Links
 
 | Topic                      | Link                                                                           |
@@ -142,14 +188,14 @@ Docs: [CLI guide](https://sanity-plugin-seofields.thehardik.in/docs/cli)
 
 ## Compatibility
 
-| Runtime       | Supported              |
-| :------------ | :--------------------- |
-| Node.js       | `>=18`                 |
-| Sanity Studio | `^3`, `^4`, `^5`, `^6` |
-| `@sanity/icons` | `>=3` (v3, v4, v5)   |
-| React         | `^18`, `^19`           |
-| Module format | ESM and CommonJS       |
-| TypeScript    | Included               |
+| Runtime         | Supported              |
+| :-------------- | :--------------------- |
+| Node.js         | `>=18`                 |
+| Sanity Studio   | `^3`, `^4`, `^5`, `^6` |
+| `@sanity/icons` | `>=3` (v3, v4, v5)     |
+| React           | `^18`, `^19`           |
+| Module format   | ESM and CommonJS       |
+| TypeScript      | Included               |
 
 ## Contributing
 

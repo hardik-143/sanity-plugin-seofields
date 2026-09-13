@@ -217,11 +217,19 @@ receives a `CustomPromptValues` object and returns the prompt string sent to the
 
 ```ts
 type CustomPromptValues = {
-  field: 'title' | 'description' | 'focusKeyword' | 'keywords' | 'ogTitle' | 'ogDescription' | 'twitterTitle' | 'twitterDescription'
-  content: string          // extracted document text (same source the plugin uses)
+  field:
+    | 'title'
+    | 'description'
+    | 'focusKeyword'
+    | 'keywords'
+    | 'ogTitle'
+    | 'ogDescription'
+    | 'twitterTitle'
+    | 'twitterDescription'
+  content: string // extracted document text (same source the plugin uses)
   focusKeyword: string
   keywords: string[]
-  meta?: { title?: string; description?: string; slug?: string }
+  meta?: {title?: string; description?: string; slug?: string}
   industry?: AiIndustry
 }
 ```
@@ -251,9 +259,9 @@ seofields({
     apiKey: process.env.SANITY_STUDIO_OPENAI_API_KEY,
     industry: 'saas',
     customPrompts: {
-      generic: [fnA, fnB],                 // up to 5
-      byIndustry: { saas: [fn1, fn2, fn3] }, // up to 5 per industry
-      merge: true,                          // mix with built-in angles; omit/false = replace
+      generic: [fnA, fnB], // up to 5
+      byIndustry: {saas: [fn1, fn2, fn3]}, // up to 5 per industry
+      merge: true, // mix with built-in angles; omit/false = replace
     },
   },
   licenseKey: process.env.SANITY_STUDIO_SEO_LICENSE_KEY,

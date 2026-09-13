@@ -1,4 +1,4 @@
-import {createElement, lazy, Suspense} from 'react'
+import {type ComponentType, createElement, lazy, Suspense} from 'react'
 import {
   defineField,
   defineType,
@@ -16,6 +16,7 @@ import MetaDescription from '../components/meta/MetaDescription'
 import MetaImage from '../components/meta/MetaImage'
 import MetaTagsPreview from '../components/meta/MetaTagsPreview'
 import MetaTitle from '../components/meta/MetaTitle'
+import {SeoPerformanceUpgradeCard} from '../performanceStub'
 import type {SeoFieldGroup, SeoFieldsPluginConfig, SeoObjectFieldName} from '../plugin'
 import {
   getFieldHiddenFunction,
@@ -31,6 +32,23 @@ import twitter from './types/twitter'
 const LazySeoPreview = lazy(() => import('../components/SeoPreview'))
 const SeoPreviewWrapper = (props: StringInputProps) =>
   createElement(Suspense, {fallback: null}, createElement(LazySeoPreview, props))
+// The summary input is a paid feature living in `seofields-pro`. Keep the
+// dynamic import: it keeps the pro bundle out of the schema module graph, which
+// `sanity schema extract` walks statically, and it lets a Studio without the pro
+// package fall back to the upgrade card instead of failing to load the schema.
+const LazySeoPerformanceSummary = lazy(() =>
+  import('seofields-pro')
+    .then((module) =>
+      typeof module.SeoPerformanceSummary === 'function'
+        ? {default: module.SeoPerformanceSummary as unknown as ComponentType<StringInputProps>}
+        : {default: SeoPerformanceUpgradeCard as unknown as ComponentType<StringInputProps>},
+    )
+    .catch(() => ({
+      default: SeoPerformanceUpgradeCard as unknown as ComponentType<StringInputProps>,
+    })),
+)
+const SeoPerformanceSummaryWrapper = (props: StringInputProps) =>
+  createElement(Suspense, {fallback: null}, createElement(LazySeoPerformanceSummary, props))
 
 /**
  * Build a field-name → group-name(s) lookup from the plugin config.
@@ -333,6 +351,29 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
       ),
       ...buildGeoChecklistField(config, fieldGroupMap),
       ...buildMetaTagsPreviewField(config, fieldGroupMap),
+      ...(config.seoPerformance &&
+      config.seoPerformance.enabled !== false &&
+      config.seoPerformance.summary !== false
+        ? [
+            withGroup(
+              defineField({
+                name: 'performanceSummary',
+                title: 'Search performance',
+                type: 'string',
+                readOnly: true,
+                components: {input: SeoPerformanceSummaryWrapper},
+                options: {performance: config.seoPerformance} as Record<string, unknown>,
+                hidden: ({document}: {document?: Record<string, unknown>}) => {
+                  const allowed = config.seoPerformance?.documentTypes
+                  return Boolean(
+                    allowed?.length && !allowed.includes(String(document?._type || '')),
+                  )
+                },
+              }),
+              fieldGroupMap,
+            ),
+          ]
+        : []),
       withGroup(openGraph(config) as unknown as FieldDefinition, fieldGroupMap),
       withGroup(twitter(config) as unknown as FieldDefinition, fieldGroupMap),
     ],

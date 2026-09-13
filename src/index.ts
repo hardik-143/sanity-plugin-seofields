@@ -36,3 +36,13 @@ export type {DocumentWithSeoHealth, SeoHealthMetrics, SeoHealthStatus} from './t
 
 // Export shared scoring utility
 export {calculateHealthScore} from './utils/scoring'
+
+// Export the hosted Search Console + GA4 document analytics mount point.
+// The implementation itself is a paid feature and lives in `seofields-pro`.
+export {
+  createSeoPerformanceView,
+  type SeoPerformanceConfig,
+  type SeoPerformanceContext,
+  SeoPerformanceUpgradeCard,
+  type SeoPerformanceViewComponent,
+} from './performanceStub'
