@@ -7,6 +7,7 @@ import {createConfigCommand} from './commands/create-config.js'
 import {doctorCommand} from './commands/doctor.js'
 import {exportCommand} from './commands/export.js'
 import {initCommand} from './commands/init.js'
+import {linksCommand} from './commands/links.js'
 import {reportCommand} from './commands/report.js'
 import {loadDotEnv} from './utils/loadDotEnv.js'
 
@@ -82,6 +83,8 @@ const TIPS = [
   'The CSV export makes it easy to share SEO audits with non-technical stakeholders.',
   'Every image on your page should have descriptive alt text.',
   'Avoid duplicate meta descriptions — each page needs its own.',
+  'Run `seofields links --fail-on-broken` in CI to catch broken links before they ship.',
+  'Use `seofields report --readability` to include body-content readability in the score.',
 ]
 
 function randomTip(): string {
@@ -158,6 +161,7 @@ function showBanner() {
     ['config        ', 'Update plugin configuration options'],
     ['create-config ', 'Create seofields.cli.ts / .js interactively'],
     ['report        ', 'SEO health report across all documents'],
+    ['links         ', 'Find broken links and dangling references'],
     ['export        ', 'Export SEO fields as JSON or CSV'],
     ['doctor        ', 'Check setup, deps & config'],
   ]
@@ -297,7 +301,32 @@ program
   .option('-t, --token <token>', 'Sanity API token')
   .option('--types <types>', 'Comma-separated document types to include')
   .option('--format <format>', 'Output format: table or summary (default: "table")', 'table')
+  .option('--readability', 'Blend body-content readability into the score (opt-in; changes scores)')
+  .option(
+    '--content <fields>',
+    'Comma-separated body field(s) analysed by --readability (default: "body")',
+  )
   .action(reportCommand)
+
+program
+  .command('links')
+  .description('Find broken links and references to missing or unpublished documents')
+  .addHelpText('before', commandBanner('links', 'Find broken links and dangling references'))
+  .option('-p, --project-id <id>', 'Sanity project ID')
+  .option('-d, --dataset <name>', 'Sanity dataset name')
+  .option('-t, --token <token>', 'Sanity API token (needed to see drafts / private datasets)')
+  .option('--types <types>', 'Comma-separated document types (default: documents with `seo`)')
+  .option('--id <ids>', 'Comma-separated document IDs to check')
+  .option('--base-url <url>', 'Site URL used to resolve and check relative links')
+  .option('--no-external', 'Skip HTTP checks for external URLs')
+  .option('--no-references', 'Skip document reference checks')
+  .option('--timeout <ms>', 'Per-request timeout in milliseconds (default: 8000)')
+  .option('--concurrency <n>', 'Maximum parallel HTTP requests (default: 5)')
+  .option('--limit <n>', 'Maximum number of documents to scan')
+  .option('--allow-private', 'Allow requests to private / loopback addresses (e.g. staging)')
+  .option('--format <format>', 'Output format: table or json', 'table')
+  .option('--fail-on-broken', 'Exit with code 1 when broken links or references are found')
+  .action(linksCommand)
 
 program
   .command('doctor')
