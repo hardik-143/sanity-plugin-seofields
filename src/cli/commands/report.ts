@@ -15,6 +15,8 @@ interface ReportOptions {
   token?: string
   types?: string
   format: string
+  readability?: boolean
+  content?: string
 }
 
 interface SeoDocument {
@@ -64,13 +66,21 @@ export async function reportCommand(options: ReportOptions): Promise<void> {
         .join(', ')}] && `
     : ''
 
+  // Only plain field names are interpolated into the projection.
+  const contentFields = (options.content ?? 'body')
+    .split(',')
+    .map((f) => f.trim())
+    .filter((f) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(f))
+  const extraFields =
+    options.readability && contentFields.length ? `,\n    ${contentFields.join(',\n    ')}` : ''
+
   const query = `*[${typeFilter}defined(seo)]{
     _id,
     _type,
     _updatedAt,
     title,
     slug,
-    seo
+    seo${extraFields}
   } | order(_updatedAt desc)`
 
   spinner.text = 'Fetching documents...'
@@ -91,9 +101,18 @@ export async function reportCommand(options: ReportOptions): Promise<void> {
     return
   }
 
+  const scoreOptions = options.readability
+    ? {readability: {content: contentFields.length ? contentFields : 'body'}}
+    : {}
+  if (options.readability) {
+    log.info(
+      `Readability included in scores (content: ${contentFields.join(', ') || 'body'}). Scores differ from the default report.`,
+    )
+  }
+
   const scored = docs.map((doc) => ({
     doc,
-    health: calculateHealthScore(doc) as HealthScore,
+    health: calculateHealthScore(doc, scoreOptions) as HealthScore,
   }))
 
   await outputTextReport(scored, docs, options)

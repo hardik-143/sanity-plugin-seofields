@@ -1,6 +1,44 @@
 // plugin.ts
 import type {HreflangTranslation} from './helpers/hreflang'
+import type {ReadabilityThresholds} from './utils/readability'
 import type {MetaContext, SeoGenField} from './utils/seoPrompts'
+
+/**
+ * Configuration for the document-level readability panel (`readability` field in `seoFields`).
+ * Heuristics are tuned for English text.
+ */
+export interface ReadabilityConfig {
+  /** Show the readability panel. Defaults to `true`. */
+  enabled?: boolean
+  /**
+   * Root document field(s) holding the main content to analyse — same shape as `ai.content`.
+   * Falls back to `ai.content`, then `'body'`.
+   *
+   * @example
+   * content: {post: 'body', page: ['intro', 'sections'], default: 'body'}
+   */
+  content?: string | string[] | Record<string, string | string[]>
+  /** Override the thresholds used by the checks (long sentence = 20 words, etc.). */
+  thresholds?: Partial<ReadabilityThresholds>
+}
+
+/** Configuration for the broken-link checker panel (`linkChecker` field in `seoFields`). */
+export interface LinkCheckerConfig {
+  /** Show the link checker panel. Defaults to `true`. */
+  enabled?: boolean
+  /**
+   * Server-side endpoint that checks external URLs: POST `{ urls: string[] }` →
+   * `{ results: UrlCheckResult[] }`. Build one with `createLinkCheckNextRouteHandler()` /
+   * `createLinkCheckFetchHandler()` from `sanity-plugin-seofields/server`. Without it, the panel
+   * checks internal references only and lists external links as unchecked (browsers block
+   * cross-origin link checks).
+   */
+  endpoint?: string
+  /** Base URL used to resolve relative links (`/about`). Defaults to the root `baseUrl` option. */
+  baseUrl?: string
+  /** Check references to other documents (missing / unpublished). Defaults to `true`. */
+  checkReferences?: boolean
+}
 
 /** Auto-populate configuration for the `hreflangs` field. */
 export interface HreflangConfig {
@@ -166,6 +204,8 @@ export type SeoFieldKeys =
   | 'hreflangs'
   | 'geoChecklist'
   | 'metaTagsPreview'
+  | 'readability'
+  | 'linkChecker'
 
 export type openGraphFieldKeys =
   | 'openGraphUrl'
@@ -208,6 +248,8 @@ export type SeoObjectFieldName =
   | 'hreflangs'
   | 'geoChecklist'
   | 'metaTagsPreview'
+  | 'readability'
+  | 'linkChecker'
   | 'performanceSummary'
 
 /**
@@ -360,6 +402,24 @@ export interface SeoFieldsPluginConfig {
    * Defaults to `true`.
    */
   metaTagsPreview?: boolean
+  /**
+   * Readability analysis of the document's main content (Flesch score, grade level, sentence and
+   * paragraph length, passive voice, repeated sentence openings, subheading distribution), shown
+   * inside seoFields. Set to `false` to hide it. Defaults to `true` (reads the `body` field).
+   *
+   * @example
+   * readability: { content: ['intro', 'body'] }
+   */
+  readability?: boolean | ReadabilityConfig
+  /**
+   * Broken-link checker shown inside seoFields: finds Portable Text links, document references and
+   * SEO URL fields, flags missing / unpublished referenced documents, and — with `endpoint` — checks
+   * external URLs server-side. Set to `false` to hide it. Defaults to `true`.
+   *
+   * @example
+   * linkChecker: { endpoint: '/api/seo-links' }
+   */
+  linkChecker?: boolean | LinkCheckerConfig
   /**
    * Hosted Search Console and GA4 analytics shown inside documents.
    * Use the same object with `createSeoPerformanceView()` when registering

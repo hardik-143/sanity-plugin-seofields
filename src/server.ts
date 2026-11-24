@@ -26,3 +26,32 @@ export type {NodeAdapterOptions} from './server/adapters/node'
 export {createNodeHandler} from './server/adapters/node'
 export type {SeoAiHandler, SeoAiRequestBody} from './server/aiHandler'
 export {createSeoAiHandler} from './server/aiHandler'
+
+/**
+ * Server-side broken-link checker — pair with `linkChecker.endpoint` in the plugin config.
+ *
+ * @example
+ * // app/api/seo-links/route.ts (Next.js App Router)
+ * import { createLinkCheckNextRouteHandler } from 'sanity-plugin-seofields/server'
+ * export const { POST, OPTIONS } = createLinkCheckNextRouteHandler()
+ *
+ * // sanity.config.ts
+ * seoFields({ linkChecker: { endpoint: 'https://example.com/api/seo-links' } })
+ */
+export type {
+  LinkCheckFetchAdapterOptions,
+  SeoLinkCheckHandler,
+  SeoLinkCheckHandlerConfig,
+  SeoLinkCheckRequestBody,
+  SeoLinkCheckResponse,
+} from './server/linkCheckHandler'
+export {
+  createLinkCheckFetchHandler,
+  createLinkCheckNextRouteHandler,
+  createSeoLinkCheckHandler,
+  LinkCheckRequestError,
+} from './server/linkCheckHandler'
+export type {PublicUrlOptions, ResolveHostFn} from './server/ssrf'
+export {assertPublicUrl, isPrivateAddress} from './server/ssrf'
+export type {CheckUrlOptions, CheckUrlsOptions, LinkStatus, UrlCheckResult} from './utils/linkCheck'
+export {BlockedUrlError, checkUrl, checkUrls} from './utils/linkCheck'
