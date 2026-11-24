@@ -35,7 +35,32 @@ export {
 export type {DocumentWithSeoHealth, SeoHealthMetrics, SeoHealthStatus} from './types'
 
 // Export shared scoring utility
+export type {HealthScoreOptions, HealthScoreReadabilityOptions} from './utils/scoring'
 export {calculateHealthScore} from './utils/scoring'
+
+// Readability analysis (English heuristics)
+export {extractDocBlocks} from './utils/extractDocText'
+export type {
+  ContentBlock,
+  ContentReadabilityOptions,
+  ContentReadabilityResult,
+  ReadabilityCheck,
+  ReadabilityCheckId,
+  ReadabilityCheckStatus,
+  ReadabilityResult,
+  ReadabilityThresholds,
+} from './utils/readability'
+export {
+  analyzeContentReadability,
+  analyzeReadability,
+  DEFAULT_READABILITY_THRESHOLDS,
+} from './utils/readability'
+
+// Broken-link checker (link extraction + reference checks; external checks live in /server)
+export type {IdQueryFn, LinkStatus, ReferenceStatus, UrlCheckResult} from './utils/linkCheck'
+export {checkReferences} from './utils/linkCheck'
+export type {ExtractedLink, ExtractLinksOptions, LinkKind, LinkSource} from './utils/links'
+export {classifyHref, extractDocumentLinks} from './utils/links'
 
 // Export the hosted Search Console + GA4 document analytics mount point.
 // The implementation itself is a paid feature and lives in `seofields-pro`.

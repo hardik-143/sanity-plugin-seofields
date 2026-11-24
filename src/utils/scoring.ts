@@ -1,4 +1,6 @@
 import type {SeoHealthMetrics, SeoHealthStatus} from '../types'
+import {extractDocBlocks, resolveContentFields} from './extractDocText'
+import {analyzeContentReadability, type ReadabilityThresholds} from './readability'
 import {getFocusKeywordPlacement, hasKeywordOveruse, hasMatchingKeyword} from './seoUtils'
 
 const getStatusCategory = (score: number): SeoHealthStatus => {
@@ -167,10 +169,75 @@ const scoreKeywordOptimization = (
 }
 
 interface SeoDocument {
+  _type?: string
   seo?: Record<string, unknown>
 }
 
-export const calculateHealthScore = (doc: SeoDocument): SeoHealthMetrics => {
+/** Opt-in readability component for `calculateHealthScore`. */
+export interface HealthScoreReadabilityOptions {
+  /**
+   * Root document field(s) holding the body content — same shape as `ai.content` /
+   * `readability.content`. Defaults to `'body'`.
+   */
+  content?: string | string[] | Record<string, string | string[]>
+  /**
+   * Share of the 100-point score given to readability (0–50). Defaults to 10: the existing
+   * score is scaled to 90 points and readability contributes up to 10.
+   */
+  weight?: number
+  thresholds?: Partial<ReadabilityThresholds>
+}
+
+export interface HealthScoreOptions {
+  /**
+   * Include body-content readability in the score. **Off by default** so existing scores are
+   * unchanged. Documents with too little body text to analyse keep their original score.
+   */
+  readability?: boolean | HealthScoreReadabilityOptions
+}
+
+const applyReadability = (
+  doc: SeoDocument,
+  base: {score: number; issues: string[]},
+  option: boolean | HealthScoreReadabilityOptions,
+): {score: number; issues: string[]} => {
+  const opts = typeof option === 'object' ? option : {}
+  const weight = Math.min(50, Math.max(0, opts.weight ?? 10))
+  const fields = resolveContentFields(opts.content, doc._type)
+  const result = analyzeContentReadability(
+    extractDocBlocks(doc as Record<string, unknown>, fields),
+    {
+      thresholds: opts.thresholds,
+    },
+  )
+  if (!result || weight === 0) return base
+
+  const points = result.checks.reduce((acc, c) => {
+    if (c.status === 'good') return acc + 1
+    if (c.status === 'ok') return acc + 0.5
+    return acc
+  }, 0)
+  const ratio = points / result.checks.length
+  const score = Math.round((base.score * (100 - weight)) / 100 + weight * ratio)
+  const issues = [
+    ...base.issues,
+    ...result.checks
+      .filter((c) => c.status !== 'good')
+      .map((c) => `Readability — ${c.label}: ${c.value}`),
+  ]
+  return {score, issues}
+}
+
+/**
+ * Calculate the SEO health score (0–100) for a document.
+ *
+ * Pass `{readability: true}` (or an options object) to blend body-content readability into the
+ * score. Without options the score is exactly the same as in previous versions.
+ */
+export const calculateHealthScore = <T extends SeoDocument>(
+  doc: T,
+  options: HealthScoreOptions = {},
+): SeoHealthMetrics => {
   if (!doc.seo) {
     return {score: 0, status: 'missing', issues: ['SEO fields not configured']}
   }
@@ -225,6 +292,11 @@ export const calculateHealthScore = (doc: SeoDocument): SeoHealthMetrics => {
     if (!hasOgImage) missingImages.push('OG image')
     if (!hasTwitterImage) missingImages.push('Twitter image')
     issues.push(`Missing images for full score: ${missingImages.join(', ')}`)
+  }
+
+  if (options.readability) {
+    const blended = applyReadability(doc, {score, issues}, options.readability)
+    return {score: blended.score, status: getStatusCategory(blended.score), issues: blended.issues}
   }
 
   const status = getStatusCategory(score)
