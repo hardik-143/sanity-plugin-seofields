@@ -216,13 +216,15 @@ npx seofields report [options]
 
 **Options**
 
-| Flag                    | Description                                            |
-| ----------------------- | ------------------------------------------------------ |
-| `-p, --project-id <id>` | Sanity project ID                                      |
-| `-d, --dataset <name>`  | Dataset name (default: `production`)                   |
-| `-t, --token <token>`   | Sanity API token                                       |
-| `--types <types>`       | Comma-separated document types to include              |
-| `--format <format>`     | Output format: `table` or `summary` (default: `table`) |
+| Flag                    | Description                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| `-p, --project-id <id>` | Sanity project ID                                           |
+| `-d, --dataset <name>`  | Dataset name (default: `production`)                        |
+| `-t, --token <token>`   | Sanity API token                                            |
+| `--types <types>`       | Comma-separated document types to include                   |
+| `--format <format>`     | Output format: `table` or `summary` (default: `table`)      |
+| `--readability`         | Blend body-content readability into the score (opt-in)      |
+| `--content <fields>`    | Body field(s) analysed by `--readability` (default: `body`) |
 
 **Formats**
 
@@ -249,7 +251,18 @@ npx seofields report --types post,page
 
 # Print a summary instead of a full table
 npx seofields report --format summary
+
+# Include body readability in the score (reads `body`, or the fields you list)
+npx seofields report --readability --content intro,body
 ```
+
+**Readability (opt-in)**
+
+`--readability` runs the same English readability checks as the Studio panel (Flesch reading ease,
+long sentences, long paragraphs, passive voice, repeated sentence openings, subheading distribution)
+on the body field(s) and gives them 10 of the 100 points: the regular score is scaled to 90 and
+readability adds up to 10. Failing checks are listed as issues. Without the flag, scores are exactly
+the same as before. Documents with fewer than 25 words of body text keep their regular score.
 
 **Connection info**
 
@@ -260,6 +273,68 @@ Enable `showConnectionInfo: true` in your `defineSeoCli()` config to print a foo
   Dataset:  production  (from seofields.cli.ts)
   Token:    set         (from env: SANITY_WRITE_TOKEN)
 ```
+
+---
+
+### `seofields links`
+
+Finds broken links and dangling references across documents.
+
+```bash
+npx seofields links [options]
+```
+
+What is checked:
+
+- **Portable Text link annotations** — any `markDefs` entry with an `href`, and internal-link
+  annotations with a `reference`
+- **Document references** anywhere in the document (`{_ref}`) — reported when the referenced
+  document does not exist, or only exists as a draft. Image/file asset references and
+  cross-dataset references are skipped; weak references to deleted documents are warnings.
+- **SEO URL fields** — canonical URL, Open Graph URL and image URL, X image URL, hreflang URLs
+- **Other URL fields** named `href`, `url`, `link`, `*Url` or `*Href` (buttons, CTAs, …)
+
+External URLs are checked from your machine with `HEAD`, falling back to `GET` when `HEAD` fails or
+returns an error (many servers mishandle `HEAD`). Redirects are followed (up to 5), each request has
+a timeout, and at most `--concurrency` requests run at once. `401`/`403`/`429` responses are reported
+as warnings (the site may simply block automated requests), `404`/`410`/other `4xx` and `5xx` as
+broken. Requests to private, loopback and link-local addresses are skipped unless you pass
+`--allow-private`.
+
+**Options**
+
+| Flag                    | Description                                                         |
+| ----------------------- | ------------------------------------------------------------------- |
+| `-p, --project-id <id>` | Sanity project ID                                                   |
+| `-d, --dataset <name>`  | Dataset name                                                        |
+| `-t, --token <token>`   | Sanity API token (needed to see drafts and private datasets)        |
+| `--types <types>`       | Comma-separated document types (default: documents with `seo`)      |
+| `--id <ids>`            | Comma-separated document IDs                                        |
+| `--base-url <url>`      | Resolve and check relative links (`/pricing`) against this site URL |
+| `--no-external`         | Only check document references                                      |
+| `--no-references`       | Only check URLs                                                     |
+| `--timeout <ms>`        | Per-request timeout (default: `8000`)                               |
+| `--concurrency <n>`     | Parallel HTTP requests (default: `5`)                               |
+| `--limit <n>`           | Maximum number of documents to scan                                 |
+| `--allow-private`       | Allow private / loopback addresses (e.g. a staging server)          |
+| `--format <format>`     | `table` or `json` (default: `table`)                                |
+| `--fail-on-broken`      | Exit with code 1 when anything is broken — useful in CI             |
+
+**Examples**
+
+```bash
+# Check every document that has SEO fields
+npx seofields links --base-url https://example.com
+
+# Only blog posts, and fail the CI job when something is broken
+npx seofields links --types post --fail-on-broken
+
+# Machine-readable output
+npx seofields links --format json > links-report.json
+```
+
+> Without a token, drafts are invisible to the API, so references to draft-only documents are
+> reported as missing rather than unpublished.
 
 ---
 

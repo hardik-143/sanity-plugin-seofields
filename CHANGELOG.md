@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### ✨ Added
+
+- **Readability analysis for the document body.** A new **Readability** panel in `seoFields` analyses the main content, not just the meta description: Flesch reading-ease score and label, Flesch-Kincaid grade level, average sentence length, word and sentence counts, plus six checks — sentence length (≤ 25% over 20 words), paragraph length (≤ 150 words), passive voice (≤ 10%, estimated), three or more consecutive sentences starting with the same word, and subheading distribution (no more than 300 words without a heading). Reads Portable Text (headings from `h1`–`h6` styles), plain strings and nested objects. Configure with the new `readability` option — `content` (same shape as `ai.content`, falls back to `ai.content`, then `body`) and `thresholds` — or hide it with `readability: false`. The heuristics are written for English.
+  - **`analyzeContentReadability(blocks, options)`** and **`extractDocBlocks(doc, fields)`** are exported for use outside the Studio; `analyzeReadability` (used by the meta description) is unchanged.
+  - **Opt-in readability in the health score.** `calculateHealthScore(doc, {readability: true | {content, weight, thresholds}})` blends readability into the score (10 of 100 points by default) and lists failing checks as issues. Without the option, scores are exactly the same as before. `seofields report --readability [--content body]` does the same from the CLI.
+- **Broken-link checker.** A new **Link Checker** panel in `seoFields` finds Portable Text link annotations (`href` and internal-link `reference`), references to other documents, SEO URL fields (canonical, Open Graph URL / image URL, X image URL, hreflang) and `url` / `href` / `*Url` fields, then flags references to **missing** or **unpublished** documents. External URLs are checked through an optional server endpoint (`linkChecker.endpoint`), because browsers block cross-origin link checks; without one they are listed as not checked. Configure with `linkChecker: { endpoint, baseUrl, checkReferences }` or hide it with `linkChecker: false`.
+  - **`seofields links`** — new CLI command that checks every document's links from your machine: HEAD with GET fallback, redirect following, per-request timeout, concurrency limit, `--base-url` for relative links, `--format json`, and `--fail-on-broken` for CI. `401`/`403`/`429` are reported as warnings, `404`/`410`/other `4xx`/`5xx` as broken.
+  - **`createSeoLinkCheckHandler`**, **`createLinkCheckFetchHandler`** and **`createLinkCheckNextRouteHandler`** in `sanity-plugin-seofields/server` — the endpoint behind `linkChecker.endpoint`, with SSRF protection: http/https only, no embedded credentials, and no private, loopback, link-local, CGNAT, multicast or reserved destinations, checked for every redirect hop. Optional `authorize`, `cors`, `maxUrls` and `resolveHost` (for runtimes without `node:dns`).
+  - **`extractDocumentLinks`**, **`classifyHref`** and **`checkReferences`** are exported from the main entry; **`checkUrl`**, **`checkUrls`**, **`assertPublicUrl`** and **`isPrivateAddress`** from `/server`.
+
+### 🔧 Changed
+
+- **New panels are on by default.** Like the GEO checklist, the Readability and Link Checker panels appear in `seoFields` after upgrading. Turn them off with `readability: false` / `linkChecker: false`, per document type with `fieldVisibility` (`hiddenFields: ['readability', 'linkChecker']`), or move them with `fieldGroups`.
+
+---
+
 ## [1.12.0] — 2026-09-13
 
 ### ✨ Added

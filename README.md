@@ -20,6 +20,10 @@
 - Complete `seoFields` object type for title, description, canonical URL, keywords, meta image, robots, Open Graph, X/Twitter, hreflang, and custom meta tags
 - Live SEO preview inside Sanity Studio
 - Optional SEO Health Dashboard for document audits and CSV/JSON exports
+- Readability analysis of the document body: Flesch score, grade level, sentence and paragraph
+  length, passive voice, repeated sentence openings and subheading distribution
+- Broken-link checker for Portable Text links, document references and SEO URLs, in Studio and
+  from the CLI (`seofields links`)
 - AI-assisted SEO copy generation with server-side proxy helpers
 - Schema.org JSON-LD schema types and React/Next.js render helpers
 - Framework-neutral head helpers for Next.js, Astro, Nuxt, Vue, SvelteKit, Remix, and custom renderers
@@ -107,6 +111,90 @@ For Astro, Nuxt, Vue, SvelteKit, Remix, or custom renderers, use `buildSeoHead()
 
 Full guide: [Frontend integration](https://sanity-plugin-seofields.thehardik.in/docs/frontend-integration)
 
+## Readability analysis
+
+The `seoFields` object includes a **Readability** panel that analyses the document's main content —
+not just the meta description. It shows the Flesch reading-ease score and label, the
+Flesch-Kincaid grade level, average sentence length, word/sentence counts, and these checks:
+
+| Check                   | Passes when                                         |
+| :---------------------- | :-------------------------------------------------- |
+| Flesch reading ease     | Score is 50 or higher                               |
+| Sentence length         | At most 25% of sentences have more than 20 words    |
+| Paragraph length        | No paragraph is longer than 150 words               |
+| Passive voice           | At most 10% of sentences look passive (estimate)    |
+| Consecutive sentences   | No 3+ sentences in a row start with the same word   |
+| Subheading distribution | No more than 300 words of text without a subheading |
+
+It reads Portable Text (headings come from `h1`–`h6` styles), plain strings and nested objects. By
+default it analyses the `body` field (or `ai.content` if you set it); point it at your own fields
+with the same shape as `ai.content`:
+
+```ts
+seofields({
+  readability: {
+    content: {post: 'body', page: ['intro', 'sections'], default: 'body'},
+    thresholds: {longSentenceWords: 25}, // optional
+  },
+  // readability: false — hide the panel
+})
+```
+
+The heuristics (syllable counting, sentence splitting, passive-voice detection) are written for
+**English** and are much less reliable for other languages.
+
+Readability does **not** change the SEO health score unless you opt in, so existing scores stay the
+same. Opt in with `calculateHealthScore(doc, {readability: true})` or
+`npx seofields report --readability`; readability then contributes 10 of the 100 points.
+`analyzeContentReadability()` and `extractDocBlocks()` are exported if you want to run the analysis
+yourself.
+
+## Broken-link checker
+
+The **Link Checker** panel in `seoFields` finds every link in the document — Portable Text link
+annotations, internal-link annotations, references to other documents, URL fields such as the
+canonical URL, Open Graph URL and hreflang URLs, and fields named `url` / `href` / `*Url`. Click
+**Check links** to:
+
+- flag references to documents that **don't exist** or are **not published** (checked with the
+  Studio's own client);
+- check external URLs for `4xx`/`5xx` responses and network errors — **only if you configure an
+  endpoint**. Browsers block cross-origin link checks (CORS), so external checks must run on a
+  server. Without an endpoint, external links are listed as not checked.
+
+Add the endpoint with the handler from `sanity-plugin-seofields/server`. It checks URLs with HEAD
+(falling back to GET), a timeout, a concurrency limit and redirect following, and blocks requests to
+private, loopback and link-local addresses and to anything other than http/https (SSRF protection):
+
+```ts
+// app/api/seo-links/route.ts (Next.js App Router)
+import {createLinkCheckNextRouteHandler} from 'sanity-plugin-seofields/server'
+
+export const {POST, OPTIONS} = createLinkCheckNextRouteHandler(
+  {maxUrls: 50, timeoutMs: 8000},
+  {cors: 'https://my-studio.sanity.studio'},
+)
+```
+
+```ts
+seofields({
+  baseUrl: 'https://example.com', // used to resolve relative links like /pricing
+  linkChecker: {endpoint: 'https://example.com/api/seo-links'},
+  // linkChecker: false — hide the panel
+})
+```
+
+`createLinkCheckFetchHandler` works on any Fetch API runtime. On runtimes without `node:dns`
+(Cloudflare Workers, for example) pass `resolveHost` so the SSRF guard can resolve hostnames. Use
+the `authorize` option to restrict who can call the endpoint.
+
+To audit a whole dataset — or run the check in CI — use the CLI, which checks external URLs from
+your machine:
+
+```bash
+npx seofields links --base-url https://example.com --fail-on-broken
+```
+
 ## Search Console and GA4 document view
 
 > **Paid feature.** The implementation ships in `seofields-pro`, which is installed
@@ -172,7 +260,7 @@ refresh tokens, or service-account keys to the Studio configuration.
 | :------------------------------------ | :----------------------------------------------------------- |
 | `sanity-plugin-seofields`             | Studio plugin, schema types, dashboard helpers, shared types |
 | `sanity-plugin-seofields/head`        | Framework-neutral SEO helpers                                |
-| `sanity-plugin-seofields/server`      | Server-side AI proxy adapters                                |
+| `sanity-plugin-seofields/server`      | Server-side AI proxy and link-check handlers                 |
 | `sanity-plugin-seofields/next`        | Next.js metadata helpers and React meta tags                 |
 | `sanity-plugin-seofields/schema`      | Schema.org Sanity schema plugins                             |
 | `sanity-plugin-seofields/schema/next` | Schema.org React JSON-LD components                          |
