@@ -17,7 +17,13 @@ import MetaImage from '../components/meta/MetaImage'
 import MetaTagsPreview from '../components/meta/MetaTagsPreview'
 import MetaTitle from '../components/meta/MetaTitle'
 import {SeoPerformanceUpgradeCard} from '../performanceStub'
-import type {SeoFieldGroup, SeoFieldsPluginConfig, SeoObjectFieldName} from '../plugin'
+import type {
+  LinkCheckerConfig,
+  ReadabilityConfig,
+  SeoFieldGroup,
+  SeoFieldsPluginConfig,
+  SeoObjectFieldName,
+} from '../plugin'
 import {
   getFieldHiddenFunction,
   getFieldInfo,
@@ -32,6 +38,13 @@ import twitter from './types/twitter'
 const LazySeoPreview = lazy(() => import('../components/SeoPreview'))
 const SeoPreviewWrapper = (props: StringInputProps) =>
   createElement(Suspense, {fallback: null}, createElement(LazySeoPreview, props))
+// Readability + link checker panels are lazy for the same reason (they use @sanity/ui).
+const LazyReadabilityPanel = lazy(() => import('../components/readability/ReadabilityPanel'))
+const ReadabilityPanelWrapper = (props: StringInputProps) =>
+  createElement(Suspense, {fallback: null}, createElement(LazyReadabilityPanel, props))
+const LazyLinkCheckerPanel = lazy(() => import('../components/links/LinkCheckerPanel'))
+const LinkCheckerPanelWrapper = (props: StringInputProps) =>
+  createElement(Suspense, {fallback: null}, createElement(LazyLinkCheckerPanel, props))
 // The summary input is a paid feature living in `seofields-pro`. Keep the
 // dynamic import: it keeps the pro bundle out of the schema module graph, which
 // `sanity schema extract` walks statically, and it lets a Studio without the pro
@@ -194,6 +207,79 @@ function buildMetaTagsPreviewField(
   ]
 }
 
+/** Resolve `readability` plugin option; `null` when the panel is disabled. */
+export function resolveReadabilityConfig(config: SeoFieldsPluginConfig): ReadabilityConfig | null {
+  const option = config.readability
+  if (option === false) return null
+  const obj = typeof option === 'object' && option ? option : {}
+  if (obj.enabled === false) return null
+  return {
+    content: obj.content ?? config.ai?.content,
+    ...(obj.thresholds ? {thresholds: obj.thresholds} : {}),
+  }
+}
+
+/** Resolve `linkChecker` plugin option; `null` when the panel is disabled. */
+export function resolveLinkCheckerConfig(config: SeoFieldsPluginConfig): LinkCheckerConfig | null {
+  const option = config.linkChecker
+  if (option === false) return null
+  const obj = typeof option === 'object' && option ? option : {}
+  if (obj.enabled === false) return null
+  const baseUrl = obj.baseUrl ?? config.baseUrl
+  return {
+    ...(obj.endpoint ? {endpoint: obj.endpoint} : {}),
+    ...(baseUrl ? {baseUrl} : {}),
+    checkReferences: obj.checkReferences !== false,
+  }
+}
+
+function buildReadabilityField(
+  config: SeoFieldsPluginConfig,
+  fieldGroupMap: Map<SeoObjectFieldName, string[]> | undefined,
+): FieldDefinition[] {
+  const readability = resolveReadabilityConfig(config)
+  if (!readability) return []
+  return [
+    withGroup(
+      defineField({
+        name: 'readability',
+        ...getFieldInfo('readability', config.fieldOverrides),
+        type: 'string',
+        readOnly: true,
+        components: {input: ReadabilityPanelWrapper},
+        options: {readability} as Record<string, unknown>,
+        hidden: getFieldHiddenFunction('readability', config),
+      }),
+      fieldGroupMap,
+    ),
+  ]
+}
+
+function buildLinkCheckerField(
+  config: SeoFieldsPluginConfig,
+  fieldGroupMap: Map<SeoObjectFieldName, string[]> | undefined,
+): FieldDefinition[] {
+  const linkChecker = resolveLinkCheckerConfig(config)
+  if (!linkChecker) return []
+  return [
+    withGroup(
+      defineField({
+        name: 'linkChecker',
+        ...getFieldInfo('linkChecker', config.fieldOverrides),
+        type: 'string',
+        readOnly: true,
+        components: {input: LinkCheckerPanelWrapper},
+        options: {
+          linkChecker,
+          ...(config.apiVersion ? {apiVersion: config.apiVersion} : {}),
+        } as Record<string, unknown>,
+        hidden: getFieldHiddenFunction('linkChecker', config),
+      }),
+      fieldGroupMap,
+    ),
+  ]
+}
+
 export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): SchemaTypeDefinition {
   const groupsCfg = config.fieldGroups
   const fieldGroupMap = groupsCfg?.length ? buildFieldGroupMap(groupsCfg) : undefined
@@ -350,6 +436,8 @@ export default function seoFieldsSchema(config: SeoFieldsPluginConfig = {}): Sch
         fieldGroupMap,
       ),
       ...buildGeoChecklistField(config, fieldGroupMap),
+      ...buildReadabilityField(config, fieldGroupMap),
+      ...buildLinkCheckerField(config, fieldGroupMap),
       ...buildMetaTagsPreviewField(config, fieldGroupMap),
       ...(config.seoPerformance &&
       config.seoPerformance.enabled !== false &&

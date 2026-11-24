@@ -132,6 +132,14 @@ const DEFAULT_FIELD_INFO: Record<AllFieldKeys, {title: string; description: stri
     title: 'Meta Tags Preview',
     description: 'Preview the full HTML <head> meta tags generated for this page.',
   },
+  readability: {
+    title: 'Readability',
+    description: 'Readability analysis of the main content (English heuristics).',
+  },
+  linkChecker: {
+    title: 'Link Checker',
+    description: 'Find broken links and references to missing or unpublished documents.',
+  },
 }
 
 export const getFieldInfo = (
